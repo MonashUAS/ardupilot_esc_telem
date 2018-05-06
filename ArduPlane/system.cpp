@@ -24,6 +24,14 @@ void Plane::init_ardupilot()
 
     ins.set_log_raw_bit(MASK_LOG_IMU_RAW);
 
+    // initialise rc channels including setting mode
+#if HAL_QUADPLANE_ENABLED
+    rc().convert_options(RC_Channel::AUX_FUNC::ARMDISARM_UNUSED, (quadplane.enabled() && (quadplane.options & QuadPlane::OPTION_AIRMODE_UNUSED) && (rc().find_channel_for_option(RC_Channel::AUX_FUNC::AIRMODE) == nullptr)) ? RC_Channel::AUX_FUNC::ARMDISARM_AIRMODE : RC_Channel::AUX_FUNC::ARMDISARM);
+#else
+    rc().convert_options(RC_Channel::AUX_FUNC::ARMDISARM_UNUSED, RC_Channel::AUX_FUNC::ARMDISARM);
+#endif
+    g2.rc_channels.init();
+
     // setup any board specific drivers
     BoardConfig.init();
 
@@ -33,14 +41,6 @@ void Plane::init_ardupilot()
 
     rollController.convert_pid();
     pitchController.convert_pid();
-
-    // initialise rc channels including setting mode
-#if HAL_QUADPLANE_ENABLED
-    rc().convert_options(RC_Channel::AUX_FUNC::ARMDISARM_UNUSED, (quadplane.enabled() && (quadplane.options & QuadPlane::OPTION_AIRMODE_UNUSED) && (rc().find_channel_for_option(RC_Channel::AUX_FUNC::AIRMODE) == nullptr)) ? RC_Channel::AUX_FUNC::ARMDISARM_AIRMODE : RC_Channel::AUX_FUNC::ARMDISARM);
-#else
-    rc().convert_options(RC_Channel::AUX_FUNC::ARMDISARM_UNUSED, RC_Channel::AUX_FUNC::ARMDISARM);
-#endif
-    rc().init();
 
     relay.init();
 
@@ -91,9 +91,7 @@ void Plane::init_ardupilot()
     gps.set_log_gps_bit(MASK_LOG_GPS);
     gps.init(serial_manager);
 
-    init_rc_in();               // sets up rc channels from radio
-
-#if HAL_MOUNT_ENABLED
+#if HAL_MOUNT_ENABLED == ENABLED
     // initialise camera mount
     camera_mount.init();
 #endif
