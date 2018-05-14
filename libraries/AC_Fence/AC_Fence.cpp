@@ -3,6 +3,12 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_HAL/AP_HAL.h>
 
+#if AC_FENCE
+#error "will compile fence in"
+#else
+#error "will not compile fence in"
+#endif
+
 extern const AP_HAL::HAL& hal;
 
 #if APM_BUILD_TYPE(APM_BUILD_APMrover2)

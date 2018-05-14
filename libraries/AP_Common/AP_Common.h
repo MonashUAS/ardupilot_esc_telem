@@ -23,6 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <config_libraries.h>
+
 // used to pack structures
 #define PACKED __attribute__((__packed__))
 

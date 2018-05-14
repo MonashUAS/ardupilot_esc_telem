@@ -69,9 +69,12 @@ def _depends_on_vehicle(bld, source_node):
     return _depends_on_vehicle_cache[path]
 
 @conf
-def ap_library(bld, library, vehicle):
+def ap_library(bld, library, vehicle, libraries_config_dir):
+    print("vehicle: %s (%s)" % (vehicle, libraries_config_dir))
+
     try:
         common_tg = bld.get_tgen_by_name(_common_tgen_name(library))
+        common_tg.ap_vehicle = vehicle
     except Errors.WafError:
         common_tg = None
 
@@ -103,7 +106,9 @@ def ap_library(bld, library, vehicle):
             name=_common_tgen_name(library),
             source=[s for s in src if not _depends_on_vehicle(bld, s)],
             idx=0,
+            libraries_config_dir = libraries_config_dir,
         )
+        print("x=%s" % kw["libraries_config_dir"])
         bld.objects(**kw)
 
     if not vehicle_tg:
@@ -119,8 +124,22 @@ def ap_library(bld, library, vehicle):
             source=source,
             defines=ap.get_legacy_defines(vehicle),
             idx=_vehicle_index(vehicle),
+            libraries_config_dir = libraries_config_dir,
         )
         bld.objects(**kw)
+
+@feature('ap_library_object')
+@before_method('apply_incpaths')
+def add_vehicle_dir_to_includes(self):
+    bld = self.bld
+    vehicle = getattr(self, 'ap_vehicle', None)
+    self.includes = Utils.to_list(getattr(self, "includes", []))
+    d = getattr(self, "libraries_config_dir", None)
+    print("d: %s" % d)
+#    x.append("/home/pbarker/rc/ardupilot/ArduCopter")
+#    self.includes.append("/home/pbarker/rc/ardupilot/ArduCopter")
+    if d is not None:
+        self.includes.append(d)
 
 @before_method('process_use')
 @feature('cxxstlib')

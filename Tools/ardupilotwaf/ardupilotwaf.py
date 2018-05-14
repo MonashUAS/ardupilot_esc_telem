@@ -287,8 +287,12 @@ def ap_stlib(bld, **kw):
         bld.fatal('Missing ap_libraries for ap_stlib')
 
     kw['ap_libraries'] = unique_list(kw['ap_libraries'] + bld.env.AP_LIBRARIES)
+    libraries_config_dir = kw.get('libraries_config_dir', None)
+    if libraries_config_dir is not None:
+        libraries_config_dir = bld.srcnode.find_dir(libraries_config_dir)
+    print("c=%s" % libraries_config_dir)
     for l in kw['ap_libraries']:
-        bld.ap_library(l, kw['ap_vehicle'])
+        bld.ap_library(l, kw['ap_vehicle'], libraries_config_dir)
 
     kw['features'] = kw.get('features', []) + ['cxx', 'cxxstlib']
     kw['target'] = kw['name']

@@ -6,6 +6,8 @@ def build(bld):
     bld.ap_stlib(
         name=vehicle + '_libs',
         ap_vehicle=vehicle,
+        libraries_config_dir="%s" % vehicle,
+        features=["cxx"],
         ap_libraries=bld.ap_common_vehicle_libraries() + [
             'AC_AttitudeControl',
             'AC_InputManager',
