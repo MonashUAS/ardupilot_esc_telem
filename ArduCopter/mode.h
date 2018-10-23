@@ -271,6 +271,7 @@ private:
 
 
 class ModeAuto : public Mode {
+    friend class AP_Mission_Copter;
 
 public:
     // inherit constructor
@@ -315,10 +316,7 @@ public:
     // for GCS_MAVLink to call:
     bool do_guided(const AP_Mission::Mission_Command& cmd);
 
-    AP_Mission mission{
-        FUNCTOR_BIND_MEMBER(&Copter::ModeAuto::start_command, bool, const AP_Mission::Mission_Command &),
-        FUNCTOR_BIND_MEMBER(&Copter::ModeAuto::verify_command, bool, const AP_Mission::Mission_Command &),
-        FUNCTOR_BIND_MEMBER(&Copter::ModeAuto::exit_mission, void)};
+    AP_Mission_Copter mission;
 
 protected:
 

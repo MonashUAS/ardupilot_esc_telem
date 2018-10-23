@@ -257,9 +257,9 @@ void AP_Mission::update()
     }
 }
 
-bool AP_Mission::verify_command(const Mission_Command& cmd)
+bool AP_Mission::do_cmd_is_complete() const
 {
-    switch (cmd.id) {
+    switch (_do_cmd.id) {
         // do-commands always return true for verify:
     case MAV_CMD_DO_GRIPPER:
     case MAV_CMD_DO_SET_SERVO:
@@ -272,29 +272,35 @@ bool AP_Mission::verify_command(const Mission_Command& cmd)
     case MAV_CMD_DO_PARACHUTE:
         return true;
     default:
-        return _cmd_verify_fn(cmd);
+#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+        AP_HAL::panic("Unhandled DO command");
+#endif
+        return true;
     }
 }
 
-bool AP_Mission::start_command(const Mission_Command& cmd)
+bool AP_Mission::start_do_cmd()
 {
-    switch (cmd.id) {
+    switch (_do_cmd.id) {
     case MAV_CMD_DO_GRIPPER:
-        return start_command_do_gripper(cmd);
+        return start_command_do_gripper();
     case MAV_CMD_DO_SET_SERVO:
     case MAV_CMD_DO_SET_RELAY:
     case MAV_CMD_DO_REPEAT_SERVO:
     case MAV_CMD_DO_REPEAT_RELAY:
-        return start_command_do_servorelayevents(cmd);
+        return start_command_do_servorelayevents();
     case MAV_CMD_DO_CONTROL_VIDEO:
     case MAV_CMD_DO_DIGICAM_CONFIGURE:
     case MAV_CMD_DO_DIGICAM_CONTROL:
     case MAV_CMD_DO_SET_CAM_TRIGG_DIST:
-        return start_command_camera(cmd);
+        return start_command_camera();
     case MAV_CMD_DO_PARACHUTE:
-        return start_command_parachute(cmd);
+        return start_command_parachute();
     default:
-        return _cmd_start_fn(cmd);
+#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+        AP_HAL::panic("Unhandled DO command");
+#endif
+        return false;
     }
 }
 

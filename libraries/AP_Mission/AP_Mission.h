@@ -481,8 +481,11 @@ protected:
     virtual bool start_nav_cmd();
     virtual bool nav_cmd_is_complete() const;
 
-    virtual void start_do_cmd();
+    virtual bool start_do_cmd();
     virtual bool do_cmd_is_complete() const;
+
+    struct Mission_Command  _nav_cmd;   // current "navigation" command.  It's position in the command list is held in _nav_cmd.index
+    struct Mission_Command  _do_cmd;    // current "do" command.  It's position in the command list is held in _do_cmd.index
 
 private:
     static AP_Mission *_singleton;
@@ -552,8 +555,6 @@ private:
     AP_Int16                _options;    // bitmask options for missions, currently for mission clearing on reboot but can be expanded as required
 
     // internal variables
-    struct Mission_Command  _nav_cmd;   // current "navigation" command.  It's position in the command list is held in _nav_cmd.index
-    struct Mission_Command  _do_cmd;    // current "do" command.  It's position in the command list is held in _do_cmd.index
     uint16_t                _prev_nav_cmd_id;       // id of the previous "navigation" command. (WAYPOINT, LOITER_TO_ALT, ect etc)
     uint16_t                _prev_nav_cmd_index;    // index of the previous "navigation" command.  Rarely used which is why we don't store the whole command
     uint16_t                _prev_nav_cmd_wp_index; // index of the previous "navigation" command that contains a waypoint.  Rarely used which is why we don't store the whole command
@@ -572,10 +573,10 @@ private:
     static HAL_Semaphore_Recursive _rsem;
 
     // mission items common to all vehicles:
-    bool start_command_do_gripper(const AP_Mission::Mission_Command& cmd);
-    bool start_command_do_servorelayevents(const AP_Mission::Mission_Command& cmd);
-    bool start_command_camera(const AP_Mission::Mission_Command& cmd);
-    bool start_command_parachute(const AP_Mission::Mission_Command& cmd);
+    bool start_command_do_gripper();
+    bool start_command_do_servorelayevents();
+    bool start_command_camera();
+    bool start_command_parachute();
 };
 
 namespace AP {

@@ -393,104 +393,93 @@ void Copter::ModeAuto::payload_place_start()
 }
 
 // start_command - this function will be called when the ap_mission lib wishes to start a new command
-bool Copter::ModeAuto::start_command(const AP_Mission::Mission_Command& cmd)
+bool AP_Mission_Copter::start_nav_cmd()
 {
     // To-Do: logging when new commands start/end
     if (copter.should_log(MASK_LOG_CMD)) {
-        copter.logger.Write_Mission_Cmd(mission, cmd);
+        copter.logger.Write_Mission_Cmd(*this, _nav_cmd);
     }
+
+    const struct Mission_Command  &cmd = _nav_cmd;
 
     switch(cmd.id) {
 
-    ///
-    /// navigation commands
-    ///
     case MAV_CMD_NAV_TAKEOFF:                   // 22
-        do_takeoff(cmd);
-        break;
+        return do_takeoff();
 
     case MAV_CMD_NAV_WAYPOINT:                  // 16  Navigate to Waypoint
-        do_nav_wp(cmd);
-        break;
+        return do_nav_wp();
 
     case MAV_CMD_NAV_LAND:              // 21 LAND to Waypoint
-        do_land(cmd);
-        break;
+        return do_land();
 
     case MAV_CMD_NAV_LOITER_UNLIM:              // 17 Loiter indefinitely
-        do_loiter_unlimited(cmd);
-        break;
+        return do_loiter_unlimited();
 
     case MAV_CMD_NAV_LOITER_TURNS:              //18 Loiter N Times
-        do_circle(cmd);
-        break;
+        return do_circle(cmd);
 
     case MAV_CMD_NAV_LOITER_TIME:              // 19
-        do_loiter_time(cmd);
-        break;
+        return do_loiter_time();
 
     case MAV_CMD_NAV_LOITER_TO_ALT:
-        do_loiter_to_alt(cmd);
-        break;
+        return do_loiter_to_alt();
 
     case MAV_CMD_NAV_RETURN_TO_LAUNCH:             //20
-        do_RTL();
-        break;
+        return do_RTL();
 
     case MAV_CMD_NAV_SPLINE_WAYPOINT:           // 82  Navigate to Waypoint using spline
-        do_spline_wp(cmd);
-        break;
+        return do_spline_wp();
 
 #if NAV_GUIDED == ENABLED
     case MAV_CMD_NAV_GUIDED_ENABLE:             // 92  accept navigation commands from external nav computer
-        do_nav_guided_enable(cmd);
-        break;
+        return do_nav_guided_enable();
 #endif
 
     case MAV_CMD_NAV_DELAY:                    // 93 Delay the next navigation command
-        do_nav_delay(cmd);
-        break;
+        return do_nav_delay(cmd);
 
     case MAV_CMD_NAV_PAYLOAD_PLACE:              // 94 place at Waypoint
-        do_payload_place(cmd);
-        break;
+        return do_payload_place();
 
     //
     // conditional commands
     //
     case MAV_CMD_CONDITION_DELAY:             // 112
-        do_wait_delay(cmd);
-        break;
+        return do_wait_delay();
 
     case MAV_CMD_CONDITION_DISTANCE:             // 114
-        do_within_distance(cmd);
-        break;
+        return do_within_distance();
 
     case MAV_CMD_CONDITION_YAW:             // 115
-        do_yaw(cmd);
-        break;
+        return do_yaw();
 
-    ///
-    /// do commands
-    ///
+    default:
+        return AP_Mission::start_nav_command();
+    }
+}
+
+bool AP_Mission_Copter::start_do_cmd()
+{
+    if (copter.should_log(MASK_LOG_CMD)) {
+        copter.logger.Write_Mission_Cmd(*this, _do_cmd);
+    }
+
+    switch(_do_cmd.id) {
     case MAV_CMD_DO_CHANGE_SPEED:             // 178
-        do_change_speed(cmd);
-        break;
+        return do_change_speed();
 
     case MAV_CMD_DO_SET_HOME:             // 179
-        do_set_home(cmd);
-        break;
+        return do_set_home();
 
     case MAV_CMD_DO_SET_ROI:                // 201
         // point the copter and camera at a region of interest (ROI)
-        do_roi(cmd);
-        break;
+        return do_roi();
 
     case MAV_CMD_DO_MOUNT_CONTROL:          // 205
         // point the camera to a specified angle
-        do_mount_control(cmd);
-        break;
-    
+        return do_mount_control();
+
     case MAV_CMD_DO_FENCE_ENABLE:
 #if AC_FENCE == ENABLED
         if (cmd.p1 == 0) { //disable
@@ -501,27 +490,21 @@ bool Copter::ModeAuto::start_command(const AP_Mission::Mission_Command& cmd)
             gcs().send_text(MAV_SEVERITY_INFO, "Fence Enabled");
         }
 #endif //AC_FENCE == ENABLED
-        break;
+        return true;
 
 #if NAV_GUIDED == ENABLED
     case MAV_CMD_DO_GUIDED_LIMITS:                      // 220  accept guided mode limits
-        do_guided_limits(cmd);
-        break;
+        return do_guided_limits(cmd);
 #endif
 
 #if WINCH_ENABLED == ENABLED
     case MAV_CMD_DO_WINCH:                             // Mission command to control winch
-        do_winch(cmd);
-        break;
+        return do_winch(cmd);
 #endif
 
     default:
-        // unable to use the command, allow the vehicle to try the next command
-        return false;
+        return AP_Mission::start_do_command();
     }
-
-    // always return success
-    return true;
 }
 
 // exit_mission - function that is called once the mission completes
@@ -1069,10 +1052,10 @@ Location Copter::ModeAuto::terrain_adjusted_location(const AP_Mission::Mission_C
 /********************************************************************************/
 
 // do_takeoff - initiate takeoff navigation command
-void Copter::ModeAuto::do_takeoff(const AP_Mission::Mission_Command& cmd)
+void AP_Mission_Copter::do_takeoff()
 {
     // Set wp navigation target to safe altitude above current position
-    takeoff_start(cmd.content.location);
+    copter.mode_auto.takeoff_start(_nav_cmd.content.location);
 }
 
 Location Copter::ModeAuto::loc_from_cmd(const AP_Mission::Mission_Command& cmd) const
