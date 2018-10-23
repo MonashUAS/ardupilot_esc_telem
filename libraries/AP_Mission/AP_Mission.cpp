@@ -233,7 +233,7 @@ void AP_Mission::update()
         }
     }else{
         // run the active nav command
-        if (verify_command(_nav_cmd)) {
+        if (nav_cmd_is_complete()) {
             // market _nav_cmd as complete (it will be started on the next iteration)
             _flags.nav_cmd_loaded = false;
             // immediately advance to the next mission command
@@ -249,9 +249,9 @@ void AP_Mission::update()
     if (!_flags.do_cmd_loaded) {
         advance_current_do_cmd();
     }else{
-        // check the active do command
-        if (verify_command(_do_cmd)) {
-            // mark _do_cmd as complete
+        // run the active do command
+        if (do_cmd_is_complete()) {
+            // market _nav_cmd as complete (it will be started on the next iteration)
             _flags.do_cmd_loaded = false;
         }
     }
@@ -1448,9 +1448,6 @@ void AP_Mission::complete()
 {
     // flag mission as complete
     _flags.state = MISSION_COMPLETE;
-
-    // callback to main program's mission complete function
-    _mission_complete_fn();
 }
 
 /// advance_current_nav_cmd - moves current nav command forward
@@ -1506,7 +1503,7 @@ bool AP_Mission::advance_current_nav_cmd(uint16_t starting_index)
             }
             // set current navigation command and start it
             _nav_cmd = cmd;
-            if (start_command(_nav_cmd)) {
+            if (start_nav_cmd()) {
                 _flags.nav_cmd_loaded = true;
             }
         }else{
@@ -1514,7 +1511,7 @@ bool AP_Mission::advance_current_nav_cmd(uint16_t starting_index)
             if (!_flags.do_cmd_loaded) {
                 _do_cmd = cmd;
                 _flags.do_cmd_loaded = true;
-                start_command(_do_cmd);
+                start_do_cmd();
             } else {
                 // protect against endless loops of do-commands
                 if (max_loops-- == 0) {
@@ -1564,7 +1561,7 @@ void AP_Mission::advance_current_do_cmd()
     // set current do command and start it
     _do_cmd = cmd;
     _flags.do_cmd_loaded = true;
-    start_command(_do_cmd);
+    start_do_cmd();
 }
 
 /// get_next_cmd - gets next command found at or after start_index
