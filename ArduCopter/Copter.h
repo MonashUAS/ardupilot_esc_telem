@@ -46,7 +46,6 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_NavEKF2/AP_NavEKF2.h>
 #include <AP_NavEKF3/AP_NavEKF3.h>
-#include <AP_Mission/AP_Mission.h>     // Mission command library
 #include <AC_AttitudeControl/AC_AttitudeControl_Multi.h> // Attitude control library
 #include <AC_AttitudeControl/AC_AttitudeControl_Heli.h> // Attitude control library for traditional helicopter
 #include <AC_AttitudeControl/AC_PosControl.h>      // Position control library
@@ -88,6 +87,7 @@
 #include "GCS_Copter.h"
 #include "AP_Rally.h"           // Rally point library
 #include "AP_Arming.h"
+#include "AP_Mission.h"     // Mission command library
 
 // libraries which are dependent on #defines in defines.h and/or config.h
 #if BEACON_ENABLED == ENABLED
@@ -196,6 +196,7 @@ public:
     friend class AP_AdvancedFailsafe_Copter;
 #endif
     friend class AP_Arming_Copter;
+    friend class AP_Mission_Copter;
     friend class ToyMode;
     friend class RC_Channel_Copter;
     friend class RC_Channels_Copter;
@@ -266,6 +267,11 @@ private:
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     SITL::SITL sitl;
+#endif
+
+    // Mission library
+#if MODE_AUTO_ENABLED == ENABLED
+    AP_Mission_Copter mission;
 #endif
 
     // Arming/Disarming mangement class
