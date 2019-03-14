@@ -197,18 +197,22 @@ void ModeAuto::takeoff_start(const Location& dest_loc)
     dest.lat = copter.current_loc.lat;
     dest.lng = copter.current_loc.lng;
 
+    // note that this function can be called when we have absolutely
+    // no idea where we are or high we are.
+    const int32_t current_relative_alt = inertial_nav.get_altitude();
+
     // get altitude target
     int32_t alt_target;
     if (!dest.get_alt_cm(Location::AltFrame::ABOVE_HOME, alt_target)) {
         // this failure could only happen if take-off alt was specified as an alt-above terrain and we have no terrain data
         AP::logger().Write_Error(LogErrorSubsystem::TERRAIN, LogErrorCode::MISSING_TERRAIN_DATA);
         // fall back to altitude above current altitude
-        alt_target = copter.current_loc.alt + dest.alt;
+        alt_target = current_relative_alt + dest.alt;
     }
 
     // sanity check target
-    if (alt_target < copter.current_loc.alt) {
-        dest.set_alt_cm(copter.current_loc.alt, Location::AltFrame::ABOVE_HOME);
+    if (alt_target < current_relative_alt) {
+        dest.set_alt_cm(current_relative_alt, Location::AltFrame::ABOVE_HOME);
     }
     // Note: if taking off from below home this could cause a climb to an unexpectedly high altitude
     if (alt_target < 100) {
@@ -959,7 +963,7 @@ void ModeAuto::loiter_to_alt_run()
         _mode = SubMode::LOITER_TO_ALT;
         loiter_to_alt.loiter_start_done = true;
     }
-    const float alt_error_cm = copter.current_loc.alt - loiter_to_alt.alt;
+    const float alt_error_cm = copter.current_loc.safe_home_relative_alt() - loiter_to_alt.alt;
     if (fabsf(alt_error_cm) < 5.0) { // random numbers R US
         loiter_to_alt.reached_alt = true;
     } else if (alt_error_cm * loiter_to_alt.alt_error_cm < 0) {
@@ -1091,7 +1095,8 @@ Location ModeAuto::terrain_adjusted_location(const AP_Mission::Mission_Command& 
         target_loc.set_alt_cm(curr_terr_alt_cm, Location::AltFrame::ABOVE_TERRAIN);
     } else {
         // set target altitude to current altitude above home
-        target_loc.set_alt_cm(copter.current_loc.alt, Location::AltFrame::ABOVE_HOME);
+        target_loc.set_alt_cm(copter.current_loc.safe_home_relative_alt(),
+                              Location::AltFrame::ABOVE_HOME);
     }
     return target_loc;
 }
@@ -1126,6 +1131,10 @@ Location ModeAuto::loc_from_cmd(const AP_Mission::Mission_Command& cmd, const Lo
         } else {
             // default to default_loc's altitude and frame
             ret.set_alt_cm(default_loc.alt, default_loc.get_alt_frame());
+            OR
+            // default to current altitude as alt-above-home
+            ret.set_alt_cm(copter.current_loc.safe_home_relative_alt(),
+                           copter.current_loc.get_alt_frame());
         }
     }
     return ret;
@@ -1268,7 +1277,7 @@ void ModeAuto::do_loiter_unlimited(const AP_Mission::Mission_Command& cmd)
             target_loc.set_alt_cm(curr_alt, target_loc.get_alt_frame());
         } else {
             // default to current altitude as alt-above-home
-            target_loc.set_alt_cm(copter.current_loc.alt,
+            target_loc.set_alt_cm(copter.current_loc.safe_home_relative_alt(),
                                   copter.current_loc.get_alt_frame());
         }
     }

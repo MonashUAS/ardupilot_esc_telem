@@ -346,7 +346,7 @@ void ModeRTL::descent_run()
     attitude_control->input_thrust_vector_rate_heading(loiter_nav->get_thrust_vector(), target_yaw_rate);
 
     // check if we've reached within 20cm of final altitude
-    _state_complete = labs(rtl_path.descent_target.alt - copter.current_loc.alt) < 20;
+    _state_complete = labs(rtl_path.descent_target.alt - copter.current_loc.safe_home_relative_alt()) < 20;
 }
 
 // land_start - initialise controllers to loiter over home
@@ -443,7 +443,7 @@ void ModeRTL::compute_return_target()
 #endif
 
     // curr_alt is current altitude above home or above terrain depending upon use_terrain
-    int32_t curr_alt = copter.current_loc.alt;
+    int32_t curr_alt = copter.current_loc.safe_home_relative_alt();
 
     // determine altitude type of return journey (alt-above-home, alt-above-terrain using range finder or alt-above-terrain using terrain database)
     ReturnTargetAltType alt_type = ReturnTargetAltType::RELATIVE;

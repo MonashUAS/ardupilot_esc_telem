@@ -13,7 +13,7 @@ void Copter::init_precland()
 
 void Copter::update_precland()
 {
-    int32_t height_above_ground_cm = current_loc.alt;
+    int32_t height_above_ground_cm = 0;
 
     // use range finder altitude if it is valid, otherwise use home alt
     if (rangefinder_alt_ok()) {
