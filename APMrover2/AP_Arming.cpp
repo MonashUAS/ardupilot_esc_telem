@@ -5,7 +5,7 @@
 bool AP_Arming_Rover::rc_calibration_checks(const bool display_failure)
 {
     // set rc-checks to success if RC checks are disabled
-    if ((checks_to_perform != ARMING_CHECK_ALL) && !(checks_to_perform & ARMING_CHECK_RC)) {
+    if ((checks_to_perform != AP_Arming::Check::ALL) && !(checks_to_perform & AP_Arming::Check::RC)) {
         return true;
     }
 
@@ -20,11 +20,11 @@ bool AP_Arming_Rover::rc_calibration_checks(const bool display_failure)
         const char *channel_name = channel_names[i];
         // check if radio has been calibrated
         if (channel->get_radio_min() > 1300) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio min too high", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio min too high", channel_name);
             return false;
         }
         if (channel->get_radio_max() < 1700) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio max too low", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio max too low", channel_name);
             return false;
         }
     }
