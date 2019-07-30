@@ -79,11 +79,11 @@ bool AP_Arming_Plane::pre_arm_checks(bool display_failure)
         // ensure controllers are OK with us arming:
         char failure_msg[50];
         if (!plane.quadplane.pos_control->pre_arm_checks("PSC", failure_msg, ARRAY_SIZE(failure_msg))) {
-            check_failed(ARMING_CHECK_PARAMETERS, display_failure, "Bad parameter: %s", failure_msg);
+            check_failed(AP_Arming::Check::PARAMETERS, display_failure, "Bad parameter: %s", failure_msg);
             return false;
         }
         if (!plane.quadplane.attitude_control->pre_arm_checks("ATC", failure_msg, ARRAY_SIZE(failure_msg))) {
-            check_failed(ARMING_CHECK_PARAMETERS, display_failure, "Bad parameter: %s", failure_msg);
+            check_failed(AP_Arming::Check::PARAMETERS, display_failure, "Bad parameter: %s", failure_msg);
             return false;
         }
     }
@@ -115,14 +115,14 @@ bool AP_Arming_Plane::ins_checks(bool display_failure)
     }
 
     // additional plane specific checks
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_INS)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::INS)) {
         if (!AP::ahrs().prearm_healthy()) {
             const char *reason = AP::ahrs().prearm_failure_reason();
             if (reason == nullptr) {
                 reason = "AHRS not healthy";
             }
-            check_failed(ARMING_CHECK_INS, display_failure, "%s", reason);
+            check_failed(AP_Arming::Check::INS, display_failure, "%s", reason);
             return false;
         }
     }
