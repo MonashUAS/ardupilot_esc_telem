@@ -16,23 +16,23 @@ public:
 
     static AP_Arming *get_singleton();
 
-    enum ArmingChecks {
-        ARMING_CHECK_ALL         = (1U << 0),
-        ARMING_CHECK_BARO        = (1U << 1),
-        ARMING_CHECK_COMPASS     = (1U << 2),
-        ARMING_CHECK_GPS         = (1U << 3),
-        ARMING_CHECK_INS         = (1U << 4),
-        ARMING_CHECK_PARAMETERS  = (1U << 5),
-        ARMING_CHECK_RC          = (1U << 6),
-        ARMING_CHECK_VOLTAGE     = (1U << 7),
-        ARMING_CHECK_BATTERY     = (1U << 8),
-        ARMING_CHECK_AIRSPEED    = (1U << 9),
-        ARMING_CHECK_LOGGING     = (1U << 10),
-        ARMING_CHECK_SWITCH      = (1U << 11),
-        ARMING_CHECK_GPS_CONFIG  = (1U << 12),
-        ARMING_CHECK_SYSTEM      = (1U << 13),
-        ARMING_CHECK_MISSION     = (1U << 14),
-        ARMING_CHECK_RANGEFINDER = (1U << 15),
+    enum class Check {
+        ALL         = (1U << 0),
+        BARO        = (1U << 1),
+        COMPASS     = (1U << 2),
+        GPS         = (1U << 3),
+        INS         = (1U << 4),
+        PARAMETERS  = (1U << 5),
+        RC          = (1U << 6),
+        VOLTAGE     = (1U << 7),
+        BATTERY     = (1U << 8),
+        AIRSPEED    = (1U << 9),
+        LOGGING     = (1U << 10),
+        SWITCH      = (1U << 11),
+        GPS_CONFIG  = (1U << 12),
+        SYSTEM      = (1U << 13),
+        MISSION     = (1U << 14),
+        RANGEFINDER = (1U << 15),
     };
 
     enum class Method {
@@ -50,6 +50,10 @@ public:
     };
 
     void init(void);
+
+    enum ArmingFlags {
+        ARMING_FLAG_SUPPRESSPREARMNOTIFY = (1<<0),
+    };
 
     // these functions should not be used by Copter which holds the armed state in the motors library
     Required arming_required();
@@ -90,6 +94,8 @@ protected:
     AP_Float                accel_error_threshold;
     AP_Int8                 _rudder_arming;
     AP_Int32                 _required_mission_items;
+
+    AP_Int16                flags;
 
     // internal members
     bool                    armed;
@@ -134,11 +140,11 @@ protected:
     bool rc_checks_copter_sub(bool display_failure, const RC_Channel *channels[4]) const;
 
     // returns true if a particular check is enabled
-    bool check_enabled(const enum AP_Arming::ArmingChecks check) const;
+    bool check_enabled(const Check check) const;
     // returns a mavlink severity which should be used if a specific check fails
-    MAV_SEVERITY check_severity(const enum AP_Arming::ArmingChecks check) const;
+    MAV_SEVERITY check_severity(const Check check) const;
     // handle the case where a check fails
-    void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const FMT_PRINTF(4, 5);
+    void check_failed(const Check check, bool report, const char *fmt, ...) const FMT_PRINTF(4, 5);
     void check_failed(bool report, const char *fmt, ...) const FMT_PRINTF(3, 4);
 
     void Log_Write_Arm_Disarm();

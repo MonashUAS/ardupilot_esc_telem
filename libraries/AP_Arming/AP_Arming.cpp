@@ -110,7 +110,7 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
     // @Bitmask: 0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder
     // @Bitmask{Plane}: 0:All,1:Barometer,2:Compass,3:GPS lock,4:INS,5:Parameters,6:RC Channels,7:Board voltage,8:Battery Level,9:Airspeed,10:Logging Available,11:Hardware safety switch,12:GPS Configuration,13:System,14:Mission,15:Rangefinder
     // @User: Standard
-    AP_GROUPINFO("CHECK",        8,     AP_Arming,  checks_to_perform,       ARMING_CHECK_ALL),
+    AP_GROUPINFO("CHECK",        8,     AP_Arming,  checks_to_perform,       (float)AP_Arming::Check::ALL),
 
     AP_GROUPEND
 };
@@ -145,15 +145,15 @@ uint16_t AP_Arming::get_enabled_checks()
     return checks_to_perform;
 }
 
-bool AP_Arming::check_enabled(const enum AP_Arming::ArmingChecks check) const
+bool AP_Arming::check_enabled(const AP_Arming::Check check) const
 {
-    if (checks_to_perform & ARMING_CHECK_ALL) {
+    if (checks_to_perform & (uint32_t)AP_Arming::Check::ALL) {
         return true;
     }
-    return (checks_to_perform & check);
+    return (checks_to_perform & (uint32_t)check);
 }
 
-MAV_SEVERITY AP_Arming::check_severity(const enum AP_Arming::ArmingChecks check) const
+MAV_SEVERITY AP_Arming::check_severity(const AP_Arming::Check check) const
 {
     if (check_enabled(check)) {
         return MAV_SEVERITY_CRITICAL;
@@ -161,7 +161,7 @@ MAV_SEVERITY AP_Arming::check_severity(const enum AP_Arming::ArmingChecks check)
     return MAV_SEVERITY_DEBUG; // technically should be NOTICE, but will annoy users at that level
 }
 
-void AP_Arming::check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const
+void AP_Arming::check_failed(const AP_Arming::Check check, bool report, const char *fmt, ...) const
 {
     if (!report) {
         return;
@@ -190,10 +190,10 @@ void AP_Arming::check_failed(bool report, const char *fmt, ...) const
 
 bool AP_Arming::barometer_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_BARO)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::BARO)) {
         if (!AP::baro().all_healthy()) {
-            check_failed(ARMING_CHECK_BARO, report, "Barometer not healthy");
+            check_failed(AP_Arming::Check::BARO, report, "Barometer not healthy");
             return false;
         }
     }
@@ -203,8 +203,8 @@ bool AP_Arming::barometer_checks(bool report)
 
 bool AP_Arming::airspeed_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_AIRSPEED)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::AIRSPEED)) {
         const AP_Airspeed *airspeed = AP_Airspeed::get_singleton();
         if (airspeed == nullptr) {
             // not an airspeed capable vehicle
@@ -212,7 +212,7 @@ bool AP_Arming::airspeed_checks(bool report)
         }
         for (uint8_t i=0; i<AIRSPEED_MAX_SENSORS; i++) {
             if (airspeed->enabled(i) && airspeed->use(i) && !airspeed->healthy(i)) {
-                check_failed(ARMING_CHECK_AIRSPEED, report, "Airspeed %d not healthy", i + 1);
+                check_failed(AP_Arming::Check::AIRSPEED, report, "Airspeed %d not healthy", i + 1);
                 return false;
             }
         }
@@ -223,18 +223,18 @@ bool AP_Arming::airspeed_checks(bool report)
 
 bool AP_Arming::logging_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_LOGGING)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::LOGGING)) {
         if (!AP::logger().logging_present()) {
             // Logging is disabled, so nothing to check.
             return true;
         }
         if (AP::logger().logging_failed()) {
-            check_failed(ARMING_CHECK_LOGGING, report, "Logging failed");
+            check_failed(AP_Arming::Check::LOGGING, report, "Logging failed");
             return false;
         }
         if (!AP::logger().CardInserted()) {
-            check_failed(ARMING_CHECK_LOGGING, report, "No SD card");
+            check_failed(AP_Arming::Check::LOGGING, report, "No SD card");
             return false;
         }
     }
@@ -313,48 +313,48 @@ bool AP_Arming::ins_gyros_consistent(const AP_InertialSensor &ins)
 
 bool AP_Arming::ins_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_INS)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::INS)) {
         const AP_InertialSensor &ins = AP::ins();
         if (!ins.get_gyro_health_all()) {
-            check_failed(ARMING_CHECK_INS, report, "Gyros not healthy");
+            check_failed(AP_Arming::Check::INS, report, "Gyros not healthy");
             return false;
         }
         if (!ins.gyro_calibrated_ok_all()) {
-            check_failed(ARMING_CHECK_INS, report, "Gyros not calibrated");
+            check_failed(AP_Arming::Check::INS, report, "Gyros not calibrated");
             return false;
         }
         if (!ins.get_accel_health_all()) {
-            check_failed(ARMING_CHECK_INS, report, "Accels not healthy");
+            check_failed(AP_Arming::Check::INS, report, "Accels not healthy");
             return false;
         }
         if (!ins.accel_calibrated_ok_all()) {
-            check_failed(ARMING_CHECK_INS, report, "3D Accel calibration needed");
+            check_failed(AP_Arming::Check::INS, report, "3D Accel calibration needed");
             return false;
         }
         
         //check if accelerometers have calibrated and require reboot
         if (ins.accel_cal_requires_reboot()) {
-            check_failed(ARMING_CHECK_INS, report, "Accels calibrated requires reboot");
+            check_failed(AP_Arming::Check::INS, report, "Accels calibrated requires reboot");
             return false;
         }
 
         // check all accelerometers point in roughly same direction
         if (!ins_accels_consistent(ins)) {
-            check_failed(ARMING_CHECK_INS, report, "Accels inconsistent");
+            check_failed(AP_Arming::Check::INS, report, "Accels inconsistent");
             return false;
         }
 
         // check all gyros are giving consistent readings
         if (!ins_gyros_consistent(ins)) {
-            check_failed(ARMING_CHECK_INS, report, "Gyros inconsistent");
+            check_failed(AP_Arming::Check::INS, report, "Gyros inconsistent");
             return false;
         }
 
         // check AHRS attitudes are consistent
         char failure_msg[50] = {};
         if (!AP::ahrs().attitudes_consistent(failure_msg, ARRAY_SIZE(failure_msg))) {
-            check_failed(ARMING_CHECK_INS, report, "%s", failure_msg);
+            check_failed(AP_Arming::Check::INS, report, "%s", failure_msg);
             return false;
         }
     }
@@ -378,8 +378,8 @@ bool AP_Arming::compass_checks(bool report)
         return false;
     }
 
-    if ((checks_to_perform) & ARMING_CHECK_ALL ||
-        (checks_to_perform) & ARMING_CHECK_COMPASS) {
+    if ((checks_to_perform) & AP_Arming::Check::ALL ||
+        (checks_to_perform) & AP_Arming::Check::COMPASS) {
 
         // avoid Compass::use_for_yaw(void) as it implicitly calls healthy() which can
         // incorrectly skip the remaining checks, pass the primary instance directly
@@ -389,32 +389,32 @@ bool AP_Arming::compass_checks(bool report)
         }
 
         if (!_compass.healthy()) {
-            check_failed(ARMING_CHECK_COMPASS, report, "Compass not healthy");
+            check_failed(AP_Arming::Check::COMPASS, report, "Compass not healthy");
             return false;
         }
         // check compass learning is on or offsets have been set
         if (!_compass.learn_offsets_enabled() && !_compass.configured()) {
-            check_failed(ARMING_CHECK_COMPASS, report, "Compass not calibrated");
+            check_failed(AP_Arming::Check::COMPASS, report, "Compass not calibrated");
             return false;
         }
 
         // check for unreasonable compass offsets
         const Vector3f offsets = _compass.get_offsets();
         if (offsets.length() > _compass.get_offsets_max()) {
-            check_failed(ARMING_CHECK_COMPASS, report, "Compass offsets too high");
+            check_failed(AP_Arming::Check::COMPASS, report, "Compass offsets too high");
             return false;
         }
 
         // check for unreasonable mag field length
         const float mag_field = _compass.get_field().length();
         if (mag_field > AP_ARMING_COMPASS_MAGFIELD_MAX || mag_field < AP_ARMING_COMPASS_MAGFIELD_MIN) {
-            check_failed(ARMING_CHECK_COMPASS, report, "Check mag field");
+            check_failed(AP_Arming::Check::COMPASS, report, "Check mag field");
             return false;
         }
 
         // check all compasses point in roughly same direction
         if (!_compass.consistent()) {
-            check_failed(ARMING_CHECK_COMPASS, report, "Compasses inconsistent");
+            check_failed(AP_Arming::Check::COMPASS, report, "Compasses inconsistent");
             return false;
         }
     }
@@ -425,30 +425,30 @@ bool AP_Arming::compass_checks(bool report)
 bool AP_Arming::gps_checks(bool report)
 {
     const AP_GPS &gps = AP::gps();
-    if ((checks_to_perform & ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_GPS)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) || (checks_to_perform & AP_Arming::Check::GPS)) {
 
         //GPS OK?
         if (!AP::ahrs().home_is_set() ||
             gps.status() < AP_GPS::GPS_OK_FIX_3D) {
-            check_failed(ARMING_CHECK_GPS, report, "Bad GPS Position");
+            check_failed(AP_Arming::Check::GPS, report, "Bad GPS Position");
             return false;
         }
 
         //GPS update rate acceptable
         if (!gps.is_healthy()) {
-            check_failed(ARMING_CHECK_GPS, report, "GPS is not healthy");
+            check_failed(AP_Arming::Check::GPS, report, "GPS is not healthy");
             return false;
         }
 
         // check GPSs are within 50m of each other and that blending is healthy
         float distance_m;
         if (!gps.all_consistent(distance_m)) {
-            check_failed(ARMING_CHECK_GPS, report, "GPS positions differ by %4.1fm",
+            check_failed(AP_Arming::Check::GPS, report, "GPS positions differ by %4.1fm",
                          (double)distance_m);
             return false;
         }
         if (!gps.blend_health_check()) {
-            check_failed(ARMING_CHECK_GPS, report, "GPS blending unhealthy");
+            check_failed(AP_Arming::Check::GPS, report, "GPS blending unhealthy");
             return false;
         }
 
@@ -458,16 +458,16 @@ bool AP_Arming::gps_checks(bool report)
         if (AP::ahrs().get_position(ahrs_loc)) {
             const float distance = gps_loc.get_distance(ahrs_loc);
             if (distance > AP_ARMING_AHRS_GPS_ERROR_MAX) {
-                check_failed(ARMING_CHECK_GPS, report, "GPS and AHRS differ by %4.1fm", (double)distance);
+                check_failed(AP_Arming::Check::GPS, report, "GPS and AHRS differ by %4.1fm", (double)distance);
                 return false;
             }
         }
     }
 
-    if ((checks_to_perform & ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_GPS_CONFIG)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) || (checks_to_perform & AP_Arming::Check::GPS_CONFIG)) {
         uint8_t first_unconfigured;
         if (gps.first_unconfigured_gps(first_unconfigured)) {
-            check_failed(ARMING_CHECK_GPS_CONFIG,
+            check_failed(AP_Arming::Check::GPS_CONFIG,
                          report,
                          "GPS %d failing configuration checks",
                          first_unconfigured + 1);
@@ -483,12 +483,12 @@ bool AP_Arming::gps_checks(bool report)
 
 bool AP_Arming::battery_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_BATTERY)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::BATTERY)) {
 
         char buffer[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1] {};
         if (!AP::battery().arming_checks(sizeof(buffer), buffer)) {
-            check_failed(ARMING_CHECK_BATTERY, report, "%s", buffer);
+            check_failed(AP_Arming::Check::BATTERY, report, "%s", buffer);
             return false;
         }
      }
@@ -497,12 +497,12 @@ bool AP_Arming::battery_checks(bool report)
 
 bool AP_Arming::hardware_safety_check(bool report) 
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_SWITCH)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::SWITCH)) {
 
       // check if safety switch has been pushed
       if (hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED) {
-          check_failed(ARMING_CHECK_SWITCH, report, "Hardware safety switch");
+          check_failed(AP_Arming::Check::SWITCH, report, "Hardware safety switch");
           return false;
       }
     }
@@ -524,11 +524,11 @@ bool AP_Arming::rc_calibration_checks(bool report)
         }
         const uint16_t trim = c->get_radio_trim();
         if (c->get_radio_min() > trim) {
-            check_failed(ARMING_CHECK_RC, report, "RC%d minimum is greater than trim", i + 1);
+            check_failed(AP_Arming::Check::RC, report, "RC%d minimum is greater than trim", i + 1);
             check_passed = false;
         }
         if (c->get_radio_max() < trim) {
-            check_failed(ARMING_CHECK_RC, report, "RC%d maximum is less than trim", i + 1);
+            check_failed(AP_Arming::Check::RC, report, "RC%d maximum is less than trim", i + 1);
             check_passed = false;
         }
     }
@@ -538,11 +538,11 @@ bool AP_Arming::rc_calibration_checks(bool report)
 
 bool AP_Arming::manual_transmitter_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_RC)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::RC)) {
 
         if (AP_Notify::flags.failsafe_radio) {
-            check_failed(ARMING_CHECK_RC, report, "Radio failsafe on");
+            check_failed(AP_Arming::Check::RC, report, "Radio failsafe on");
             return false;
         }
 
@@ -556,11 +556,11 @@ bool AP_Arming::manual_transmitter_checks(bool report)
 
 bool AP_Arming::mission_checks(bool report)
 {
-    if (((checks_to_perform & ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_MISSION)) &&
+    if (((checks_to_perform & AP_Arming::Check::ALL) || (checks_to_perform & AP_Arming::Check::MISSION)) &&
         _required_mission_items) {
         AP_Mission *mission = AP::mission();
         if (mission == nullptr) {
-            check_failed(ARMING_CHECK_MISSION, report, "No mission library present");
+            check_failed(AP_Arming::Check::MISSION, report, "No mission library present");
             #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
                 AP_HAL::panic("Mission checks requested, but no mission was allocated");
             #endif // CONFIG_HAL_BOARD == HAL_BOARD_SITL
@@ -568,7 +568,7 @@ bool AP_Arming::mission_checks(bool report)
         }
         AP_Rally *rally = AP::rally();
         if (rally == nullptr) {
-            check_failed(ARMING_CHECK_MISSION, report, "No rally library present");
+            check_failed(AP_Arming::Check::MISSION, report, "No rally library present");
             #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
                 AP_HAL::panic("Mission checks requested, but no rally was allocated");
             #endif // CONFIG_HAL_BOARD == HAL_BOARD_SITL
@@ -589,7 +589,7 @@ bool AP_Arming::mission_checks(bool report)
         for (uint8_t i = 0; i < ARRAY_SIZE(misChecks); i++) {
             if (_required_mission_items & misChecks[i].check) {
                 if (!mission->contains_item(misChecks[i].mis_item_type)) {
-                    check_failed(ARMING_CHECK_MISSION, report, "Missing mission item: %s", misChecks[i].type);
+                    check_failed(AP_Arming::Check::MISSION, report, "Missing mission item: %s", misChecks[i].type);
                     return false;
                 }
             }
@@ -597,12 +597,12 @@ bool AP_Arming::mission_checks(bool report)
         if (_required_mission_items & MIS_ITEM_CHECK_RALLY) {
             Location ahrs_loc;
             if (!AP::ahrs().get_position(ahrs_loc)) {
-                check_failed(ARMING_CHECK_MISSION, report, "Can't check rally without position");
+                check_failed(AP_Arming::Check::MISSION, report, "Can't check rally without position");
                 return false;
             }
             RallyLocation rally_loc = {};
             if (!rally->find_nearest_rally_point(ahrs_loc, rally_loc)) {
-                check_failed(ARMING_CHECK_MISSION, report, "No sufficently close rally point located");
+                check_failed(AP_Arming::Check::MISSION, report, "No sufficently close rally point located");
                 return false;
             }
           }
@@ -613,7 +613,7 @@ bool AP_Arming::mission_checks(bool report)
 
 bool AP_Arming::rangefinder_checks(bool report)
 {
-    if ((checks_to_perform & ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_RANGEFINDER)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) || (checks_to_perform & AP_Arming::Check::RANGEFINDER)) {
         RangeFinder *range = RangeFinder::get_singleton();
         if (range == nullptr) {
             return true;
@@ -621,7 +621,7 @@ bool AP_Arming::rangefinder_checks(bool report)
 
         char buffer[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1];
         if (!range->prearm_healthy(buffer, ARRAY_SIZE(buffer))) {
-            check_failed(ARMING_CHECK_RANGEFINDER, report, "%s", buffer);
+            check_failed(AP_Arming::Check::RANGEFINDER, report, "%s", buffer);
             return false;
         }
     }
@@ -662,12 +662,12 @@ bool AP_Arming::servo_checks(bool report) const
 bool AP_Arming::board_voltage_checks(bool report)
 {
     // check board voltage
-    if ((checks_to_perform & ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_VOLTAGE)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) || (checks_to_perform & AP_Arming::Check::VOLTAGE)) {
 #if HAL_HAVE_BOARD_VOLTAGE
         const float bus_voltage =  hal.analogin->board_voltage();
         const float vbus_min = AP_BoardConfig::get_minimum_board_voltage();
         if(((bus_voltage < vbus_min) || (bus_voltage > AP_ARMING_BOARD_VOLTAGE_MAX))) {
-            check_failed(ARMING_CHECK_VOLTAGE, report, "Board (%1.1fv) out of range %1.1f-%1.1fv", (double)bus_voltage, (double)vbus_min, (double)AP_ARMING_BOARD_VOLTAGE_MAX);
+            check_failed(AP_Arming::Check::VOLTAGE, report, "Board (%1.1fv) out of range %1.1f-%1.1fv", (double)bus_voltage, (double)vbus_min, (double)AP_ARMING_BOARD_VOLTAGE_MAX);
             return false;
         }
 #endif // HAL_HAVE_BOARD_VOLTAGE
@@ -677,7 +677,7 @@ bool AP_Arming::board_voltage_checks(bool report)
         if (is_positive(vservo_min)) {
             const float servo_voltage =  hal.analogin->servorail_voltage();
             if (servo_voltage < vservo_min) {
-                check_failed(ARMING_CHECK_VOLTAGE, report, "Servo voltage to low (%1.2fv < %1.2fv)", (double)servo_voltage, (double)vservo_min);
+                check_failed(AP_Arming::Check::VOLTAGE, report, "Servo voltage to low (%1.2fv < %1.2fv)", (double)servo_voltage, (double)vservo_min);
                 return false;
             }
         }
@@ -692,9 +692,9 @@ bool AP_Arming::board_voltage_checks(bool report)
  */
 bool AP_Arming::system_checks(bool report)
 {
-    if (check_enabled(ARMING_CHECK_SYSTEM)) {
+    if (check_enabled(AP_Arming::Check::SYSTEM)) {
         if (!hal.storage->healthy()) {
-            check_failed(ARMING_CHECK_SYSTEM, report, "Param storage failed");
+            check_failed(AP_Arming::Check::SYSTEM, report, "Param storage failed");
             return false;
         }
     }
@@ -731,7 +731,7 @@ bool AP_Arming::proximity_checks(bool report) const
 bool AP_Arming::can_checks(bool report)
 {
 #if HAL_WITH_UAVCAN
-    if (check_enabled(ARMING_CHECK_SYSTEM)) {
+    if (check_enabled(AP_Arming::Check::SYSTEM)) {
         const char *fail_msg = nullptr;
         uint8_t num_drivers = AP::can().get_num_drivers();
 
@@ -743,9 +743,9 @@ bool AP_Arming::can_checks(bool report)
                     AP_KDECAN *ap_kdecan = AP_KDECAN::get_kdecan(i);
                     if (ap_kdecan != nullptr && !ap_kdecan->pre_arm_check(fail_msg)) {
                         if (fail_msg == nullptr) {
-                            check_failed(ARMING_CHECK_SYSTEM, report, "KDECAN failed");
+                            check_failed(AP_Arming::Check::SYSTEM, report, "KDECAN failed");
                         } else {
-                            check_failed(ARMING_CHECK_SYSTEM, report, "%s", fail_msg);
+                            check_failed(AP_Arming::Check::SYSTEM, report, "%s", fail_msg);
                         }
 
                         return false;
@@ -819,8 +819,8 @@ bool AP_Arming::pre_arm_checks(bool report)
 bool AP_Arming::arm_checks(AP_Arming::Method method)
 {
     // ensure the GPS drivers are ready on any final changes
-    if ((checks_to_perform & ARMING_CHECK_ALL) ||
-        (checks_to_perform & ARMING_CHECK_GPS_CONFIG)) {
+    if ((checks_to_perform & AP_Arming::Check::ALL) ||
+        (checks_to_perform & AP_Arming::Check::GPS_CONFIG)) {
         if (!AP::gps().prepare_for_arming()) {
             return false;
         }
@@ -838,9 +838,9 @@ bool AP_Arming::arm_checks(AP_Arming::Method method)
         // If we're configured to log, prep it
         logger->PrepForArming();
         if (!logger->logging_started() &&
-            ((checks_to_perform & ARMING_CHECK_ALL) ||
-             (checks_to_perform & ARMING_CHECK_LOGGING))) {
-            check_failed(ARMING_CHECK_LOGGING, true, "Logging not started");
+            ((checks_to_perform & AP_Arming::Check::ALL) ||
+             (checks_to_perform & AP_Arming::Check::LOGGING))) {
+            check_failed(AP_Arming::Check::LOGGING, true, "Logging not started");
             return false;
         }
     }
@@ -900,7 +900,7 @@ AP_Arming::Required AP_Arming::arming_required()
 bool AP_Arming::rc_checks_copter_sub(const bool display_failure, const RC_Channel *channels[4]) const
 {
     // set rc-checks to success if RC checks are disabled
-    if ((checks_to_perform != ARMING_CHECK_ALL) && !(checks_to_perform & ARMING_CHECK_RC)) {
+    if ((checks_to_perform != AP_Arming::Check::ALL) && !(checks_to_perform & AP_Arming::Check::RC)) {
         return true;
     }
 
@@ -913,11 +913,11 @@ bool AP_Arming::rc_checks_copter_sub(const bool display_failure, const RC_Channe
         const char *channel_name = channel_names[i];
         // check if radio has been calibrated
         if (channel->get_radio_min() > 1300) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio min too high", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio min too high", channel_name);
             ret = false;
         }
         if (channel->get_radio_max() < 1700) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio max too low", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio max too low", channel_name);
             ret = false;
         }
         bool fail = true;
@@ -926,13 +926,13 @@ bool AP_Arming::rc_checks_copter_sub(const bool display_failure, const RC_Channe
             fail = false;
         }
         if (channel->get_radio_trim() < channel->get_radio_min()) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio trim below min", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio trim below min", channel_name);
             if (fail) {
                 ret = false;
             }
         }
         if (channel->get_radio_trim() > channel->get_radio_max()) {
-            check_failed(ARMING_CHECK_RC, display_failure, "%s radio trim above max", channel_name);
+            check_failed(AP_Arming::Check::RC, display_failure, "%s radio trim above max", channel_name);
             if (fail) {
                 ret = false;
             }
