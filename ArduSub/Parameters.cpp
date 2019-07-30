@@ -691,9 +691,9 @@ void Sub::load_parameters()
 
     AP_Param::set_default_by_name("BRD_SAFETYENABLE", 0);
     AP_Param::set_default_by_name("ARMING_CHECK",
-            AP_Arming::ARMING_CHECK_RC |
-            AP_Arming::ARMING_CHECK_VOLTAGE |
-            AP_Arming::ARMING_CHECK_BATTERY);
+            AP_Arming::Check::RC |
+            AP_Arming::Check::VOLTAGE |
+            AP_Arming::Check::BATTERY);
     AP_Param::set_default_by_name("CIRCLE_RATE", 2.0f);
     AP_Param::set_default_by_name("ATC_ACCEL_Y_MAX", 110000.0f);
     AP_Param::set_default_by_name("RC3_TRIM", 1100);
