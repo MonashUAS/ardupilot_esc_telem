@@ -562,6 +562,16 @@ private:
 
     // True if we have entered AUTO to perform a DO_LAND_START landing sequence and we should report as AUTO RTL mode
     bool auto_RTL;
+
+    struct {
+        uint16_t time_ms;
+        uint8_t throttle_pct;
+
+        uint32_t start_ms;
+    } punch;
+    void punch_takeoff_start(const Location& dest_loc, uint16_t time_ms, uint8_t throttle_pct);
+    void punch_takeoff_run();
+    bool punch_verify_takeoff();
 };
 
 #if AUTOTUNE_ENABLED == ENABLED
