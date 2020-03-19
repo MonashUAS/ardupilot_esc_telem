@@ -93,7 +93,7 @@ public:
 
     void init(void) override {}
 
-protected:
+private:
 
     AP_HAL::AnalogSource *_volt_pin_analog_source;
     AP_HAL::AnalogSource *_curr_pin_analog_source;

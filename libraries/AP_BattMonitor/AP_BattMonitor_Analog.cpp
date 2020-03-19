@@ -29,20 +29,35 @@ AP_BattMonitor_Analog::read()
     exline1 = __LINE__;
     // this copes with changing the pin at runtime
 
-    static bool warning_sent = false;
-    if (AP_HAL::millis() > 20000 && !warning_sent) {
-        gcs().send_text(MAV_SEVERITY_NOTICE, "Crashing in 5 seconds");
-        warning_sent = true;
-    }
-    if (AP_HAL::millis() > 25000) {
-        _volt_pin_analog_source = 0x0;
+    static uint32_t status_message_last_sent;
+    static AP_HAL::AnalogSource* expected_volt_pin_analog_source = (AP_HAL::AnalogSource*)0xdeadedde;
+    bool changed = false;
+    if (expected_volt_pin_analog_source == (AP_HAL::AnalogSource*)0xdeadedde) {
+        expected_volt_pin_analog_source = _volt_pin_analog_source;
+    } else {
+        if (_volt_pin_analog_source != expected_volt_pin_analog_source) {
+            changed = true;
+        }
     }
 
-    _volt_pin_analog_source->set_pin(_params._volt_pin);
+    const uint32_t now = AP_HAL::millis();
+    if (now - status_message_last_sent > 1000) {
+        status_message_last_sent = now;
+        gcs().send_text(MAV_SEVERITY_WARNING, "want=%p got=%p", expected_volt_pin_analog_source, _volt_pin_analog_source);
+        if (changed) {
+            gcs().send_text(MAV_SEVERITY_ERROR, "POINTER HAS CHANGED");
+        }
+    }
+
+    if (!changed) {
+        _volt_pin_analog_source->set_pin(_params._volt_pin);
+    }
 
     exline1 = __LINE__;
     // get voltage
+    if (!changed) {
     _state.voltage = _volt_pin_analog_source->voltage_average() * _params._volt_multiplier;
+    }
 
     exline1 = __LINE__;
     // read current
@@ -54,11 +69,15 @@ AP_BattMonitor_Analog::read()
 
         exline1 = __LINE__;
         // this copes with changing the pin at runtime
+        if (!changed) {
         _curr_pin_analog_source->set_pin(_params._curr_pin);
+        }
 
         exline1 = __LINE__;
         // read current
+        if (!changed) {
         _state.current_amps = (_curr_pin_analog_source->voltage_average()-_params._curr_amp_offset)*_params._curr_amp_per_volt;
+        }
 
         exline1 = __LINE__;
         // update total current drawn since startup
@@ -75,6 +94,17 @@ AP_BattMonitor_Analog::read()
         _state.last_time_micros = tnow;
     }
     exline1 = __LINE__;
+
+
+    // static bool warning_sent = false;
+    // if (AP_HAL::millis() > 20000 && !warning_sent) {
+    //     gcs().send_text(MAV_SEVERITY_NOTICE, "Resetting pointer in 5 seconds");
+    //     warning_sent = true;
+    // }
+    // if (AP_HAL::millis() > 25000) {
+    //     _volt_pin_analog_source = 0x0;
+    // }
+
 }
 
 /// return true if battery provides current info
