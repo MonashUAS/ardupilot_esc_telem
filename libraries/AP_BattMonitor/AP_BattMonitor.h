@@ -173,6 +173,8 @@ public:
 
     static const struct AP_Param::GroupInfo var_info[];
 
+    bool check_pointer();
+
 protected:
 
     /// parameters

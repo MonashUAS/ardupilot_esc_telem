@@ -58,6 +58,7 @@ AP_Frsky_Telem::~AP_Frsky_Telem(void)
  */
 void AP_Frsky_Telem::setup_passthrough(void)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 #if !APM_BUILD_TYPE(APM_BUILD_UNKNOWN)
     // make frsky_telemetry available to GCS_MAVLINK (used to queue statustext messages from GCS_MAVLINK)
     // add firmware and frame info to message queue
@@ -85,6 +86,8 @@ void AP_Frsky_Telem::setup_passthrough(void)
     _passthrough.packet_weight[8] = 1300;  // 0x5008 Battery 2 status
     _passthrough.packet_weight[9] = 1300;  // 0x5003 Battery 1 status
     _passthrough.packet_weight[10] = 1700; // 0x5007 parameters
+
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 }
 
 /*
@@ -92,6 +95,7 @@ void AP_Frsky_Telem::setup_passthrough(void)
  */
 bool AP_Frsky_Telem::init()
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     const AP_SerialManager &serial_manager = AP::serialmanager();
 
     // check for protocol configured for a serial port - only the first serial port with one of these protocols will then run (cannot have FrSky on multiple serial ports)
@@ -115,11 +119,13 @@ bool AP_Frsky_Telem::init()
         return true;
     }
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     return false;
 }
 
 void AP_Frsky_Telem::update_avg_packet_rate()
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     uint32_t poll_now = AP_HAL::millis();
 
     _passthrough.avg_packet_counter++;
@@ -133,6 +139,7 @@ void AP_Frsky_Telem::update_avg_packet_rate()
         _passthrough.last_poll_timer = poll_now;
         _passthrough.avg_packet_counter = 0;
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 }
 
 /*
@@ -141,6 +148,7 @@ void AP_Frsky_Telem::update_avg_packet_rate()
  */
 void AP_Frsky_Telem::passthrough_wfq_adaptive_scheduler(void)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     exline2 = __LINE__;
     update_avg_packet_rate();
 
@@ -254,6 +262,8 @@ void AP_Frsky_Telem::passthrough_wfq_adaptive_scheduler(void)
         break;
     }
     exline2 = __LINE__;
+
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 }
 
 /*
@@ -262,29 +272,35 @@ void AP_Frsky_Telem::passthrough_wfq_adaptive_scheduler(void)
  */
 void AP_Frsky_Telem::send_SPort_Passthrough(void)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     int16_t numc;
     numc = _port->available();
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     // check if available is negative
     if (numc < 0) {
         return;
     }
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     // this is the constant for hub data frame
     if (_port->txspace() < 19) {
         return;
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     // keep only the last two bytes of the data found in the serial buffer, as we shouldn't respond to old poll requests
     uint8_t prev_byte = 0;
     for (int16_t i = 0; i < numc; i++) {
         prev_byte = _passthrough.new_byte;
         _passthrough.new_byte = _port->read();
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     if (prev_byte == START_STOP_SPORT) {
         if (_passthrough.new_byte == SENSOR_ID_28) { // byte 0x7E is the header of each poll request
             passthrough_wfq_adaptive_scheduler();
         }
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 }
 
 /*
@@ -296,6 +312,7 @@ void AP_Frsky_Telem::send_SPort(void)
     int16_t numc;
     numc = _port->available();
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     // check if available is negative
     if (numc < 0) {
         return;
@@ -306,6 +323,7 @@ void AP_Frsky_Telem::send_SPort(void)
         return;
     }
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     if (numc == 0) {
         // no serial data to process do bg tasks
         switch (_SPort.next_sensor_id) {
@@ -323,6 +341,7 @@ void AP_Frsky_Telem::send_SPort(void)
         return;
     }
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     for (int16_t i = 0; i < numc; i++) {
         int16_t readbyte = _port->read();
         if (_SPort.sport_status == false) {
@@ -330,6 +349,7 @@ void AP_Frsky_Telem::send_SPort(void)
                 _SPort.sport_status = true;
             }
         } else {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
             const AP_BattMonitor &_battery = AP::battery();
             switch(readbyte) {
                 case SENSOR_ID_VARIO:   // Sensor ID  0
@@ -422,6 +442,7 @@ void AP_Frsky_Telem::send_SPort(void)
                     break;
             }
             _SPort.sport_status = false;
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
         }
     }
 }
@@ -478,6 +499,7 @@ void AP_Frsky_Telem::send_D(void)
  */
 void AP_Frsky_Telem::loop(void)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     // initialise uart (this must be called from within tick b/c the UART begin must be called from the same thread as it is used from)
     if (_protocol == AP_SerialManager::SerialProtocol_FrSky_D) {                    // FrSky D protocol (D-receivers)
         _port->begin(AP_SERIALMANAGER_FRSKY_D_BAUD, AP_SERIALMANAGER_FRSKY_BUFSIZE_RX, AP_SERIALMANAGER_FRSKY_BUFSIZE_TX);
@@ -496,6 +518,7 @@ void AP_Frsky_Telem::loop(void)
             send_SPort_Passthrough();
         }
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 }
 
 /* 
@@ -592,6 +615,7 @@ void  AP_Frsky_Telem::send_uint16(uint16_t id, uint16_t data)
  */
 bool AP_Frsky_Telem::get_next_msg_chunk(void)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     if (!_statustext.available) {
         WITH_SEMAPHORE(_statustext.sem);
         if (!_statustext.queue.pop(_statustext.next)) {
@@ -644,6 +668,7 @@ bool AP_Frsky_Telem::get_next_msg_chunk(void)
             _statustext.available = false;
         }
     }
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     return true;
 }
 
@@ -855,6 +880,7 @@ uint32_t AP_Frsky_Telem::calc_gps_status(void)
  */
 uint32_t AP_Frsky_Telem::calc_batt(uint8_t instance)
 {
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     const AP_BattMonitor &_battery = AP::battery();
 
     uint32_t batt;
@@ -872,6 +898,7 @@ uint32_t AP_Frsky_Telem::calc_batt(uint8_t instance)
     batt |= prep_number(roundf(current * 10.0f), 2, 1)<<BATT_CURRENT_OFFSET;
     // battery current drawn since power on in mAh (limit to 32767 (0x7FFF) since value is stored on 15 bits)
     batt |= ((consumed_mah < BATT_TOTALMAH_LIMIT) ? ((uint16_t)roundf(consumed_mah) & BATT_TOTALMAH_LIMIT) : BATT_TOTALMAH_LIMIT)<<BATT_TOTALMAH_OFFSET;
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
     return batt;
 }
 

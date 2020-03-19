@@ -22,6 +22,19 @@ AP_BattMonitor_Analog::AP_BattMonitor_Analog(AP_BattMonitor &mon,
     _state.healthy = true;
 }
 
+bool AP_BattMonitor_Analog::check_pointer()
+{
+    static AP_HAL::AnalogSource* expected_volt_pin_analog_source = (AP_HAL::AnalogSource*)0xdeadedde;
+    if (expected_volt_pin_analog_source == (AP_HAL::AnalogSource*)0xdeadedde) {
+        expected_volt_pin_analog_source = _volt_pin_analog_source;
+    } else {
+        if (_volt_pin_analog_source != expected_volt_pin_analog_source) {
+            volt_pin_analogue_changed = true;
+        }
+    }
+    return volt_pin_analogue_changed;
+}
+
 // read - read the voltage and current
 void
 AP_BattMonitor_Analog::read()
@@ -29,33 +42,25 @@ AP_BattMonitor_Analog::read()
     exline1 = __LINE__;
     // this copes with changing the pin at runtime
 
-    static uint32_t status_message_last_sent;
-    static AP_HAL::AnalogSource* expected_volt_pin_analog_source = (AP_HAL::AnalogSource*)0xdeadedde;
-    bool changed = false;
-    if (expected_volt_pin_analog_source == (AP_HAL::AnalogSource*)0xdeadedde) {
-        expected_volt_pin_analog_source = _volt_pin_analog_source;
-    } else {
-        if (_volt_pin_analog_source != expected_volt_pin_analog_source) {
-            changed = true;
-        }
-    }
+    check_pointer();
 
-    const uint32_t now = AP_HAL::millis();
-    if (now - status_message_last_sent > 1000) {
-        status_message_last_sent = now;
-        gcs().send_text(MAV_SEVERITY_WARNING, "want=%p got=%p", expected_volt_pin_analog_source, _volt_pin_analog_source);
-        if (changed) {
-            gcs().send_text(MAV_SEVERITY_ERROR, "POINTER HAS CHANGED");
-        }
-    }
+    // static uint32_t status_message_last_sent;
+    // const uint32_t now = AP_HAL::millis();
+    // if (now - status_message_last_sent > 1000) {
+    //     status_message_last_sent = now;
+    //     gcs().send_text(MAV_SEVERITY_WARNING, "want=%p got=%p", expected_volt_pin_analog_source, _volt_pin_analog_source);
+    //     if (volt_pin_analogue_changed) {
+    //         gcs().send_text(MAV_SEVERITY_ERROR, "POINTER HAS CHANGED");
+    //     }
+    // }
 
-    if (!changed) {
+    if (!volt_pin_analogue_changed) {
         _volt_pin_analog_source->set_pin(_params._volt_pin);
     }
 
     exline1 = __LINE__;
     // get voltage
-    if (!changed) {
+    if (!volt_pin_analogue_changed) {
     _state.voltage = _volt_pin_analog_source->voltage_average() * _params._volt_multiplier;
     }
 
@@ -69,13 +74,13 @@ AP_BattMonitor_Analog::read()
 
         exline1 = __LINE__;
         // this copes with changing the pin at runtime
-        if (!changed) {
+        if (!volt_pin_analogue_changed) {
         _curr_pin_analog_source->set_pin(_params._curr_pin);
         }
 
         exline1 = __LINE__;
         // read current
-        if (!changed) {
+        if (!volt_pin_analogue_changed) {
         _state.current_amps = (_curr_pin_analog_source->voltage_average()-_params._curr_amp_offset)*_params._curr_amp_per_volt;
         }
 
@@ -95,15 +100,16 @@ AP_BattMonitor_Analog::read()
     }
     exline1 = __LINE__;
 
-
-    // static bool warning_sent = false;
-    // if (AP_HAL::millis() > 20000 && !warning_sent) {
-    //     gcs().send_text(MAV_SEVERITY_NOTICE, "Resetting pointer in 5 seconds");
-    //     warning_sent = true;
-    // }
-    // if (AP_HAL::millis() > 25000) {
-    //     _volt_pin_analog_source = 0x0;
-    // }
+#if 1
+    static bool warning_sent = false;
+    if (AP_HAL::millis() > 20000 && !warning_sent) {
+        gcs().send_text(MAV_SEVERITY_NOTICE, "Resetting pointer in 5 seconds");
+        warning_sent = true;
+    }
+    if (AP_HAL::millis() > 25000) {
+        _volt_pin_analog_source = 0x0;
+    }
+#endif CONFIG_HAL_BOARD == HAL_BOARD_SITL
 
 }
 

@@ -256,6 +256,15 @@ void AP_BattMonitor::convert_params(void) {
     _params[0]._type.save(true);
 }
 
+bool AP_BattMonitor::check_pointer()
+{
+    if (drivers[0] == nullptr) {
+        return false;
+    }
+    return drivers[0]->check_pointer();
+}
+
+
 // read - read the voltage and current for all instances
 void
 AP_BattMonitor::read()

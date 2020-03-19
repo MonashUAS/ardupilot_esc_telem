@@ -65,6 +65,8 @@ public:
     // reset remaining percentage to given value
     virtual bool reset_remaining(float percentage);
 
+    virtual bool check_pointer() { return false; }
+
 protected:
     AP_BattMonitor                      &_mon;      // reference to front-end
     AP_BattMonitor::BattMonitor_State   &_state;    // reference to this instances state (held in the front-end)

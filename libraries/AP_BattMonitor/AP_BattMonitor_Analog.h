@@ -93,7 +93,11 @@ public:
 
     void init(void) override {}
 
-private:
+    bool check_pointer() override;
+
+    bool volt_pin_analogue_changed;
+
+public:
 
     AP_HAL::AnalogSource *_volt_pin_analog_source;
     AP_HAL::AnalogSource *_curr_pin_analog_source;

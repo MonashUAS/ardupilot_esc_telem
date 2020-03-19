@@ -245,3 +245,36 @@ bool GCS::out_of_time() const
 
     return true;
 }
+
+
+bool volt_pin_analogue_changed;
+static bool was_changed;
+const char *last_good_file;
+uint16_t last_good_line;
+const char *first_bad_file;
+uint16_t first_bad_line;
+
+void GCS::check_analogin_ptr(const char *file, uint16_t line_number)
+{
+    volt_pin_analogue_changed = AP::battery().check_pointer();
+    if (volt_pin_analogue_changed) {
+        if (!was_changed) {
+            was_changed = true;
+            first_bad_line = line_number;
+            first_bad_file = file;
+        }
+    } else {
+        last_good_line = line_number;
+        last_good_file = file;
+    }
+
+    static uint32_t last_message_sent;
+    const uint32_t now = AP_HAL::millis();
+    if (now - last_message_sent > 1000) {
+        last_message_sent = now;
+        if (volt_pin_analogue_changed) {
+            send_text(MAV_SEVERITY_INFO, "BAD! LG: %s:%u", last_good_file, last_good_line);
+            send_text(MAV_SEVERITY_INFO, "BAD! FB: %s:%u", first_bad_file, first_bad_line);
+        }
+    }
+}

@@ -144,6 +144,8 @@ void AP_Scheduler::run(uint32_t time_available)
     uint32_t run_started_usec = AP_HAL::micros();
     uint32_t now = run_started_usec;
 
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
+
     if (_debug > 1 && _perf_counters == nullptr) {
         _perf_counters = new AP_HAL::Util::perf_counter_t[_num_tasks];
         if (_perf_counters != nullptr) {
@@ -155,7 +157,9 @@ void AP_Scheduler::run(uint32_t time_available)
             }
         }
     }
-    
+
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
+
     for (uint8_t i=0; i<_num_tasks; i++) {
         const AP_Scheduler::Task& task = (i < _num_unshared_tasks) ? _tasks[i] : _common_tasks[i - _num_unshared_tasks];
 
@@ -231,6 +235,8 @@ void AP_Scheduler::run(uint32_t time_available)
         }
         time_available -= time_taken;
     }
+
+    gcs().check_analogin_ptr(__FILE__, __LINE__);
 
     // update number of spare microseconds
     _spare_micros += time_available;
