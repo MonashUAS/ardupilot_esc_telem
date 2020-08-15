@@ -51,6 +51,7 @@
 #include "AP_RangeFinder_MSP.h"
 #include "AP_RangeFinder_USD1_CAN.h"
 #include "AP_RangeFinder_Benewake_CAN.h"
+#include "AP_RangeFinder_TOF10120.h"
 
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_Logger/AP_Logger.h>
@@ -449,6 +450,19 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
         break;
 #endif
     }
+    case Type::TOF10120:
+#if AP_RANGEFINDER_TOF10120_ENABLED
+        FOREACH_I2C(i) {
+            if (_add_backend(AP_RangeFinder_TOF10120::detect(
+                                 state[instance],
+                                 params[instance],
+                                 hal.i2c_mgr->get_device(i, 0x52)),
+                             instance)) {
+                break;
+            }
+        }
+#endif
+        break;
     case Type::PX4_PWM:
 #if AP_RANGEFINDER_PWM_ENABLED
         // to ease moving from PX4 to ChibiOS we'll lie a little about
