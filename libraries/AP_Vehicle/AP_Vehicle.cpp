@@ -509,6 +509,8 @@ const AP_Scheduler::Task AP_Vehicle::scheduler_tasks[] = {
 #if HAL_WITH_ESC_TELEM && HAL_GYROFFT_ENABLED
     SCHED_TASK(check_motor_noise,      5,     50, 252),
 #endif
+
+    SCHED_TASK(update_uart_logging,                   10,      20, 252),
     SCHED_TASK(update_arming,          1,     50, 253),
 };
 
@@ -585,6 +587,11 @@ void AP_Vehicle::send_watchdog_reset_statustext()
                     (unsigned)pd.internal_error_count,
                     pd.thread_name4
         );
+}
+
+void AP_Vehicle::update_uart_logging()
+{
+    AP_HAL::UARTDriver::update_logging_all();
 }
 
 bool AP_Vehicle::is_crashed() const

@@ -438,6 +438,8 @@ private:
 
     // run notch update at either loop rate or 200Hz
     void update_dynamic_notch_at_specified_rate();
+    // let uart write data out to onboard logs
+    void update_uart_logging();
 
     // decimation for 1Hz update
     uint8_t one_Hz_counter;
