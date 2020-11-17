@@ -244,25 +244,42 @@ void AP_NavEKF_Source::align_inactive_sources()
 {
     // align visual odometry
 #if HAL_VISUALODOM_ENABLED
-    bool posxy_could_use_extnav = false;
-    bool posz_could_use_extnav = false;
 
-    for (uint8_t i=0; i<AP_NAKEKF_SOURCE_SET_MAX; i++) {
-        posxy_could_use_extnav |= (getPosXYSourceByIndex(i) == SourceXY::EXTNAV);
-        posz_could_use_extnav |= (getPosZSourceByIndex(i) == SourceZ::EXTNAV);
+    auto *visual_odom = AP::dal().visualodom();
+    if (!visual_odom || !visual_odom->enabled()) {
+        return;
     }
 
-    const bool align_posxy = posxy_could_use_extnav && ((getPosXYSource() == SourceXY::GPS) || (getPosXYSource() == SourceXY::BEACON));
-    const bool align_posz = posz_could_use_extnav &&
-                            ((getPosZSource() == SourceZ::BARO) || (getPosZSource() == SourceZ::RANGEFINDER) ||
-                             (getPosZSource() == SourceZ::GPS) || (getPosZSource() == SourceZ::BEACON));
-
-    if (align_posxy || align_posz) {
-        auto *visual_odom = AP::dal().visualodom();
-        if (visual_odom && visual_odom->enabled()) {
-            visual_odom->align_position_to_ahrs(align_posxy, align_posz);
+    bool align_posxy = false;
+    // consider aligning XY position:
+    if ((getPosXYSource() == SourceXY::GPS) ||
+        (getPosXYSource() == SourceXY::BEACON)) {
+        // EXTNAV is not the active source; do not want to align active source!
+        for (uint8_t i=0; i<AP_NAKEKF_SOURCE_SET_MAX; i++) {
+            if ((SourceXY)_source_set[i].posxy.get() == SourceXY::EXTNAV) {
+                // EXTNAV could potentially be used, so align it
+                align_posxy = true;
+                break;
+            }
         }
     }
+
+    // consider aligning Z position:
+    bool align_posz = false;
+    if ((getPosZSource() == SourceZ::BARO) ||
+        (getPosZSource() == SourceZ::RANGEFINDER) ||
+        (getPosZSource() == SourceZ::GPS) ||
+        (getPosZSource() == SourceZ::BEACON)) {
+        // EXTNAV is not the active source; do not want to align active source!
+        for (uint8_t i=0; i<AP_NAKEKF_SOURCE_SET_MAX; i++) {
+            if ((SourceZ)_source_set[i].posz.get() == SourceZ::EXTNAV) {
+                // EXTNAV could potentially be used, so align it
+                align_posz = true;
+                break;
+            }
+        }
+    }
+    visual_odom->align_position_to_ahrs(align_posxy, align_posz);
 #endif
 }
 
