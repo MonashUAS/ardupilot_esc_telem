@@ -199,6 +199,20 @@ void GCS_MAVLINK::send_power_status(void)
                                   hal.analogin->power_status_flags());
 }
 
+void GCS_MAVLINK::flight_information(void)
+{
+    uint64_t arming_time_utc;
+    uint64_t takeoff_time_utc;
+    const uint64_t flight_uuid = 0;
+    mavlink_msg_flight_information_send(
+        chan,
+        AP_HAL::millis(),  // time_boot_ms
+        arming_time_utc,
+        takeoff_time_utc,
+        flight_uuid
+        );
+}
+
 void GCS_MAVLINK::send_battery_status(const uint8_t instance) const
 {
     // catch the battery backend not supporting the required number of cells
@@ -858,6 +872,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         { MAVLINK_MSG_ID_EFI_STATUS,            MSG_EFI_STATUS},
         { MAVLINK_MSG_ID_GENERATOR_STATUS,      MSG_GENERATOR_STATUS},
         { MAVLINK_MSG_ID_WINCH_STATUS,          MSG_WINCH_STATUS},
+        { MAVLINK_MSG_ID_FLIGHT_INFORMATION,    MSG_FLIGHT_INFORMATION},
             };
 
     for (uint8_t i=0; i<ARRAY_SIZE(map); i++) {
@@ -5080,6 +5095,11 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
     case MSG_WINCH_STATUS:
         CHECK_PAYLOAD_SIZE(WINCH_STATUS);
         send_winch_status();
+        break;
+
+    case MSG_FLIGHT_INFORMATION:
+        CHECK_PAYLOAD_SIZE(FLIGHT_INFORMATION);
+        send_flight_information();
         break;
 
     default:
