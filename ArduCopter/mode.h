@@ -74,6 +74,9 @@ public:
 
     virtual bool is_landing() const { return false; }
 
+    // called when the land detector determines we are landed:
+    bool land_complete();
+
     // mode requires terrain to be present to be functional
     virtual bool requires_terrain_failsafe() const { return false; }
 

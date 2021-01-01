@@ -405,6 +405,36 @@ void Copter::notify_flight_mode() {
     notify.set_flight_mode_str(flightmode->name4());
 }
 
+void Mode::land_complete()
+{
+    // trigger disarm-on-land if configured
+    if ((g.throttle_behavior & THR_BEHAVE_DISARM_ON_LAND_DETECT) == 0) {
+        // not configured to disarm
+        return;
+    }
+
+    if (!motors->armed()) {
+        // not armed
+        return;
+    }
+
+    if (flightmode->has_manual_throttle()) {
+        return false;
+    }
+    // we should probably have a "allows_disarm(...)" callback
+    if (!flightmode->allows_arming(AP_Arming::Method::LANDING)) {
+        return false;
+    }
+
+    arming.disarm(AP_Arming::Method::LANDED);
+}
+
+void Mode::update_navigation()
+{
+    // run autopilot to make high level decisions about control modes
+    run_autopilot();
+}
+
 // get_pilot_desired_angle - transform pilot's roll or pitch input into a desired lean angle
 // returns desired angle in centi-degrees
 void Mode::get_pilot_desired_lean_angles(float &roll_out, float &pitch_out, float angle_max, float angle_limit) const
