@@ -835,6 +835,10 @@ void NavEKF2::UpdateFilter(void)
 */
 void NavEKF2::checkLaneSwitch(void)
 {
+    if (!core) {
+        return;
+    }
+
     AP::dal().log_event2(AP_DAL::Event::checkLaneSwitch);
     const uint32_t now = AP::dal().millis();
     if (lastLaneSwitch_ms != 0 && now - lastLaneSwitch_ms < 5000) {
