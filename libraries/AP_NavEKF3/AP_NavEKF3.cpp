@@ -961,6 +961,10 @@ void NavEKF3::UpdateFilter(void)
 */
 void NavEKF3::checkLaneSwitch(void)
 {
+    if (!core) {
+        return;
+    }
+
     AP::dal().log_event3(AP_DAL::Event::checkLaneSwitch);
 
     uint32_t now = AP::dal().millis();
