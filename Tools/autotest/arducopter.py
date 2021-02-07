@@ -9608,6 +9608,7 @@ class AutoTestCopter(AutoTest):
             self.EK3_RNG_USE_HGT,
             self.TerrainDBPreArm,
             self.ThrottleGainBoost,
+            self.IBus,
         ])
         return ret
 
