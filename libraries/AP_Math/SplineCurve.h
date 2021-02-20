@@ -39,9 +39,9 @@ public:
 
 private:
 
-    // calculate the spline delta time for a given delta distance and
-    // returns the spline position and velocity and maximum speed vehicle can travel without exceeding acceleration limits
-    void calc_dt_speed_max(float time, float distance_delta, float &spline_dt, Vector3f &target_pos, Vector3f &spline_vel_unit, float &speed_xy_max);
+    // calculate the spline delta time for a given delta distance
+    // returns the spline position and velocity and maximum speed and acceleration the vehicle can travel without exceeding acceleration limits
+    void calc_dt_speed_max(float time, float distance_delta, float &spline_dt, Vector3f &target_pos, Vector3f &spline_vel_unit, float &speed_max, float &accel_max);
 
     // recalculate hermite_spline_solution grid
     void update_solution(const Vector3f &origin, const Vector3f &dest, const Vector3f &origin_vel, const Vector3f &dest_vel);

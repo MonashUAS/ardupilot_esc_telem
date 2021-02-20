@@ -22,6 +22,10 @@ extern const AP_HAL::HAL &hal;
 #define SPEED_MIN           50.0f   // minimum speed in cm/s
 #define ACCEL_MIN           50.0f   // minimum acceleration in cm/s/s
 #define LEASH_LENGTH_MIN    100.0f  // minimum leash length in cm
+#define TANGENTIAL_ACCEL_SCALER 1.0f    // the proportion of the maximum accel that can be used for tangential acceleration (aka in the direction of travel along the track)
+#define LATERAL_ACCEL_SCALER    0.5f    // the proportion of the maximum accel that can be used for lateral acceleration (aka crosstrack acceleration)
+
+// limit the maximum speed along the track to that which will achieve a cornering (aka lateral) acceleration of LATERAL_SPEED_SCALER * acceleration limit
 
 // constructor
 SplineCurve::SplineCurve() :
@@ -76,11 +80,12 @@ void SplineCurve::set_origin_and_destination(const Vector3f &origin, const Vecto
     Vector3f target_pos;
     Vector3f spline_vel_unit;
     float spline_dt;
-    calc_dt_speed_max(0.0f, 0.0f, spline_dt, target_pos, spline_vel_unit, _origin_speed_max);
+    float accel_max;
+    calc_dt_speed_max(0.0f, 0.0f, spline_dt, target_pos, spline_vel_unit, _origin_speed_max, accel_max);
     if (_destination_vel.is_zero()) {
         _destination_speed_max = 0.0f;
     } else {
-        calc_dt_speed_max(1.0f, 0.0f, spline_dt, target_pos, spline_vel_unit, _destination_speed_max);
+        calc_dt_speed_max(1.0f, 0.0f, spline_dt, target_pos, spline_vel_unit, _destination_speed_max, accel_max);
     }
 }
 
@@ -92,13 +97,14 @@ void SplineCurve::advance_target_along_track(float dt, Vector3f &target_pos, Vec
     // calculate target position and velocity using spline calculator
     Vector3f spline_vel_unit;
     float spline_dt = 0.0f;
-    float speed_xy_cms = target_vel.length();
-    const float distance_delta = speed_xy_cms * dt;
-    float speed_xy_max = _speed_xy_cms;
+    float speed_cms = target_vel.length();
+    const float distance_delta = speed_cms * dt;
+    float speed_max = _speed_xy_cms;
+    float accel_max;
 
-    calc_dt_speed_max(_time, distance_delta, spline_dt, target_pos, spline_vel_unit, speed_xy_max);
-    speed_xy_cms = constrain_float(speed_xy_max, speed_xy_cms - _accel_xy_cmss * dt, speed_xy_cms + _accel_xy_cmss * dt);
-    target_vel = spline_vel_unit * speed_xy_cms;
+    calc_dt_speed_max(_time, distance_delta, spline_dt, target_pos, spline_vel_unit, speed_max, accel_max);
+    speed_cms = constrain_float(speed_max, speed_cms - accel_max * dt, speed_cms + accel_max * dt);
+    target_vel = spline_vel_unit * speed_cms;
 
     _time += spline_dt; // ToDo: advance time based on scaling of accelerations vs vehicle maximum
 
@@ -110,10 +116,16 @@ void SplineCurve::advance_target_along_track(float dt, Vector3f &target_pos, Vec
     }
 }
 
-// recalculate hermite_solution grid
-//     relies on _origin_vel, _destination_vel and _origin and _destination
-void SplineCurve::calc_dt_speed_max(float time, float distance_delta, float &spline_dt, Vector3f &target_pos, Vector3f &spline_vel_unit, float &speed_xy_max)
+// calculate the spline delta time for a given delta distance
+// returns the spline position and velocity and maximum speed and acceleration the vehicle can travel without exceeding acceleration limits
+void SplineCurve::calc_dt_speed_max(float time, float distance_delta, float &spline_dt, Vector3f &target_pos, Vector3f &spline_vel_unit, float &speed_max, float &accel_max)
 {
+    // initialise outputs
+    spline_dt = 0.0f;
+    spline_vel_unit.zero();
+    speed_max = 0.0f;
+    accel_max = 0.0f;
+
     // calculate target position and velocity using spline calculator
     Vector3f spline_vel;
     Vector3f spline_accel;
@@ -152,17 +164,17 @@ void SplineCurve::calc_dt_speed_max(float time, float distance_delta, float &spl
         spline_accel_norm = spline_accel - (spline_vel_unit * spline_accel_tangent_length);
         spline_accel_norm_length = spline_accel_norm.length();
     }
-    // limit maximum speed the speed that will reach normal acceleration of 0.5 * _accel_xy_cmss
-    const float speed_max = kinematic_limit(spline_vel_unit, _speed_xy_cms, _speed_up_cms, _speed_down_cms);
-    const float accel_norm_max = 0.5f * kinematic_limit(spline_accel_norm, _accel_xy_cmss, _accel_z_cmss, _accel_z_cmss);
-    if (spline_accel_norm_length/accel_norm_max > sq(spline_vel_length / speed_max)) {
-        speed_xy_max = spline_vel_length / safe_sqrt(spline_accel_norm_length/accel_norm_max);
+    // limit the maximum speed along the track to that which will achieve a cornering (aka lateral) acceleration of LATERAL_SPEED_SCALER * acceleration limit
+    const float corner_speed_max = kinematic_limit(spline_vel_unit, _speed_xy_cms, _speed_up_cms, _speed_down_cms);
+    const float accel_norm_max = LATERAL_ACCEL_SCALER * kinematic_limit(spline_accel_norm, _accel_xy_cmss, _accel_z_cmss, _accel_z_cmss);
+    if (spline_accel_norm_length/accel_norm_max > sq(spline_vel_length / corner_speed_max)) {
+        speed_max = spline_vel_length / safe_sqrt(spline_accel_norm_length/accel_norm_max);
     } else {
-        speed_xy_max = speed_max;
+        speed_max = corner_speed_max;
     }
-    const float accel_max = 0.5f * kinematic_limit(spline_vel_unit, _accel_xy_cmss, _accel_z_cmss, _accel_z_cmss);
+    accel_max = TANGENTIAL_ACCEL_SCALER * kinematic_limit(spline_vel_unit, _accel_xy_cmss, _accel_z_cmss, _accel_z_cmss);
     const float dist = (_destination - target_pos).length();
-    speed_xy_max = MIN(speed_xy_max, safe_sqrt(2.0f * accel_max * (dist + sq(_destination_speed_max) / (2.0f*accel_max))));
+    speed_max = MIN(speed_max, safe_sqrt(2.0f * accel_max * (dist + sq(_destination_speed_max) / (2.0f*accel_max))));
 }
 
 // recalculate hermite_solution grid
