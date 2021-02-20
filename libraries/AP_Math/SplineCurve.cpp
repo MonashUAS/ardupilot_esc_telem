@@ -95,11 +95,11 @@ void SplineCurve::set_origin_and_destination(const Vector3f &origin, const Vecto
 void SplineCurve::advance_target_along_track(float dt, Vector3f &target_pos, Vector3f &target_vel)
 {
     // calculate target position and velocity using spline calculator
-    Vector3f spline_vel_unit;
-    float spline_dt = 0.0f;
     float speed_cms = target_vel.length();
     const float distance_delta = speed_cms * dt;
-    float speed_max = _speed_xy_cms;
+    float spline_dt;
+    Vector3f spline_vel_unit;
+    float speed_max;
     float accel_max;
 
     calc_dt_speed_max(_time, distance_delta, spline_dt, target_pos, spline_vel_unit, speed_max, accel_max);
