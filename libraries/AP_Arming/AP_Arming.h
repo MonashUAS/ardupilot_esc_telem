@@ -127,6 +127,9 @@ public:
         DISABLE_PREARM_DISPLAY   = (1U << 0),
     };
 
+    void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const FMT_PRINTF(4, 5);
+    void check_failed(bool report, const char *fmt, ...) const FMT_PRINTF(3, 4);
+
 protected:
 
     // Parameters
@@ -161,10 +164,6 @@ protected:
     virtual bool board_voltage_checks(bool report);
 
     virtual bool rc_calibration_checks(bool report);
-
-    bool rc_in_calibration_check(bool report);
-
-    bool rc_arm_checks(AP_Arming::Method method);
 
     bool manual_transmitter_checks(bool report);
 
@@ -208,8 +207,6 @@ protected:
     // returns a mavlink severity which should be used if a specific check fails
     MAV_SEVERITY check_severity(const enum AP_Arming::ArmingChecks check) const;
     // handle the case where a check fails
-    void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const FMT_PRINTF(4, 5);
-    void check_failed(bool report, const char *fmt, ...) const FMT_PRINTF(3, 4);
 
     void Log_Write_Arm(bool forced, AP_Arming::Method method);
     void Log_Write_Disarm(bool forced, AP_Arming::Method method);
