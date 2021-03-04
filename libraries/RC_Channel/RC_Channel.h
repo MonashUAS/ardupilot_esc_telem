@@ -8,6 +8,8 @@
 
 #define NUM_RC_CHANNELS 16
 
+class AP_Arming;
+
 /// @class	RC_Channel
 /// @brief	Object managing one RC channel
 class RC_Channel {
@@ -237,6 +239,9 @@ public:
         FWD_THR =            209, // VTOL manual forward throttle
         AIRBRAKE =           210, // manual airbrake control
         WALKING_HEIGHT =     211, // walking robot height input
+        STEER =              212, // Rover steering input
+        LATERAL =            213, // Rover lateral movement input
+        FORWARD =            214, // Sub forward movement
 
         // inputs for the use of onboard lua scripting
         SCRIPTING_1 =        300,
@@ -296,8 +301,6 @@ public:
 
     // channel number, starts at 0, 2 typically being throttle channel.
     uint8_t ch() const { return ch_in; };
-
-    virtual bool arm_checks(AP_Arming::Method method);
 
 protected:
 
@@ -444,7 +447,7 @@ public:
 
     class RC_Channel *find_channel_for_option(const RC_Channel::aux_func_t option);
     bool duplicate_options_exist();
-    RC_Channel::AuxSwitchPos get_channel_pos(const uint8_t rcmapchan) const;
+    RC_Channel::AuxSwitchPos get_channel_pos(RC_Channel::AUX_FUNC func) const;
     void convert_options(const RC_Channel::aux_func_t old_option, const RC_Channel::aux_func_t new_option);
 
     void init_aux_all();
@@ -567,6 +570,9 @@ public:
     // set and get calibrating flag, stops arming if true
     void calibrating(bool b) { gcs_is_calibrating = b; }
     bool calibrating() { return gcs_is_calibrating; }
+
+    // returns true if the RC Channels library thinks the vehicle is OK to arm.
+    bool arm_checks(enum class AP_Arming::Method method);
 
 protected:
 
