@@ -498,6 +498,15 @@ private:
     void io_thread();
     bool check_crash_dump_save(void);
 
+    void io_task_init();
+    uint32_t io_task_body();
+    struct {
+        uint32_t last_run_us;
+        uint32_t last_stack_us;
+        uint32_t last_crash_check_us;
+        bool done_crash_dump_save;
+    } taskstate;
+
 #if HAL_LOGGER_FILE_CONTENTS_ENABLED
     // support for logging file content
     struct file_list {

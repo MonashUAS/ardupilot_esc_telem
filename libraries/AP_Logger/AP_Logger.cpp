@@ -1405,41 +1405,45 @@ bool AP_Logger::check_crash_dump_save(void)
 // thread for processing IO - in general IO involves a long blocking DMA write to an SPI device
 // and the thread will sleep while this completes preventing other tasks from running, it therefore
 // is necessary to run the IO in it's own thread
-void AP_Logger::io_thread(void)
+void AP_Logger::io_task_init(void)
 {
-    uint32_t last_run_us = AP_HAL::micros();
-    uint32_t last_stack_us = last_run_us;
-    uint32_t last_crash_check_us = last_run_us;
-    bool done_crash_dump_save = false;
+    const uint32_t now { AP_HAL::micros() };
+    taskstate.last_run_us = now;
+    taskstate.last_stack_us = now;
+    taskstate.last_crash_check_us = now;
+    taskstate.done_crash_dump_save = false;
+}
 
-    while (true) {
-        uint32_t now = AP_HAL::micros();
-
-        uint32_t delay = 250U; // always have some delay
-        if (now - last_run_us < 1000) {
-            delay = MAX(1000 - (now - last_run_us), delay);
-        }
-        hal.scheduler->delay_microseconds(delay);
-
-        last_run_us = AP_HAL::micros();
-
+uint32_t AP_Logger::io_task_body(void)
+{
         FOR_EACH_BACKEND(io_timer());
 
-        if (now - last_stack_us > 100000U) {
-            last_stack_us = now;
+        uint32_t now = AP_HAL::micros();
+
+        const uint32_t dt = now - taskstate.last_run_us;
+        taskstate.last_run_us = now;
+
+        uint32_t delay = 250U; // always have some delay
+        if (dt < 1000) {
+            delay = MAX(1000 - dt, delay);
+        }
+
+        if (now - taskstate.last_stack_us > 100000U) {
+            taskstate.last_stack_us = now;
             hal.util->log_stack_info();
         }
 
         // check for saving a crash dump file every 5s
-        if (!done_crash_dump_save &&
-            now - last_crash_check_us > 5000000U) {
-            last_crash_check_us = now;
-            done_crash_dump_save = check_crash_dump_save();
+        if (!taskstate.done_crash_dump_save &&
+            now - taskstate.last_crash_check_us > 5000000U) {
+            taskstate.last_crash_check_us = now;
+            taskstate.done_crash_dump_save = check_crash_dump_save();
         }
 #if HAL_LOGGER_FILE_CONTENTS_ENABLED
         file_content_update();
 #endif
-    }
+
+        return delay;
 }
 
 // start the update thread
@@ -1451,7 +1455,13 @@ void AP_Logger::start_io_thread(void)
         return;
     }
 
-    if (!hal.scheduler->thread_create(FUNCTOR_BIND_MEMBER(&AP_Logger::io_thread, void), "log_io", HAL_LOGGING_STACK_SIZE, AP_HAL::Scheduler::PRIORITY_IO, 1)) {
+    if (!hal.scheduler->task_create(
+            FUNCTOR_BIND_MEMBER(&AP_Logger::io_task_init, void),
+            FUNCTOR_BIND_MEMBER(&AP_Logger::io_task_body, uint32_t),
+            "log_io",
+            HAL_LOGGING_STACK_SIZE,
+            AP_HAL::Scheduler::PRIORITY_IO,
+            1)) {
         AP_HAL::panic("Failed to start Logger IO thread");
     }
 
