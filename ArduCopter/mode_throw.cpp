@@ -57,6 +57,11 @@ void ModeThrow::run()
         // Cancel the waiting for throw tone sequence
         AP_Notify::flags.waiting_for_throw = false;
 
+        // Set the auto_arm status to true to avoid a possible
+        // automatic disarm caused by selection of an auto mode with
+        // throttle at minimum
+        copter.set_auto_armed(true);
+
     } else if (stage == Throw_Wait_Throttle_Unlimited &&
                motors->get_spool_state() == AP_Motors::SpoolState::THROTTLE_UNLIMITED) {
         gcs().send_text(MAV_SEVERITY_INFO,"throttle is unlimited - uprighting");
@@ -75,9 +80,6 @@ void ModeThrow::run()
         } else {
             pos_control->set_pos_target_z_cm(inertial_nav.get_altitude() + 300);
         }
-
-        // Set the auto_arm status to true to avoid a possible automatic disarm caused by selection of an auto mode with throttle at minimum
-        copter.set_auto_armed(true);
 
     } else if (stage == Throw_HgtStabilise && throw_height_good()) {
         gcs().send_text(MAV_SEVERITY_INFO,"height achieved - controlling position");
