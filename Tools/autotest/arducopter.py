@@ -8455,6 +8455,28 @@ class AutoTestCopter(AutoTest):
         if not lines[-2].startswith("AP_EFI::update"):
             raise NotAchievedException("Expected EFI last not (%s)" % lines[-2])
 
+    def CodevESC_flight(self):
+        '''fly with servo outputs from Codev ESC'''
+        self.start_subtest("Codev ESC flight")
+        num_wp = self.load_mission("copter_mission.txt", strict=False)
+        self.fly_loaded_mission(num_wp)
+
+    def CodevESC(self):
+        self.set_parameters({
+            "SERIAL5_PROTOCOL": 41,
+            "SIM_CDVESC_ENA": 1,
+            # "SERVO1_FUNCTION": 0,
+            # "SERVO2_FUNCTION": 0,
+            # "SERVO3_FUNCTION": 0,
+            # "SERVO4_FUNCTION": 33,
+            # "SERVO5_FUNCTION": 0,
+            # "SERVO6_FUNCTION": 34,
+            # "SERVO7_FUNCTION": 35,
+            # "SERVO8_FUNCTION": 36,
+        })
+        self.customise_SITL_commandline(["--uartF=sim:codevesc"])
+        self.CodevESC_flight()
+
     def tests1a(self):
         '''return list of all tests'''
         ret = super(AutoTestCopter, self).tests()  # about 5 mins and ~20 initial tests from autotest/common.py
@@ -8969,6 +8991,10 @@ class AutoTestCopter(AutoTest):
             Test("ProximitySensors",
                  "Test Proximity Sensors",
                  self.ProximitySensors),
+
+            Test("CodevESC",
+                 "Test CodevESC",
+                 self.CodevESC),
 
             Test("GroundEffectCompensation_touchDownExpected",
                  "Test EKF's handling of touchdown-expected",
