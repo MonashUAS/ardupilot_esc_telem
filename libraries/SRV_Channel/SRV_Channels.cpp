@@ -50,6 +50,9 @@ AP_RobotisServo *SRV_Channels::robotis_ptr;
 #if HAL_AP_FETTEC_ONEWIRE_ENABLED
 AP_FETtecOneWire *SRV_Channels::fetteconwire_ptr;
 #endif
+#if HAL_CODEVESC_ENABLED
+AP_CodevEsc *SRV_Channels::codevesc_ptr;
+#endif
 #endif // HAL_BUILD_AP_PERIPH
 
 uint16_t SRV_Channels::override_counter[NUM_SERVO_CHANNELS];
@@ -207,6 +210,12 @@ const AP_Param::GroupInfo SRV_Channels::var_info[] = {
     AP_SUBGROUPINFO(fetteconwire, "_FTW_",  25, SRV_Channels, AP_FETtecOneWire),
 #endif
 
+#if HAL_CODEVESC_ENABLED
+    // @Group: _CDVE_
+    // @Path: ../AP_CodevEsc/AP_CodevEsc.cpp
+    AP_SUBGROUPINFO(codevesc, "_FTW_",  26, SRV_Channels, AP_CodevEsc),
+#endif
+
 #endif // HAL_BUILD_AP_PERIPH
 
     // @Param: _DSHOT_RATE
@@ -256,6 +265,9 @@ SRV_Channels::SRV_Channels(void)
     robotis_ptr = &robotis;
 #if HAL_AP_FETTEC_ONEWIRE_ENABLED
     fetteconwire_ptr = &fetteconwire;
+#endif
+#if HAL_CODEVESC_ENABLED
+    codevesc_ptr = &codevesc;
 #endif
 #if HAL_SUPPORT_RCOUT_SERIAL
     blheli_ptr = &blheli;
@@ -376,6 +388,10 @@ void SRV_Channels::push()
 
 #if HAL_AP_FETTEC_ONEWIRE_ENABLED
     fetteconwire_ptr->update();
+#endif
+
+#if HAL_CODEVESC_ENABLED
+    codevesc_ptr->update();
 #endif
 
 #if HAL_SUPPORT_RCOUT_SERIAL
