@@ -21,6 +21,7 @@
 #include "SIM_ToneAlarm.h"
 #include "SIM_EFI_MegaSquirt.h"
 #include "SIM_RichenPower.h"
+#include "SIM_CodevESC.h"
 #include "SIM_FETtecOneWireESC.h"
 #include "SIM_IntelligentEnergy24.h"
 #include "SIM_Ship.h"
@@ -420,6 +421,7 @@ public:
     SIM_Precland precland_sim;
     RichenPower richenpower_sim;
     IntelligentEnergy24 ie24_sim;
+    CodevESC codevesc_sim;
     FETtecOneWireESC fetteconewireesc_sim;
 
     // ESC telemetry
