@@ -364,6 +364,9 @@ int SITL_State::sim_fd(const char *name, const char *arg)
     } else if (streq(name, "fetteconewireesc")) {
         sitl_model->set_fetteconewireesc(&_sitl->fetteconewireesc_sim);
         return _sitl->fetteconewireesc_sim.fd();
+    } else if (streq(name, "codevesc")) {
+        sitl_model->set_codevesc(&_sitl->codevesc_sim);
+        return _sitl->codevesc_sim.fd();
     } else if (streq(name, "ie24")) {
         sitl_model->set_ie24(&_sitl->ie24_sim);
         return _sitl->ie24_sim.fd();
@@ -507,6 +510,8 @@ int SITL_State::sim_fd_write(const char *name)
         return _sitl->richenpower_sim.write_fd();
     } else if (streq(name, "fetteconewireesc")) {
         return _sitl->fetteconewireesc_sim.write_fd();
+    } else if (streq(name, "codevesc")) {
+        return _sitl->codevesc_sim.write_fd();
     } else if (streq(name, "ie24")) {
         return _sitl->ie24_sim.write_fd();
     } else if (streq(name, "gyus42v2")) {
@@ -865,6 +870,17 @@ void SITL_State::_simulator_servos(struct sitl_input &input)
         if (_sitl != nullptr) {
             if (_sitl->fetteconewireesc_sim.enabled()) {
                 _sitl->fetteconewireesc_sim.update_sitl_input_pwm(input);
+                for (uint8_t i=0; i<ARRAY_SIZE(input.servos); i++) {
+                    if (input.servos[i] != 0 && input.servos[i] < 1000) {
+                        AP_HAL::panic("Bad input servo value (%u)", input.servos[i]);
+                    }
+                }
+            }
+        }
+        // Codev ESC simulation support.
+        if (_sitl != nullptr) {
+            if (_sitl->codevesc_sim.enabled()) {
+                _sitl->codevesc_sim.update_sitl_input_pwm(input);
                 for (uint8_t i=0; i<ARRAY_SIZE(input.servos); i++) {
                     if (input.servos[i] != 0 && input.servos[i] < 1000) {
                         AP_HAL::panic("Bad input servo value (%u)", input.servos[i]);
