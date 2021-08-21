@@ -946,6 +946,10 @@ void Aircraft::update_external_payload(const struct sitl_input &input)
         fetteconewireesc->update(*this);
     }
 
+    if (codevesc) {
+        codevesc->update(*this);
+    }
+
     sitl->shipsim.update();
 
     // update IntelligentEnergy 2.4kW generator
