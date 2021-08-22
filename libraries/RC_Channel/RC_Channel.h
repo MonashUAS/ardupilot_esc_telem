@@ -221,6 +221,7 @@ public:
         ARMDISARM_AIRMODE =  154, // arm or disarm vehicle enabling airmode
         TRIM_TO_CURRENT_SERVO_RC = 155, // trim to current servo and RC
         TORQEEDO_CLEAR_ERR = 156, // clear torqeedo error
+        POWEROFF =           157,  // turn power to system off
 
         // inputs from 200 will eventually used to replace RCMAP
         ROLL =               201, // roll input
@@ -313,6 +314,7 @@ protected:
     void do_aux_function_relay(uint8_t relay, bool val);
     void do_aux_function_sprayer(const AuxSwitchPos ch_flag);
     void do_aux_function_generator(const AuxSwitchPos ch_flag);
+    void do_aux_function_poweroff();
 
     typedef int8_t modeswitch_pos_t;
     virtual void mode_switch_changed(modeswitch_pos_t new_pos) {
