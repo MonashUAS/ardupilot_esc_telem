@@ -22,7 +22,11 @@
 #include <GCS_MAVLink/GCS.h>
 
 // very crude debounce method
+#if defined(HAL_BUTTON_DEBOUNCE_MS)
+#define DEBOUNCE_MS HAL_BUTTON_DEBOUNCE_MS
+#else
 #define DEBOUNCE_MS 50
+#endif
 
 extern const AP_HAL::HAL& hal;
 
