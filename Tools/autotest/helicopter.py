@@ -350,6 +350,10 @@ class AutoTestHelicopter(AutoTestCopter):
             raise NotAchievedException("Hit too hard")
         self.wait_disarmed()
 
+    def GuidedTakeoff(self):
+        self.takeoff(10, mode='GUIDED')
+        self.do_RTL()
+
     def set_rc_default(self):
         super(AutoTestHelicopter, self).set_rc_default()
         self.progress("Lowering rotor speed")
@@ -384,6 +388,10 @@ class AutoTestHelicopter(AutoTestCopter):
             ("FlyEachFrame",
              "Fly each supported internal frame",
              self.fly_each_frame),
+
+            ("GuidedTakeoff",
+             "Simple takeoff/land in guided",
+             self.GuidedTakeoff),
 
             ("LogUpload",
              "Log upload",
