@@ -354,6 +354,13 @@ class AutoTestHelicopter(AutoTestCopter):
         self.takeoff(10, mode='GUIDED')
         self.do_RTL()
 
+    def AutoTune(self):
+        self.takeoff(10, mode='GUIDED')
+        self.change_mode('LOITER')  # entry from GUIDED not permitted
+        self.change_mode('AUTOTUNE')
+        self.wait_statustext("AutoTune: Success", timeout=300)
+        self.do_RTL()
+
     def set_rc_default(self):
         super(AutoTestHelicopter, self).set_rc_default()
         self.progress("Lowering rotor speed")
@@ -392,6 +399,10 @@ class AutoTestHelicopter(AutoTestCopter):
             ("GuidedTakeoff",
              "Simple takeoff/land in guided",
              self.GuidedTakeoff),
+
+            ("AutoTune",
+             "Test Helicopter AutoTune",
+             self.AutoTune),
 
             ("LogUpload",
              "Log upload",
