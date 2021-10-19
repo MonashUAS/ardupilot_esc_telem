@@ -2833,10 +2833,10 @@ class AutoTestCopter(AutoTest):
             m_p = self.mav.recv_match(type='GLOBAL_POSITION_INT',
                                       blocking=True)
 
-            if abs(m_r.distance - m_p.relative_alt/1000) > 1:
+            if abs(m_r.distance - m_p.relative_alt/100) > 1:
                 raise NotAchievedException(
                     "rangefinder/global position int mismatch %0.2f vs %0.2f" %
-                    (m_r.distance, m_p.relative_alt/1000))
+                    (m_r.distance, m_p.relative_alt/100))
 
             self.land_and_disarm()
 
