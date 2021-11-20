@@ -3,7 +3,6 @@
 #include "AP_Logger_Backend.h"
 
 #include "AP_Logger_File.h"
-#include "AP_Logger_SITL.h"
 #include "AP_Logger_DataFlash.h"
 #include "AP_Logger_MAVLink.h"
 
@@ -186,9 +185,6 @@ void AP_Logger::Init(const struct LogStructure *structures, uint8_t num_types)
 #endif
 #if HAL_LOGGING_DATAFLASH_ENABLED
         { Backend_Type::BLOCK, AP_Logger_DataFlash::probe },
-#endif
-#if HAL_LOGGING_SITL_ENABLED
-        { Backend_Type::BLOCK, AP_Logger_SITL::probe },
 #endif
 #if HAL_LOGGING_MAVLINK_ENABLED
         { Backend_Type::MAVLINK, AP_Logger_MAVLink::probe },
