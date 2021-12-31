@@ -58,6 +58,7 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'StorageManager',
     'AP_Tuning',
     'AP_RPM',
+    'PB_WateringSystem',
     'AP_RSSI',
     'AP_Mount',
     'AP_Module',
