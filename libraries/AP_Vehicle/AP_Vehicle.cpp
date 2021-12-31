@@ -290,6 +290,10 @@ void AP_Vehicle::setup()
     // initialisation
     AP_Param::invalidate_count();
 
+#if HAL_WATERINGSYSTEM_ENABLED
+    wateringsystem.init();
+#endif
+
     gcs().send_text(MAV_SEVERITY_INFO, "ArduPilot Ready");
 }
 
@@ -406,6 +410,9 @@ const AP_Scheduler::Task AP_Vehicle::scheduler_tasks[] = {
 #endif
 #if HAL_WITH_ESC_TELEM && HAL_GYROFFT_ENABLED
     SCHED_TASK(check_motor_noise,      5,     50, 252),
+#endif
+#if HAL_WATERINGSYSTEM_ENABLED
+    SCHED_TASK_CLASS(PB_WateringSystem,       &vehicle.wateringsystem,            update,                   LOOP_RATE, 200, 250),
 #endif
     SCHED_TASK(update_arming,          1,     50, 253),
 };

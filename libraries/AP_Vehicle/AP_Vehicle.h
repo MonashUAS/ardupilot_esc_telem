@@ -48,6 +48,7 @@
 #include <AP_VideoTX/AP_VideoTX.h>
 #include <AP_MSP/AP_MSP.h>
 #include <AP_Frsky_Telem/AP_Frsky_Parameters.h>
+#include <PB_WateringSystem/PB_WateringSystem.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
 #include <AP_VideoTX/AP_SmartAudio.h>
 #include <AP_VideoTX/AP_Tramp.h>
@@ -290,6 +291,10 @@ protected:
     AP_VideoTX vtx;
 #endif
     AP_SerialManager serial_manager;
+
+#if HAL_WATERINGSYSTEM_ENABLED
+    PB_WateringSystem wateringsystem;
+#endif
 
     AP_Relay relay;
 
