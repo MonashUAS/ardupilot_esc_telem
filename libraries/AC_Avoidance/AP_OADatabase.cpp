@@ -143,7 +143,7 @@ void AP_OADatabase::update()
 }
 
 // push a location into the database
-void AP_OADatabase::queue_push(const Vector3f &pos, uint32_t timestamp_ms, float distance)
+void AP_OADatabase::queue_push(const Vector3f &pos, uint32_t timestamp_ms, float distance, uint32_t id)
 {
     if (!healthy()) {
         return;
@@ -172,7 +172,14 @@ void AP_OADatabase::queue_push(const Vector3f &pos, uint32_t timestamp_ms, float
         return;
     }
 
-    const DbItem item = {pos, timestamp_ms, MAX(_radius_min, distance * dist_to_radius_scalar), 0, DbItemImportance::Normal};
+    const DbItem item {
+        pos,
+        timestamp_ms,
+        MAX(_radius_min, distance * dist_to_radius_scalar),
+        0,
+        DbItemImportance::Normal,
+        id
+    };
     {
         WITH_SEMAPHORE(_queue.sem);
         _queue.items->push(item);
@@ -186,7 +193,7 @@ void AP_OADatabase::init_queue()
         return;
     }
 
-    _queue.items = new ObjectBuffer<DbItem>(_queue.size);
+    _queue.items = new ObjectBuffer<QueueItem>(_queue.size);
     if (_queue.items != nullptr && _queue.items->get_size() == 0) {
         // allocation failed
         delete _queue.items;
@@ -248,7 +255,7 @@ bool AP_OADatabase::process_queue()
     }
 
     for (uint16_t queue_index=0; queue_index<queue_available; queue_index++) {
-        DbItem item;
+        QueueItem item;
 
         bool pop_success;
         {
@@ -263,15 +270,28 @@ bool AP_OADatabase::process_queue()
 
         // compare item to all items in database. If found a similar item, update the existing, else add it as a new one
         bool found = false;
-        for (uint16_t i=0; i<_database.count; i++) {
-            if (is_close_to_item_in_database(i, item)) {
-                database_item_refresh(i, item.timestamp_ms, item.radius);
-                found = true;
-                break;
+        uint16_t i;
+        if (item.key != 0) {
+            for (i=0; i<_database.count; i++) {
+                // zero means ignore the database item:
+                if (item.key == _database.items[i].id &&
+                    _database.items[i].radius != 0) {
+                    found = true;
+                    break;
+                }
+            }
+        } else {
+            for (i=0; i<_database.count; i++) {
+                if (is_close_to_item_in_database(i, item)) {
+                    found = true;
+                    break;
+                }
             }
         }
 
-        if (!found) {
+        if (found) {
+            database_item_refresh(i, item.timestamp_ms, item.radius);
+        } else {
             database_item_add(item);
         }
     }

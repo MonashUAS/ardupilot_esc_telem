@@ -5325,6 +5325,48 @@ void GCS_MAVLINK::send_global_position_int()
         ahrs.yaw_sensor);                // compass heading in 1/100 degree
 }
 
+void GCS_MAVLINK::handle_global_position_int(const mavlink_message_t &msg)
+{
+    AP_OADatabase *oa_db = AP::oadatabase();
+    if (oa_db == nullptr) {
+        return;
+    }
+
+    // decode message
+    mavlink_global_position_int_t packet;
+    mavlink_msg_global_position_int_decode(&msg, &packet);
+
+    // ignore message if lat and lon are (exactly) zero
+    if ((packet.lat == 0 && packet.lon == 0)) {
+        return;
+    }
+
+    const Location loc {
+        packet.lat,
+        packet.lon,
+        packet.alt / 10,
+        Location::AltFrame::ABSOLUTE
+    };
+
+    Vector3f vec;
+    if (!loc.get_vector_from_origin_NEU(vec)) {
+        return;
+    }
+
+    Location here;
+    if (!AP::ahrs().get_location(here)) {
+        return;
+    }
+
+    const float distance = loc.get_distance(here);
+
+    const uint32_t key = AP_OADatabase::DbItemKeyBase::MAVLINK_SYSID_COMPID |
+        msg.sysid << 8 |
+        msg.compid;
+
+    oa_db->queue_push(pos, timestamp_ms, distance, key);
+}
+
 #if HAL_MOUNT_ENABLED
 void GCS_MAVLINK::send_gimbal_device_attitude_status() const
 {

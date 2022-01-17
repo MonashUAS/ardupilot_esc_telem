@@ -23,21 +23,33 @@ public:
         High,
     };
 
+    // domains for item keys:
+    enum class DbItemKeyBase {
+        MAVLINK_SYSID_COMPID = 0x01000000,
+    };
+
     struct DbItem {
         Vector3f pos;           // position of the object as an offset in meters from the EKF origin
         uint32_t timestamp_ms;  // system time that object was last updated
         float radius;           // objects radius in meters
         uint8_t send_to_gcs;    // bitmask of mavlink comports to which details of this object should be sent
         DbItemImportance importance;
+        uint32_t id;           // a unique key for this object; the
+                                // top byte of this key specifies a
+                                // domain from which the ID comes
+                                // from.
     };
 
-    assert_storage_size<struct DbItem, 24> _assert_storage_size_DbItem;
+    assert_storage_size<struct DbItem, 28> _assert_storage_size_DbItem;
 
     void init();
     void update();
 
-    // push an object into the database.  Pos is the offset in meters from the EKF origin, angle is in degrees, distance in meters
-    void queue_push(const Vector3f &pos, uint32_t timestamp_ms, float distance);
+    // push an object into the database.  Pos is the offset in meters
+    // from the EKF origin, angle is in degrees, distance in meters.
+    // key is a unique key for this object.  The top byte of this key
+    // must come from DbItemKeyBase.
+    void queue_push(const Vector3f &pos, uint32_t timestamp_ms, float distance, uint32_t key = 0);
 
     // returns true if database is healthy
     bool healthy() const { return (_queue.items != nullptr) && (_database.items != nullptr); }
