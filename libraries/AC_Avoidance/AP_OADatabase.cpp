@@ -172,7 +172,7 @@ void AP_OADatabase::queue_push(const Vector3f &pos, uint32_t timestamp_ms, float
         return;
     }
 
-    const OA_DbItem item = {pos, timestamp_ms, MAX(_radius_min, distance * dist_to_radius_scalar), 0, AP_OADatabase::OA_DbItemImportance::Normal};
+    const DbItem item = {pos, timestamp_ms, MAX(_radius_min, distance * dist_to_radius_scalar), 0, DbItemImportance::Normal};
     {
         WITH_SEMAPHORE(_queue.sem);
         _queue.items->push(item);
@@ -186,7 +186,7 @@ void AP_OADatabase::init_queue()
         return;
     }
 
-    _queue.items = new ObjectBuffer<OA_DbItem>(_queue.size);
+    _queue.items = new ObjectBuffer<DbItem>(_queue.size);
     if (_queue.items != nullptr && _queue.items->get_size() == 0) {
         // allocation failed
         delete _queue.items;
@@ -201,27 +201,27 @@ void AP_OADatabase::init_database()
         return;
     }
 
-    _database.items = new OA_DbItem[_database.size];
+    _database.items = new DbItem[_database.size];
 }
 
 // get bitmask of gcs channels item should be sent to based on its importance
 // returns 0xFF (send to all channels) if should be sent, 0 if it should not be sent
-uint8_t AP_OADatabase::get_send_to_gcs_flags(const OA_DbItemImportance importance)
+uint8_t AP_OADatabase::get_send_to_gcs_flags(const DbItemImportance importance)
 {
     switch (importance) {
-    case OA_DbItemImportance::Low:
+    case DbItemImportance::Low:
         if (_output_level >= OutputLevel::ALL) {
             return 0xFF;
         }
         break;
 
-    case OA_DbItemImportance::Normal:
+    case DbItemImportance::Normal:
         if (_output_level >= OutputLevel::HIGH_AND_NORMAL) {
             return 0xFF;
         }
         break;
 
-    case OA_DbItemImportance::High:
+    case DbItemImportance::High:
         if (_output_level >= OutputLevel::HIGH) {
             return 0xFF;
         }
@@ -248,7 +248,7 @@ bool AP_OADatabase::process_queue()
     }
 
     for (uint16_t queue_index=0; queue_index<queue_available; queue_index++) {
-        OA_DbItem item;
+        DbItem item;
 
         bool pop_success;
         {
@@ -278,7 +278,7 @@ bool AP_OADatabase::process_queue()
     return (_queue.items->available() > 0);
 }
 
-void AP_OADatabase::database_item_add(const OA_DbItem &item)
+void AP_OADatabase::database_item_add(const DbItem &item)
 {
     if (_database.count >= _database.size) {
         return;
@@ -354,7 +354,7 @@ void AP_OADatabase::database_items_remove_all_expired()
 }
 
 // returns true if a similar object already exists in database. When true, the object timer is also reset
-bool AP_OADatabase::is_close_to_item_in_database(const uint16_t index, const OA_DbItem &item) const
+bool AP_OADatabase::is_close_to_item_in_database(const uint16_t index, const DbItem &item) const
 {
     if (index >= _database.count) {
         // index out of range
@@ -369,7 +369,7 @@ bool AP_OADatabase::is_close_to_item_in_database(const uint16_t index, const OA_
 void AP_OADatabase::send_adsb_vehicle(mavlink_channel_t chan, uint16_t interval_ms)
 {
     // ensure database's send_to_gcs field is large enough
-    static_assert(MAVLINK_COMM_NUM_BUFFERS <= sizeof(OA_DbItem::send_to_gcs) * 8,
+    static_assert(MAVLINK_COMM_NUM_BUFFERS <= sizeof(DbItem::send_to_gcs) * 8,
                   "AP_OADatabase's OA_DBItem.send_to_gcs bitmask must be large enough to hold MAVLINK_COMM_NUM_BUFFERS");
 
     if ((_output_level <= OutputLevel::NONE) || !healthy()) {
@@ -446,7 +446,7 @@ void AP_OADatabase::send_adsb_vehicle(mavlink_channel_t chan, uint16_t interval_
         const uint16_t idx = _highest_index_sent[chan];
         _highest_index_sent[chan]--;
 
-        if (_database.items[idx].importance != OA_DbItemImportance::High) {
+        if (_database.items[idx].importance != DbItemImportance::High) {
             continue;
         }
 
