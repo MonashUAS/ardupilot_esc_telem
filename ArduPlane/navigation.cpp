@@ -332,9 +332,9 @@ void Plane::update_loiter_update_nav(uint16_t radius)
     nav_controller->update_loiter(next_WP_loc, radius, loiter.direction);
 }
 
-void Plane::update_loiter(uint16_t radius)
+void Plane::update_loiter(float radius)
 {
-    if (radius <= 1) {
+    if (abs(radius) <= 1) {
         // if radius is <=1 then use the general loiter radius. if it's small, use default
         radius = (abs(aparm.loiter_radius) <= 1) ? LOITER_RADIUS_DEFAULT : abs(aparm.loiter_radius);
         if (next_WP_loc.loiter_ccw == 1) {
@@ -342,6 +342,9 @@ void Plane::update_loiter(uint16_t radius)
         } else {
             loiter.direction = (aparm.loiter_radius < 0) ? -1 : 1;
         }
+    } else if (is_negative(radius)) {
+        radius = fabsf(radius);
+        loiter.direction = -1;
     }
 
     update_loiter_update_nav(radius);

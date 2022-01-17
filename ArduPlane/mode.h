@@ -121,6 +121,9 @@ public:
     // handle a guided target request from GCS
     virtual bool handle_guided_request(Location target_loc) { return false; }
 
+    // set loiter radius in metres:
+    virtual void set_loiter_radius(float radius) { }
+
 protected:
 
     // subclasses override this to perform checks before entering the mode
@@ -225,9 +228,13 @@ public:
     // handle a guided target request from GCS
     bool handle_guided_request(Location target_loc) override;
 
+    // set loiter radius in metres:
+    virtual void set_loiter_radius(float radius) override { loiter_radius = radius; }
+
 protected:
 
     bool _enter() override;
+    float loiter_radius;
 };
 
 class ModeCircle: public Mode

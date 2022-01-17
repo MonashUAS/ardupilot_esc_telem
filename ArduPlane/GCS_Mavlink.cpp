@@ -932,10 +932,19 @@ MAV_RESULT GCS_MAVLINK_Plane::handle_command_long_packet(const mavlink_command_l
         return MAV_RESULT_FAILED;
     }
 
-    case MAV_CMD_NAV_LOITER_UNLIM:
-        plane.set_mode(plane.mode_loiter, ModeReason::GCS_COMMAND);
+    case MAV_CMD_NAV_LOITER_UNLIM: {
+        Location loc {
+            (int32_t)(packet.param5 * 1.0e7f),
+            (int32_t)(packet.param6 * 1.0e7f),
+            (int32_t)(packet.param7),
+            Location::AltFrame::ABOVE_HOME  // ??!?!?!?!
+        };
+        loc.sanitize(plane.current_loc);
+        plane.set_mode(plane.mode_guided, ModeReason::GCS_COMMAND);
+        plane.set_guided_WP(loc);
+        plane.control_mode->set_loiter_radius(packet.param3);
         return MAV_RESULT_ACCEPTED;
-
+    }
     case MAV_CMD_NAV_RETURN_TO_LAUNCH:
         plane.set_mode(plane.mode_rtl, ModeReason::GCS_COMMAND);
         return MAV_RESULT_ACCEPTED;

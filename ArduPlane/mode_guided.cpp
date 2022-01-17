@@ -20,6 +20,9 @@ bool ModeGuided::_enter()
     }
 #endif
 
+    // same logic as in Plane::update_loiter:
+    loiter_radius = (abs(plane.aparm.loiter_radius) <= 1) ? LOITER_RADIUS_DEFAULT : abs(plane.aparm.loiter_radius);
+
     plane.set_guided_WP(loc);
     return true;
 }
@@ -40,7 +43,7 @@ void ModeGuided::update()
 void ModeGuided::navigate()
 {
     // Zero indicates to use WP_LOITER_RAD
-    plane.update_loiter(0);
+    plane.update_loiter(loiter_radius);
 }
 
 bool ModeGuided::handle_guided_request(Location target_loc)

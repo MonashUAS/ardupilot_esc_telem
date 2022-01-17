@@ -1019,7 +1019,7 @@ private:
     void calc_airspeed_errors();
     float mode_auto_target_airspeed_cm();
     void calc_gndspeed_undershoot();
-    void update_loiter(uint16_t radius);
+    void update_loiter(float radius);
     void update_loiter_update_nav(uint16_t radius);
     void update_cruise();
     void update_fbwb_speed_height(void);
