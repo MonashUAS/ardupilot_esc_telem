@@ -61,6 +61,7 @@
 #include "MissionItemProtocol_Waypoints.h"
 #include "MissionItemProtocol_Rally.h"
 #include "MissionItemProtocol_Fence.h"
+#include <AC_Avoidance/AP_OADatabase.h>
 
 #include <stdio.h>
 
@@ -3875,6 +3876,10 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
         break;
 #endif
 
+    case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
+        handle_global_position_int(msg);
+        break;
+
     case MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST:
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -5348,23 +5353,23 @@ void GCS_MAVLINK::handle_global_position_int(const mavlink_message_t &msg)
         Location::AltFrame::ABSOLUTE
     };
 
-    Vector3f vec;
-    if (!loc.get_vector_from_origin_NEU(vec)) {
+    Vector3f pos;
+    if (!loc.get_vector_from_origin_NEU(pos)) {
         return;
     }
 
     Location here;
-    if (!AP::ahrs().get_location(here)) {
+    if (!AP::ahrs().get_position(here)) {
         return;
     }
 
     const float distance = loc.get_distance(here);
 
-    const uint32_t key = AP_OADatabase::DbItemKeyBase::MAVLINK_SYSID_COMPID |
+    const uint32_t key = (uint32_t)AP_OADatabase::DbItemKeyBase::MAVLINK_SYSID_COMPID |
         msg.sysid << 8 |
         msg.compid;
 
-    oa_db->queue_push(pos, timestamp_ms, distance, key);
+    oa_db->queue_push(pos, AP_HAL::millis(), distance, key);
 }
 
 #if HAL_MOUNT_ENABLED

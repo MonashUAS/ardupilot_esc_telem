@@ -193,8 +193,8 @@ void AP_OADatabase::init_queue()
         return;
     }
 
-    _queue.items = new ObjectBuffer<QueueItem>(_queue.size);
-    if (_queue.items != nullptr && _queue.items->get_size() == 0) {
+    _queue.items = new ObjectBuffer<DbItem>(_queue.size);
+\    if (_queue.items != nullptr && _queue.items->get_size() == 0) {
         // allocation failed
         delete _queue.items;
         _queue.items = nullptr;
@@ -255,7 +255,7 @@ bool AP_OADatabase::process_queue()
     }
 
     for (uint16_t queue_index=0; queue_index<queue_available; queue_index++) {
-        QueueItem item;
+        DbItem item;
 
         bool pop_success;
         {
@@ -271,11 +271,11 @@ bool AP_OADatabase::process_queue()
         // compare item to all items in database. If found a similar item, update the existing, else add it as a new one
         bool found = false;
         uint16_t i;
-        if (item.key != 0) {
+        if (item.id != 0) {
             for (i=0; i<_database.count; i++) {
                 // zero means ignore the database item:
-                if (item.key == _database.items[i].id &&
-                    _database.items[i].radius != 0) {
+                if (item.id == _database.items[i].id &&
+                    !is_zero(_database.items[i].radius)) {
                     found = true;
                     break;
                 }
