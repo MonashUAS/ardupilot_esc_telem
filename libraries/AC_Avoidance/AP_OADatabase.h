@@ -17,7 +17,7 @@ public:
         return _singleton;
     }
 
-    enum OA_DbItemImportance {
+    enum OA_DbItemImportance : uint8_t {
         Low,
         Normal,
         High,
@@ -30,6 +30,8 @@ public:
         uint8_t send_to_gcs;    // bitmask of mavlink comports to which details of this object should be sent
         DbItemImportance importance;
     };
+
+    assert_storage_size<struct DbItem, 24> _assert_storage_size_DbItem;
 
     void init();
     void update();
