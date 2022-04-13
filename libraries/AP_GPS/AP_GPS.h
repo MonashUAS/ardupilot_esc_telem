@@ -732,6 +732,10 @@ private:
     // logging support
     void Write_GPS(uint8_t instance);
 
+    // returns true if type is useful as an RTK base
+    bool is_rtk_base_type(uint8_t type) const;
+    // returns true if type is useful as an RTK rover
+    bool is_rtk_rover_type(uint8_t type) const;
 };
 
 namespace AP {
