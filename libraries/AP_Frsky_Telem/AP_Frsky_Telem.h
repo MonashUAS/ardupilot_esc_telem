@@ -14,6 +14,10 @@
 */
 #pragma once
 
+#include "AP_Frsky_config.h"
+
+#if AP_FRSKY_ENABLED
+
 #include "AP_Frsky_Backend.h"
 #include "AP_Frsky_SPort.h"
 
@@ -70,3 +74,5 @@ private:
 namespace AP {
     AP_Frsky_Telem *frsky_telem();
 };
+
+#endif  // AP_FRSKY_ENABLED

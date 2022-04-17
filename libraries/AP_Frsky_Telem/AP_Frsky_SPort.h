@@ -2,6 +2,8 @@
 
 #include "AP_Frsky_Backend.h"
 
+#if AP_FRSKY_SPORT_ENABLED
+
 class AP_Frsky_SPort : public AP_Frsky_Backend
 {
 
@@ -65,3 +67,5 @@ private:
 namespace AP {
     AP_Frsky_SPort *frsky_sport();
 };
+
+#endif  // AP_FRSKY_SPORT_ENABLED

@@ -1,17 +1,16 @@
 #pragma once
 
-#include <AP_HAL/AP_HAL.h>
-#include <GCS_MAVLink/GCS_MAVLink.h>
+#include "AP_Frsky_config.h"
 
-#ifndef HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL
-#define HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL 1
-#endif
+#if AP_FRSKY_ENABLED
+
+#include <GCS_MAVLink/GCS_MAVLink.h>
 
 class AP_Frsky_Backend
 {
 public:
 
-    AP_Frsky_Backend(AP_HAL::UARTDriver *port) :
+    AP_Frsky_Backend(class AP_HAL::UARTDriver *port) :
         _port(port) { }
 
     virtual ~AP_Frsky_Backend()  {}
@@ -52,7 +51,7 @@ public:
 
 protected:
 
-    AP_HAL::UARTDriver *_port;  // UART used to send data to FrSky receiver
+    class AP_HAL::UARTDriver *_port;  // UART used to send data to FrSky receiver
 
     virtual bool init_serial_port();
 
@@ -148,3 +147,5 @@ private:
     void loop(void);
 
 };
+
+#endif  // AP_FRSKY_ENABLED
