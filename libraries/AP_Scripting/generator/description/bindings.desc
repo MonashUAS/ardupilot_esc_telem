@@ -392,6 +392,7 @@ singleton AP_MotorsMatrix method set_throttle_factor boolean int8_t 0 (AP_MOTORS
 
 include AP_Frsky_Telem/AP_Frsky_SPort.h
 singleton AP_Frsky_SPort rename frsky_sport
+singleton AP_Frsky_SPort depends AP_FRSKY_SPORT_ENABLED
 singleton AP_Frsky_SPort method sport_telemetry_push boolean uint8_t 0 UINT8_MAX uint8_t 0 UINT8_MAX uint16_t 0 UINT16_MAX int32_t -INT32_MAX INT32_MAX
 singleton AP_Frsky_SPort method prep_number uint16_t int32_t INT32_MIN INT32_MAX uint8_t 0 UINT8_MAX uint8_t 0 UINT8_MAX
 
