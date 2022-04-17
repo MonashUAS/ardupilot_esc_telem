@@ -68,6 +68,7 @@ env BUILD_ABIN True
 # Disable un-needed hardware drivers
 define AP_AIRSPEED_ENABLED 0
 define AP_OPTICALFLOW_ENABLED 0
+define AP_FRSKY_ENABLED 0
 define BEACON_ENABLED 0
 define GPS_MOVING_BASELINE 0
 define GRIPPER_ENABLED 0
