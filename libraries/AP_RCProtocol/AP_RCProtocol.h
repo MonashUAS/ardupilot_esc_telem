@@ -15,6 +15,9 @@
  * Code by Andrew Tridgell and Siddharth Bharat Purohit
  */
 #pragma once
+
+#include "AP_RCProtocol_config.h"
+
 #include <AP_HAL/AP_HAL.h>
 
 class AP_RCProtocol_Backend;
@@ -169,7 +172,7 @@ public:
     }
 
     // add a UART for RCIN
-    void add_uart(AP_HAL::UARTDriver* uart);
+    void add_uart(class AP_HAL::UARTDriver* uart);
 
 #ifdef IOMCU_FW
     // set allowed RC protocols
@@ -180,7 +183,7 @@ public:
 
     class SerialConfig {
     public:
-        void apply_to_uart(AP_HAL::UARTDriver *uart) const;
+        void apply_to_uart(class AP_HAL::UARTDriver *uart) const;
 
         uint32_t baud;
         uint8_t parity;
@@ -210,7 +213,7 @@ private:
 
     // optional additional uart
     struct {
-        AP_HAL::UARTDriver *uart;
+        class AP_HAL::UARTDriver *uart;
         bool opened;
         uint32_t last_config_change_ms;
         uint8_t config_num;

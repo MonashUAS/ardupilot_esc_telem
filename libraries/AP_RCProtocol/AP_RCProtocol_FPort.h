@@ -23,6 +23,7 @@
 
 #include <AP_Frsky_Telem/AP_Frsky_SPort.h>
 #include "SoftSerial.h"
+#include <AP_Frsky_Telem/AP_Frsky_SPort.h>
 
 #define FPORT_CONTROL_FRAME_SIZE 29
 

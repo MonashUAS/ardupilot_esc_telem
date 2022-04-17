@@ -419,9 +419,6 @@ void AP_RCProtocol::start_bind(void)
     }
 }
 
-/*
-  return protocol name
- */
 const char *AP_RCProtocol::protocol_name(void) const
 {
     return rc_protocol_name_from_protocol(_detected_protocol);
