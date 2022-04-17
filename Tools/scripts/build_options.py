@@ -54,6 +54,10 @@ BUILD_OPTIONS = [
     Feature('Telemetry', 'HOTT', 'HAL_HOTT_TELEM_ENABLED', 'Enable HOTT Telemetry', 0, None),
     Feature('Telemetry', 'SPEKTRUM', 'HAL_SPEKTRUM_TELEM_ENABLED', 'Enable Spektrum Telemetry', 0, None),
     Feature('Telemetry', 'LTM', 'AP_LTM_TELEM_ENABLED', 'Enable LTM Telemetry', 0, None),
+    Feature('Telemetry', 'FrSky', 'AP_FRSKY_ENABLED', 'Enable FrSky Telemetry', 0, None),
+    Feature('Telemetry', 'FrSky D', 'AP_FRSKY_D_ENABLED', 'Enable FrSkyD Telemetry', 0, 'AP_FRSKY_ENABLED'),
+    Feature('Telemetry', 'FrSky SPort', 'AP_FRSKY_SPORT_ENABLED', 'Enable FrSkySPort Telemetry', 0, 'AP_FRSKY_ENABLED'),
+    Feature('Telemetry', 'FrSky SPort PassThrough', 'AP_FRSKY_SPORT_PASSTHROUGH_ENABLED', 'Enable FrSkySPort PassThrough Telemetry', 0, 'AP_FRSKY_SPORT_ENABLED'),  # noqa
 
     Feature('MSP', 'MSP', 'HAL_MSP_ENABLED', 'Enable MSP Telemetry and MSP OSD', 0, 'OSD'),
     Feature('MSP', 'MSP_SENSORS', 'HAL_MSP_SENSORS_ENABLED', 'Enable MSP Sensors', 0, 'MSP_GPS,MSP_BARO,MSP_COMPASS,MSP_AIRSPEED,MSP,MSP_OPTICALFLOW,MSP_RANGEFINDER,OSD'),   # NOQA: E501
