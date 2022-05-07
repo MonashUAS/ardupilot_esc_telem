@@ -603,6 +603,12 @@ class sitl(Board):
             HAL_PROBE_EXTERNAL_I2C_BAROS = 1,
         )
 
+        if not cfg.env.AP_PERIPH:
+            env.DEFINES.update(
+                AP_GENERATOR_LOWEHEISER_ENABLED = 1,
+                AP_EFI_LOWEHEISER_ENABLED = 1,
+            )
+
         cfg.define('AP_SIM_ENABLED', 1)
         cfg.define('HAL_WITH_SPI', 1)
         cfg.define('HAL_WITH_RAMTRON', 1)
