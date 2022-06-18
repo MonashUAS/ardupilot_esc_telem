@@ -46,6 +46,30 @@ extern const AP_HAL::HAL& hal;
 // byte 8               Checksum        Checksum byte, sum of bytes 0 to bytes 7
 
 // distance returned in reading_m, signal_ok is set to true if sensor reports a strong signal
+
+// searches the buffer for an instance of the header byte, starting at
+// search_start_pos.  If found, moves that bytes and all bytes past it
+// to the start of the buffer.
+void AP_RangeFinder_Benewake::move_header_in_buffer(uint8_t search_start_pos)
+{
+    const char *header = (char*)memchr(&u.linebuf[search_start_pos],
+                                       BENEWAKE_FRAME_HEADER,
+                                       linebuf_len - search_start_pos);
+    if (header == nullptr) {
+        // header byte not found; empty the buffer
+        linebuf_len = 0;
+        return;
+    }
+    const uint16_t delta = (char*)header - (char*)u.linebuf;
+    if (delta == 0) {
+        // header byte already at start of buffer
+        return;
+    }
+
+    memmove(u.linebuf, &u.linebuf[delta], linebuf_len-delta);
+    linebuf_len -= delta;
+}
+
 bool AP_RangeFinder_Benewake::get_reading(float &reading_m)
 {
     if (uart == nullptr) {
@@ -56,64 +80,67 @@ bool AP_RangeFinder_Benewake::get_reading(float &reading_m)
     uint16_t count = 0;
     uint16_t count_out_of_range = 0;
 
-    // read any available lines from the lidar
-    int16_t nbytes = uart->available();
-    while (nbytes-- > 0) {
-        int16_t r = uart->read();
-        if (r < 0) {
+    // process at most 100 packets.  get_reading is called at 50Hz, so
+    // this is a massive packet rate.
+    for (uint8_t packetcount=0; packetcount<100; packetcount++) {
+        // fill buffer with any bytes available from the uart:
+        const uint32_t nbytes = uart->read(&u.linebuf[linebuf_len], ARRAY_SIZE(u.linebuf)-linebuf_len);
+        if (nbytes == 0) {
+            break;
+        }
+
+        linebuf_len += nbytes;
+
+        move_header_in_buffer(0);
+
+        // ensure we have a complete packet:
+        if (linebuf_len < BENEWAKE_FRAME_LENGTH) {
             continue;
         }
-        uint8_t c = (uint8_t)r;
-        // if buffer is empty and this byte is 0x59, add to buffer
-        if (linebuf_len == 0) {
-            if (c == BENEWAKE_FRAME_HEADER) {
-                linebuf[linebuf_len++] = c;
-            }
-        } else if (linebuf_len == 1) {
-            // if buffer has 1 element and this byte is 0x59, add it to buffer
-            // if not clear the buffer
-            if (c == BENEWAKE_FRAME_HEADER) {
-                linebuf[linebuf_len++] = c;
-            } else {
-                linebuf_len = 0;
-            }
+
+        // two indentical header bytes:
+        if (u.linebuf[1] != BENEWAKE_FRAME_HEADER) {
+            // second header byte not found; discard both bytes:
+            move_header_in_buffer(2);
+            continue;
+        }
+
+        // calculate checksum
+        uint8_t checksum = 0;
+        for (uint8_t i=0; i<BENEWAKE_FRAME_LENGTH-1; i++) {
+            checksum += u.linebuf[i];
+        }
+
+        // if checksum does not match then discard this header byte
+        // and try again
+        if (checksum != u.packet.checksum) {
+            move_header_in_buffer(1);
+            continue;
+        }
+
+        // calculate distance
+        const uint16_t dist = u.packet.dist();
+        if (dist >= BENEWAKE_DIST_MAX_CM) {
+            // this reading is out of range
+            count_out_of_range++;
+        } else if (!has_signal_byte()) {
+            // no signal byte from TFmini so add distance to sum
+            sum_cm += dist;
+            count++;
         } else {
-            // add character to buffer
-            linebuf[linebuf_len++] = c;
-            // if buffer now has 9 items try to decode it
-            if (linebuf_len == BENEWAKE_FRAME_LENGTH) {
-                // calculate checksum
-                uint8_t checksum = 0;
-                for (uint8_t i=0; i<BENEWAKE_FRAME_LENGTH-1; i++) {
-                    checksum += linebuf[i];
-                }
-                // if checksum matches extract contents
-                if (checksum == linebuf[BENEWAKE_FRAME_LENGTH-1]) {
-                    // calculate distance
-                    uint16_t dist = ((uint16_t)linebuf[3] << 8) | linebuf[2];
-                    if (dist >= BENEWAKE_DIST_MAX_CM) {
-                        // this reading is out of range
-                        count_out_of_range++;
-                    } else if (!has_signal_byte()) {
-                        // no signal byte from TFmini so add distance to sum
-                        sum_cm += dist;
-                        count++;
-                    } else {
-                        // TF02 provides signal reliability (good = 7 or 8)
-                        if (linebuf[6] >= 7) {
-                            // add distance to sum
-                            sum_cm += dist;
-                            count++;
-                        } else {
-                            // this reading is out of range
-                            count_out_of_range++;
-                        }
-                    }
-                }
-                // clear buffer
-                linebuf_len = 0;
+            // TF02 provides signal reliability (good = 7 or 8)
+            if (u.packet.SIG >= 7) {
+                // add distance to sum
+                sum_cm += dist;
+                count++;
+            } else {
+                // this reading is out of range
+                count_out_of_range++;
             }
         }
+
+        // consume this packet:
+        move_header_in_buffer(BENEWAKE_FRAME_LENGTH);
     }
 
     if (count > 0) {
