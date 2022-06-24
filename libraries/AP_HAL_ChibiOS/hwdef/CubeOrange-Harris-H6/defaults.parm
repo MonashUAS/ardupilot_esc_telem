@@ -1,0 +1,116 @@
+include ../CubeOrange-Harris/defaults.parm
+
+# Base Parameter File for H6 Vehicles (non HL)
+# Date: June 7, 2022
+# ArduCopter Version: 4.2 
+
+# Structure
+# The parameter file is structured to allow easier changes to payload, sensors, or energy source
+
+# Specific Payload Parameters
+# Specific Sensor Parameters
+# Motor Specific Parameters
+# Energy Source Specific Parameter, (Batteries, Lowheiser Generator, Intelligent Energy Fuel Cell, RichenPower etc.)
+# Otherwise Parameters are Listed in Alphabetical Order Similar to how parmaeters oour pulled from Mission Planner
+
+
+# How to Use this file?
+# 1.) Paste the "BASE" parameter file
+# 2.) Paste the base vehicle parameter file
+# 3.) Paste "VEHICLE_ENERGY_SOURCE" parameter file at the begining of this file 
+# 4.) Create a complete per vehicle parameter file for the given energy source
+
+# Sensors
+
+# Attitude Control
+ATC_ACCEL_P_MAX 20000
+ATC_ACCEL_R_MAX 20000
+ATC_ACCEL_Y_MAX 8000
+
+ATC_RAT_PIT_D 0.006
+ATC_RAT_PIT_FLTD 10
+ATC_RAT_PIT_FLTT 15
+ATC_RAT_PIT_I 0.1974
+ATC_RAT_PIT_P 0.1974
+
+ATC_RAT_RLL_D 0.006
+ATC_RAT_RLL_FLTD 10
+ATC_RAT_RLL_FLTT 15
+ATC_RAT_RLL_I 0.192
+ATC_RAT_RLL_P 0.192
+
+ATC_RAT_YAW_D 0.06
+ATC_RAT_YAW_FLTT 15
+ATC_RAT_YAW_FLTD 10
+ATC_RAT_YAW_I 0.05
+ATC_RAT_YAW_P 0.5
+
+ATC_SLEW_YAW 3500
+
+# Setup Frame Type to Hexarotor
+FRAME_CLASS 2
+FRAME_TYPE 1
+
+# GPS Stand Positions
+
+# GPS_POS1_X 0
+# GPS_POS1_Y 0
+# GPS_POS1_Z 0
+# GPS_POS2_X 0
+# GPS_POS2_Y 0
+# GPS_POS2_Z 0
+
+# GPS_POS1_X 0.025
+# GPS_POS1_Y -0.243
+# GPS_POS1_Z -0.288
+# GPS_POS2_X 0.025
+# GPS_POS2_Y 0.243
+# GPS_POS2_Z -0.288
+
+INS_ACCEL_FILTER 10
+
+# Set INS Gyro Filter to a higher frequency requires notch filtering the purpose ofthis is to 
+# decrease the phase lag between command and actual targets
+INS_GYRO_FILTER 30
+
+# Motor and ESC Parameters for TMotor U8II Lite KV100 
+# TMotor Alpha 60A ESCs
+MOT_SPIN_ARM 0.07
+MOT_SPIN_MAX 1
+MOT_SPIN_MIN 0.09
+
+MOT_THST_EXPO 0.85
+MOT_THST_HOVER 0.35
+
+# Position Control Settings
+
+# Position Control Z-axis
+PSC_JERK_Z 5
+
+# FIXME what should be in comparison to INS_ACCEL_FILTER value when it is 10
+PSC_ACCZ_FLTE 20
+
+PSC_ACCZ_FLTT 0
+PSC_ACCZ_I 1
+PSC_ACCZ_P 0.5
+PSC_ACCZ_SMAX 0
+
+PSC_VELZ_D 0
+PSC_VELZ_FF 0
+PSC_VELZ_FLTD 5
+PSC_VELZ_FLTE 5
+PSC_VELZ_I 0
+PSC_VELZ_P 5
+
+PSC_POSZ_P 1
+
+# Position Control XY
+PSC_JERK_XY 3.5
+
+PSC_VELXY_D 0.35
+PSC_VELXY_FLTD 5
+PSC_VELXY_FLTE 5
+PSC_VELXY_I 0.55
+PSC_VELXY_P 1.1
+
+PSC_POSXY_P 0.6
