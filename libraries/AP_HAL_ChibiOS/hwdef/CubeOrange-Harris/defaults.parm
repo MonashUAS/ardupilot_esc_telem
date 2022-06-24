@@ -1,0 +1,230 @@
+# Base Parameter File for All Harris Aerial Vehicles
+# Date: June 7, 2022
+# ArduCopter Version: 4.2
+
+# Structure
+# The parameter file is structured to allow easier changes to payload, sensors, or energy source
+
+# Specific Payload Parameters
+# Specific Sensor Parameters
+# Motor Specific Parameters
+# Energy Source Specific Parameter: (Batteries, Lowheiser Generator, Intelligent Energy Fuel Cell, RichenPower etc.)
+# Otherwise Parameters are Listed in Alphabetical Order Similar to how parmaeters oour pulled from Mission Planner
+
+
+# How to Use this file?
+# 1.) Paste the "BASE" parameter file
+# 2.) Paste the base vehicle parameter file
+# 3.) Paste "VEHICLE_ENERGY_SOURCE" parameter file at the begining of this file 
+# 4.) Create a complete per vehicle parameter file for the given energy source
+
+# Sensors
+
+
+
+# Flight Test Parameters: Turn Off and Explicitly List
+# FFT_ENABLE 0 commented out since HX8 is using the FFT Dynamic notch
+INS_LOG_BAT_MASK 0
+INS_LOG_BAT_OPT 0
+SCR_ENABLE 0
+
+
+# ACRO Mode Protections
+ACRO_RP_RATE 90
+ACRO_Y_RATE 67.5
+
+# ADSB-IN for CubeOrange Carrier on Serial 5
+ADSB_TYPE 1
+ADSB_LIST_RADIUS 10000
+
+
+# Attitude Control
+
+# Set the maximum lean angle to 25 degrees
+ANGLE_MAX 2500
+
+# Increase the pilot input time constant to smooth ouput inputs due to the type of 
+# joysticks and controllers used
+ATC_INPUT_TC 0.2
+
+ATC_RAT_RLL_SMAX 20
+ATC_RAT_PIT_SMAX 20
+ATC_RAT_YAW_SMAX 20
+
+ATC_RATE_P_MAX 75
+ATC_RATE_R_MAX 75
+ATC_RATE_Y_MAX 75
+
+# Battery 1 Mauch Sensors Voltage & Current
+# Failsafe LOW Action is RTL
+BATT_FS_LOW_ACT 2
+
+# add note later why use resting estimate for voltage fialsafe when you have accurate current cpacity used monitoring
+# need to set the failsafe for BATT_(low/critical)_MAH
+# BATT_FS_VOLTSRC 0
+
+BATT_MONITOR 4
+
+# These must be set by technicians on bring up using the Mauch Sensor parameters for each individual sensor
+# BATT_CURR_MULT 0
+# BATT_VOLT_MULT 0
+
+# Battery 2
+# energy Generator (fuel cell, Generator, etc.)
+
+# Battery 3
+# backup battery
+
+
+# Per Phillip Rowse of CubePilot. For a Cube Orange 60 deg C is the sweet spot for the IMU heater
+# The IMUs max. temperature is 80 deg C and if the IMU continues to self heat with the heater off above the target
+# active and passive cooling should be considered.
+# A steady temperature is need to maintain gyro bias stability throughout flight from takeoff
+BRD_HEAT_TARG 60
+
+BRD_SAFETYENABLE 0
+
+# ENABLE CAN DRIVER FOR DRONECAN CAN1 & CAN2
+CAN_D1_PROTOCOL 1
+CAN_D2_PROTOCOL 1
+CAN_P1_DRIVER 1
+CAN_P2_DRIVER 1
+
+# COMPASS WIP FIX ME!!!
+# Set External for COMPASS1 & COMPASS2 to use two HERE3s
+# Figure out how to set priority to CAN GPSs and turn off internal using parameters
+# so that technicans do not need to do this
+# this gets at the problem of needing to set nodeID on the CAN GPS to ensure which is which always
+
+# Technician must set Compass priority and move CubeOranage compass to Priority 3
+
+COMPASS_EXTERN2 1
+COMPASS_EXTERN3 0
+COMPASS_EXTERNAL 1
+COMPASS_USE 1
+COMPASS_USE2 1
+COMPASS_USE3 0
+
+# Setup Flight Modes
+# Set the start up flight mode to loiter
+# First flight mode loiter
+# Second flight mode: AltHold
+# All other flight modes: Auto
+INITIAL_MODE 5
+FLTMODE_CH 5
+FLTMODE1 5
+FLTMODE2 2
+FLTMODE3 3
+FLTMODE4 3
+FLTMODE5 3
+FLTMODE6 3
+
+# Setup Failsafe Behaviors
+# EKF Failsafe action to AltHold
+# WIP double check gcs_failsafe timeout
+FS_EKF_ACTION 2
+FS_GCS_ENABLE 1
+FS_OPTIONS 8
+FS_THR_ENABLE 1
+FS_THR_VALUE 1050
+
+# Enforce GND_EFFECT_COMPENSATION even though default in Copter4.2
+GND_EFFECT_COMP 1
+
+# GPS
+# Change GPS Positions per vehicle
+GPS_AUTO_SWITCH 2
+GPS_TYPE 9
+GPS_TYPE2 9
+NTF_LED_TYPES 231
+
+# For future we should set nodeIDs on the GPS units via their CAN psrameters
+# and then set the CAN_OVRIDE parameter
+#
+# Or can we create a code patch such that the GPS in CAN1 port 
+# becomes always GPS1 and GPS in CAN2 becomes GPS2
+
+# GPS1_CAN_OVRIDE
+# GPS2_CAN_OVRIDE
+
+# Turn on logging of Fast Attitude by default as a com
+# We have disabled PID logging by default due to log size
+LOG_BITMASK 61439
+
+# Set Loiter handling qualities
+LOIT_SPEED 1500
+
+# Motor Battery Scaling Parameters using 12S LiPo battery cells
+MOT_BAT_VOLT_MAX 49.5
+MOT_BAT_VOLT_MIN 42
+
+MOT_PWM_MAX 1940
+MOT_PWM_MIN 1100
+
+MOT_HOVER_LEARN 2
+MOT_SPOOL_TIME 0.5
+
+# Pilot Command Limits
+PILOT_ACCEL_Z 175
+PILOT_SPEED_DN 175
+PILOT_SPEED_UP 225
+PILOT_Y_RATE 75
+
+# RC Control Options
+
+# We should set RC_Protocol to SBus so that the autodetection doesn't fail by getting the 
+# incorrect protocol in cases of spurious noise
+RC_PROTOCOLS 3
+
+# Setup RC Control Deadzones
+RC1_DZ 35
+RC2_DZ 35
+RC4_DZ 35
+
+# Setup RTL Switch to RC7
+RC7_OPTION 4
+
+# Setup Relay Pins
+# on AUXOUT5 and AUXOUT6
+# SERVO Functions corresponding to the AUXOUTs must be turned off
+RELAY_PIN 54
+RELAY_PIN2 55
+
+SERVO13_FUNCTION -1
+SERVO14_FUNCTION -1
+
+# RTL (Return-to-land) Options
+# We reccommend the RTL_ALT_TYPE to use terrain following for BVLOS after proper flight planning
+# RTL_ALT_TYPE 1
+
+
+# Setup RFD900 using MAVLINK2 on TELEM1
+SERIAL1_BAUD 57
+SERIAL1_PROTOCOL 2
+
+# Secondary Radiolink on TELEM2, commonly used for HereLink
+SERIAL2_BAUD 57
+SERIAL2_PROTOCOL 2
+
+# CubeOrange Ping ADSB-In Module on Cube ADSB Carrier Board
+# Note: must be MAVLINK1
+SERIAL5_BAUD 57
+SERIAL5_PROTOCOL 1
+
+# ADSB Streamrates to GCS and USB
+SR0_ADSB 2
+SR1_ADSB 2
+
+# Setup the minimum navigation altitude minimum to prevent GPS drift
+# from rolling and pitching the copter during auto takeoffs
+WP_NAVALT_MIN 0.75
+
+# Face next waypoint
+WP_YAW_BEHAVIOR 1
+
+
+# Setup waypoint navigaton settings
+# Slow down maximum WPNAV_SPEED and JERK to make smoother default flight
+WPNAV_JERK 0.5
+WPNAV_RFND_USE 0
+WPNAV_SPEED 600
