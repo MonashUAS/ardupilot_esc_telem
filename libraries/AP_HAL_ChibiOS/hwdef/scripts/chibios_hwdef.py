@@ -1092,6 +1092,9 @@ def write_mcu_config(f):
 #define HAL_USE_EMPTY_STORAGE 1
 #ifndef HAL_STORAGE_SIZE
 #define HAL_STORAGE_SIZE 16384
+#ifndef HAL_GCS_ENABLED
+#define HAL_GCS_ENABLED 0
+#endif
 #endif
 ''')
         else:
@@ -1126,6 +1129,9 @@ def write_mcu_config(f):
 #define HAL_USE_RTC FALSE
 #define DISABLE_SERIAL_ESC_COMM TRUE
 #define CH_CFG_USE_DYNAMIC FALSE
+#ifndef HAL_GCS_ENABLED
+#define HAL_GCS_ENABLED 0
+#endif
 ''')
         if not env_vars['EXT_FLASH_SIZE_MB']:
             f.write('''
