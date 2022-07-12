@@ -1,0 +1,136 @@
+include ../CubeOrange-Harris/defaults.parm
+
+# H6_HL Parameter file
+
+# Battery 1
+BATT_LOW_VOLT,43.5
+BATT_CAPACITY, 120000
+
+# Attitude Control
+ATC_ACCEL_P_MAX,10000
+ATC_ACCEL_R_MAX,10000
+ATC_ACCEL_Y_MAX,4500
+
+ATC_RAT_PIT_D,0.0204
+ATC_RAT_PIT_FLTD,12.5
+ATC_RAT_PIT_FLTT,12.5
+ATC_RAT_PIT_I,0.2627
+ATC_RAT_PIT_P,0.2627
+
+ATC_RAT_RLL_D,0.0213
+ATC_RAT_RLL_FLTD,12.5
+ATC_RAT_RLL_FLTT,12.5
+ATC_RAT_RLL_I,0.2609
+ATC_RAT_RLL_P,0.2609
+
+ATC_RAT_YAW_D,0.01
+ATC_RAT_YAW_FLTT,12.5
+ATC_RAT_YAW_FLTD,12.5
+ATC_RAT_YAW_I,0.065
+ATC_RAT_YAW_P,0.65
+
+ATC_SLEW_YAW,3500
+
+# Setup Frame Type to Hexarotor
+FRAME_CLASS,2
+FRAME_TYPE,1
+
+# GPS Positions
+# dont do it for HL as we need to check  that the gyro vibrations aren't filtered into it
+# See here for ArduPilot Issue https://github.com/ArduPilot/ardupilot/issues/20710
+
+# Left side is GPS1 & Right side is GPS2
+GPS_POS1_X,0
+GPS_POS1_Y,0
+GPS_POS1_Z,0
+GPS_POS2_X,0
+GPS_POS2_Y,0
+GPS_POS2_Z,0
+
+# FOR VERSION GPS Masts not on the canopy
+# GPS_POS1_X,-0.070
+# GPS_POS1_Y,-0.218
+# GPS_POS1_Z,-0.713
+# GPS_POS2_X,0.114
+# GPS_POS2_Y,0.218
+# GPS_POS2_Z,-0.713
+
+# Set the INS Filter Frequencies 
+INS_ACCEL_FILTER,10
+
+# On HL we use a lower filter frequency for now
+INS_GYRO_FILTER,25
+
+# WPNAV
+WPNAV_ACCEL,75
+
+# Enable the in-flight FFT
+FFT_ENABLE,1
+FFT_HMNC_PEAK,4
+FFT_MAXHZ,165
+FFT_MINHZ,25
+FFT_SNR_REF,20
+FFT_WINDOW_SIZE,256
+
+# Set the Harmonic Notch
+# this uses the in-flight FFT based dynamic notch and a single static notch with multiple harmonics
+INS_HNTCH_ATT,50
+INS_HNTCH_BW,18
+INS_HNTCH_ENABLE,1
+INS_HNTCH_FREQ,35
+INS_HNTCH_HMNCS,7
+INS_HNTCH_MODE,4
+INS_HNTCH_OPTS,2
+INS_HNTCH_REF,0.325
+
+INS_HNTC2_ATT,40
+INS_HNTC2_BW,17.5
+INS_HNTC2_ENABLE,1
+INS_HNTC2_FREQ,35
+INS_HNTC2_HMNCS,15
+INS_HNTC2_MODE,1
+INS_HNTC2_OPTS,1
+INS_HNTC2_REF,0.0
+
+# Motor and ESC Parameters for TMotor U15II KV100
+# TMotor Flame 200A 6-14S ESCs
+MOT_SPIN_ARM,0.08
+MOT_SPIN_MAX,1
+MOT_SPIN_MIN,0.1
+
+MOT_THST_EXPO,0.73
+MOT_THST_HOVER,0.35
+
+
+# Position Control Settings
+
+# Position Control Z-axis
+PSC_JERK_Z,5
+
+#  FIXME what should be in comparison to INS_ACCEL_FILTER value when it is 10
+PSC_ACCZ_FLTE,20
+
+PSC_ACCZ_FLTT,0
+PSC_ACCZ_I,1
+PSC_ACCZ_P,0.5
+PSC_ACCZ_SMAX,0
+
+PSC_VELZ_D,0
+PSC_VELZ_FF,0
+PSC_VELZ_FLTD,5
+PSC_VELZ_FLTE,5
+PSC_VELZ_I,0
+PSC_VELZ_P,5
+
+PSC_POSZ_P,1
+
+# Position Control XY
+PSC_JERK_XY,3.5
+
+PSC_VELXY_D,0.25
+PSC_VELXY_FLTD,5
+PSC_VELXY_FLTE,5
+PSC_VELXY_I,0.5
+PSC_VELXY_P,1.0
+
+PSC_POSXY_P,0.5
