@@ -1,0 +1,51 @@
+include ../CubeOrange-Harris-H6/defaults.parm
+
+# H6_Hydrone
+# Hydrogen fuel cell electrical generator
+
+# Battery 1
+BATT_LOW_VOLT 47.5
+BATT_CAPACITY 0
+
+# Battery 2
+# energy Generator (fuel cell, Generator, etc.)
+# Intelligent Energy 2.4kW Fuel Cell
+# Monitors fuel cpacity using a sensor before the 16 PSI regulator on the fuel tank
+#
+# Generator-Fuel
+BATT2_MONITOR 18
+BATT2_LOW_MAH 10
+BATT2_FS_LOW_ACT 2
+BATT2_CURR_PIN -1
+BATT2_CAPACITY 100
+
+# Battery 3
+# backup battery
+# 
+# This monitors the voltage of the backup battery and electrical generator
+#
+# Generator-Electric
+BATT3_MONITOR 17
+BATT3_LOW_VOLT 47.5
+BATT3_FS_LOW_ACT 2
+BATT3_CAPACITY 0
+
+# Generator Type
+# Intelligent Energy 2.4kW Fuel Cell
+GEN_TYPE 2
+
+# Generator Serial Connection
+SERIAL4_PROTOCOL 30
+SERIAL4_BAUD 9
+
+# Set the Harmonic Notch
+# this uses the throttle based notch
+# Note: the throttle reference point and frequency need to be set per vehicle and energy source combination
+INS_HNTCH_ATT 40
+INS_HNTCH_BW 21
+INS_HNTCH_ENABLE 1
+INS_HNTCH_FREQ 42
+INS_HNTCH_HMNCS 15
+INS_HNTCH_MODE 1
+INS_HNTCH_OPTS 0
+INS_HNTCH_REF 0.35
