@@ -1,0 +1,124 @@
+include ../CubeOrange-Harris/defaults.parm
+
+# HX8 Parameter file
+
+# Battery 1
+BATT_LOW_VOLT 43.5
+BATT_CAPACITY 32000
+
+# Attitude Control
+ATC_ACCEL_P_MAX 30000
+ATC_ACCEL_R_MAX 30000
+ATC_ACCEL_Y_MAX 10000
+
+ATC_RAT_PIT_D 0.009
+ATC_RAT_PIT_FLTD 15
+ATC_RAT_PIT_FLTT 15
+ATC_RAT_PIT_I 0.1576
+ATC_RAT_PIT_P 0.1576
+
+ATC_RAT_RLL_D 0.0057
+ATC_RAT_RLL_FLTD 15
+ATC_RAT_RLL_FLTT 15
+ATC_RAT_RLL_I 0.1413
+ATC_RAT_RLL_P 0.1413
+
+ATC_RAT_YAW_D 0.06
+ATC_RAT_YAW_FLTT 15
+ATC_RAT_YAW_FLTD 15
+ATC_RAT_YAW_I 0.05
+ATC_RAT_YAW_P 0.5
+
+ATC_SLEW_YAW 4000
+
+# Setup Frame Type to Octa-quad
+FRAME_CLASS 4
+FRAME_TYPE 1
+
+# GPS Positions
+# Left side is GPS1 & Right side is GPS2
+GPS_POS1_X 0
+GPS_POS1_Y 0
+GPS_POS1_Z 0
+GPS_POS2_X 0
+GPS_POS2_Y 0
+GPS_POS2_Z 0
+
+
+# Set the INS Filter Frequencies 
+INS_ACCEL_FILTER 10
+
+# On HL we use a lower filter frequency for now
+INS_GYRO_FILTER 30
+
+# Enable the in-flight FFT
+FFT_ENABLE 1
+FFT_HMNC_PEAK 4
+FFT_MAXHZ 165
+FFT_MINHZ 25
+FFT_SNR_REF 20
+FFT_WINDOW_SIZE 256
+
+### FIXME
+
+# Set the Harmonic Notch
+# this uses the throttle based notch
+# Note: the throttle reference point and frequency need to be set per vehicle and energy source combination
+INS_HNTCH_ATT 40
+INS_HNTCH_BW 18.5
+INS_HNTCH_ENABLE 1
+INS_HNTCH_FREQ 37
+INS_HNTCH_HMNCS 7
+INS_HNTCH_MODE 4
+INS_HNTCH_OPTS 2
+INS_HNTCH_REF 1.0
+
+INS_HNTC2_ATT 45
+INS_HNTC2_BW 16
+INS_HNTC2_ENABLE 1
+INS_HNTC2_FREQ 32
+INS_HNTC2_HMNCS 7
+INS_HNTC2_MODE 1
+INS_HNTC2_OPTS 1
+INS_HNTC2_REF 0.275
+
+# Motor and ESC Parameters for TMotor U8II Lite KV100 
+# TMotor Alpha 60A ESCs
+MOT_SPIN_ARM 0.07
+MOT_SPIN_MAX 1
+MOT_SPIN_MIN 0.09
+
+MOT_THST_EXPO 0.85
+MOT_THST_HOVER 0.35
+
+# Position Control Settings
+
+# Position Control Z-axis
+PSC_JERK_Z 5
+
+# FIXME what should be in comparison to INS_ACCEL_FILTER value when it is 10
+PSC_ACCZ_FLTE 20
+
+PSC_ACCZ_FLTT 0
+PSC_ACCZ_I 1
+PSC_ACCZ_P 0.5
+PSC_ACCZ_SMAX 0
+
+PSC_VELZ_D 0
+PSC_VELZ_FLTD 5
+PSC_VELZ_FLTE 5
+PSC_VELZ_I 0
+PSC_VELZ_P 5
+
+PSC_POSZ_P 1
+
+# Position Control XY
+PSC_JERK_XY 5
+
+PSC_VELXY_D 0.25
+PSC_VELXY_FLTD 5
+PSC_VELXY_FLTE 5
+PSC_VELXY_I 0.5
+PSC_VELXY_P 1.0
+
+PSC_POSXY_P 0.5

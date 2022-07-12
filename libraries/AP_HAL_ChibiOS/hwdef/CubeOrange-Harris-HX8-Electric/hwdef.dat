@@ -1,0 +1,5 @@
+include ../CubeOrange-Harris/hwdef.dat
+
+USB_STRING_PRODUCT "CubeOrange"
+
+define AP_CUSTOM_FIRMWARE_STRING "Harris_Aerial_HX8_Electric_4_2"
