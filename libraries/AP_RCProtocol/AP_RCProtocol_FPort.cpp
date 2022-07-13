@@ -18,6 +18,9 @@
  */
 
 #include "AP_RCProtocol_FPort.h"
+
+#if AP_RCPROTOCOL_FPORT_ENABLED
+
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_Frsky_Telem/AP_Frsky_Telem.h>
 #include <RC_Channel/RC_Channel.h>
@@ -278,13 +281,13 @@ void AP_RCProtocol_FPort::_process_byte(uint32_t timestamp_us, uint8_t b)
     }
 
     if (frame->type == FPORT_TYPE_CONTROL && byte_input.ofs == FRAME_LEN_CONTROL + 4) {
-        log_data(AP_RCProtocol::FPORT, timestamp_us, byte_input.buf, byte_input.ofs);
+        log_data(rcprotocol_t::FPORT, timestamp_us, byte_input.buf, byte_input.ofs);
         if (check_checksum()) {
             decode_control(*frame);
         }
         goto reset;
     } else if (frame->type == FPORT_TYPE_DOWNLINK && byte_input.ofs == FRAME_LEN_DOWNLINK + 4) {
-        log_data(AP_RCProtocol::FPORT, timestamp_us, byte_input.buf, byte_input.ofs);
+        log_data(rcprotocol_t::FPORT, timestamp_us, byte_input.buf, byte_input.ofs);
         if (check_checksum()) {
             decode_downlink(*frame);
         }
@@ -315,3 +318,5 @@ void AP_RCProtocol_FPort::process_byte(uint8_t b, uint32_t baudrate)
     }
     _process_byte(AP_HAL::micros(), b);
 }
+
+#endif  // AP_RCPROTOCOL_FPORT_ENABLED

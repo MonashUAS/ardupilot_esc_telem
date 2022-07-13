@@ -17,9 +17,11 @@
 
 #pragma once
 
-#include <AP_Frsky_Telem/AP_Frsky_SPort.h>
+#include "AP_RCProtocol_Backend.h"
 
-#include "AP_RCProtocol.h"
+#if AP_RCPROTOCOL_FPORT_ENABLED
+
+#include <AP_Frsky_Telem/AP_Frsky_SPort.h>
 #include "SoftSerial.h"
 
 #define FPORT_CONTROL_FRAME_SIZE 29
@@ -61,3 +63,5 @@ private:
     // if the receiver is not controlling frame rate apply a constraint on consecutive frames
     uint8_t consecutive_telemetry_frame_count;
 };
+
+#endif  // AP_RCPROTOCOL_FPORT_ENABLED

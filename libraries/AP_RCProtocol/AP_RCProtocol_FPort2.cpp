@@ -18,6 +18,9 @@
  */
 
 #include "AP_RCProtocol_FPort2.h"
+
+#if AP_RCPROTOCOL_FPORT2_ENABLED
+
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_Frsky_Telem/AP_Frsky_Telem.h>
 #include <RC_Channel/RC_Channel.h>
@@ -259,7 +262,7 @@ void AP_RCProtocol_FPort2::_process_byte(uint32_t timestamp_us, uint8_t b)
 
     if (byte_input.control_len > 2 && byte_input.ofs == byte_input.control_len) {
         if (!byte_input.is_downlink) {
-            log_data(AP_RCProtocol::FPORT2, timestamp_us, byte_input.buf, byte_input.ofs);
+            log_data(rcprotocol_t::FPORT2, timestamp_us, byte_input.buf, byte_input.ofs);
             if (check_checksum()) {
                 decode_control(*frame);
             }
@@ -294,3 +297,5 @@ void AP_RCProtocol_FPort2::process_byte(uint8_t b, uint32_t baudrate)
     }
     _process_byte(AP_HAL::micros(), b);
 }
+
+#endif  // AP_RCPROTOCOL_FPORT2_ENABLED
