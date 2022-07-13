@@ -695,6 +695,7 @@ class sitl_periph_gps(sitl):
             HAL_MISSION_ENABLED = 0,
             HAL_RALLY_ENABLED = 0,
             HAL_SCHEDULER_ENABLED = 0,
+            AP_RCPROTOCOL_ENABLED = 0,
             CANARD_ENABLE_CANFD = 1,
         )
         # libcanard is written for 32bit platforms
