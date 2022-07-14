@@ -87,7 +87,7 @@ class TestBuildOptions(object):
 
     def board(self):
         '''returns board to build for'''
-        return "BeastH7v2"
+        return "DevEBoxH7v2"
 
     def test_compile_with_defines(self, defines):
         extra_hwdef_filepath = "/tmp/extra.hwdef"
