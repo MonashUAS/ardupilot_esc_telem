@@ -18,7 +18,12 @@
  */
 #pragma once
 
+#include "AP_ICEngine_config.h"
+
+#if AP_ICENGINE_ENABLED
+
 #include <AP_Param/AP_Param.h>
+#include <Filter/LowPassFilter.h>
 
 class AP_ICEngine {
 public:
@@ -150,3 +155,5 @@ private:
 namespace AP {
     AP_ICEngine *ice();
 };
+
+#endif  // AP_ICENGINE_ENABLED
