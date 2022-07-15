@@ -23,9 +23,11 @@ class TestBuildOptions(object):
                  do_step_disable_defaults=True,
                  do_step_disable_in_turn=True,
                  build_targets=None,
-                 board=None):
+                 board=None,
+                 extra_hwdef=None):
         if board is None:
             board = "DevEBoxH7v2"
+        self.extra_hwdef = extra_hwdef
         self.sizes_nothing_disabled = None
         self.match_glob = match_glob
         self.do_step_disable_all = do_step_disable_all
@@ -96,6 +98,10 @@ class TestBuildOptions(object):
     def test_compile_with_defines(self, defines):
         extra_hwdef_filepath = "/tmp/extra.hwdef"
         self.write_defines_to_file(defines, extra_hwdef_filepath)
+        if self.extra_hwdef is not None:
+            content = open(self.extra_hwdef, "r").read()
+            with open(extra_hwdef_filepath, "a") as f:
+                f.write(content)
         util.waf_configure(
             self.board(),
             extra_hwdef=extra_hwdef_filepath,
@@ -206,6 +212,10 @@ if __name__ == '__main__':
                       choices=TestBuildOptions.all_targets(),
                       action='append',
                       help='vehicle targets to build')
+    parser.add_option("--extra-hwdef",
+                      type='string',
+                      default=None,
+                      help="file containing extra hwdef information")
     parser.add_option("--board",
                       type='string',
                       default=None,
@@ -221,5 +231,6 @@ if __name__ == '__main__':
         do_step_disable_in_turn=not opts.no_disable_in_turn,
         build_targets=opts.build_targets,
         board=opts.board,
+        extra_hwdef=opts.extra_hwdef,
     )
     tbo.run()
