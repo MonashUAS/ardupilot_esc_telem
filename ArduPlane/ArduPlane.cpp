@@ -82,7 +82,9 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AC_Fence,       &plane.fence,   update, 10, 100, 75),
 #endif
     SCHED_TASK(read_rangefinder,       50,    100, 78),
+#if AP_ICENGINE_ENABLED
     SCHED_TASK_CLASS(AP_ICEngine,      &plane.g2.ice_control, update,     10, 100,  81),
+#endif
     SCHED_TASK_CLASS(Compass,          &plane.compass,        cal_update, 50,  50,  84),
 #if AP_OPTICALFLOW_ENABLED
     SCHED_TASK_CLASS(OpticalFlow, &plane.optflow, update,    50,    50,  87),
@@ -90,7 +92,9 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(one_second_loop,         1,    400,  90),
     SCHED_TASK(three_hz_loop,           3,     75,  93),
     SCHED_TASK(check_long_failsafe,     3,    400,  96),
+#if AP_RPM_ENABLED
     SCHED_TASK_CLASS(AP_RPM,           &plane.rpm_sensor,     update,     10, 100,  99),
+#endif
 #if AP_AIRSPEED_AUTOCAL_ENABLE
     SCHED_TASK(airspeed_ratio_update,   1,    100,  102),
 #endif // AP_AIRSPEED_AUTOCAL_ENABLE
