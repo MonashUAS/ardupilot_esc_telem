@@ -30,6 +30,7 @@ BOOTLOADER_EMBED 0
 
 define AP_ADVANCEDFAILSAFE_ENABLED 0
 
+define HAL_MAVLINK_INTERVALS_FROM_FILES_ENABLED 0
 EOF
 
 ./Tools/autotest/test_build_options.py \
