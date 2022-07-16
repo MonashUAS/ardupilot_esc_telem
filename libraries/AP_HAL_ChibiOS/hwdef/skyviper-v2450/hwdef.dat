@@ -129,4 +129,13 @@ define AP_RANGEFINDER_MAVLINK_ENABLED 1
 # SkyViper uses AP_Radio, which does its own RC protocol decoding:
 define AP_RCPROTOCOL_ENABLED 0
 
+# SkyViper doesn't have any buttons to push:
+define HAL_BUTTON_ENABLED 0
+
+# SkyViper doesn't have any RPM sources (perhaps harmonic notch in future?):
+define AP_RPM_ENABLED 0
+
+# SkyViper doesn't support Internal Combustion engines:
+define AP_ICENGINE_ENABLED 0
+
 AUTOBUILD_TARGETS Copter
