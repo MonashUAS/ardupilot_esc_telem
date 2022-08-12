@@ -2238,6 +2238,7 @@ void AP_OSD_Screen::draw_fence(uint8_t x, uint8_t y)
 
 void AP_OSD_Screen::draw_rngf(uint8_t x, uint8_t y)
 {
+#if AP_RANGEFINDER_ENABLED
     RangeFinder *rangefinder = RangeFinder::get_singleton();
     if (rangefinder == nullptr) {
        return;
@@ -2248,6 +2249,7 @@ void AP_OSD_Screen::draw_rngf(uint8_t x, uint8_t y)
         const float distance = rangefinder->distance_orient(ROTATION_PITCH_270);
         backend->write(x, y, false, "%c%4.1f%c", SYMBOL(SYM_RNGFD), u_scale(DISTANCE, distance), u_icon(DISTANCE));
     }
+#endif
 }
 
 #define DRAW_SETTING(n) if (n.enabled) draw_ ## n(n.xpos, n.ypos)
