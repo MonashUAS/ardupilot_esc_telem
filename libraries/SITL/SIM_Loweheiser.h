@@ -34,6 +34,14 @@ param set BATT3_LOW_VOLT 0
 
 param set RC9_OPTION 85   # generator control
 
+param set RC10_OPTION 212 # loweheiser manual throttle control
+param set RC10_DZ 20
+param set RC10_TRIM 1000
+param set RC10_MIN 1000
+param set RC10_MAX 2000
+
+param set RC11_OPTION 109 # loweheiser starter channel
+
 reboot
 
 # for testing failsafes:

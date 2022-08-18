@@ -36,7 +36,10 @@ void SIM_GeneratorEngine::update()
 
     constexpr float heat_environment_loss_factor = 0.15f;
 
-    const float factor = 0.0035;
+    // The factor and model below needs to be fiddled with to better represent the heat gain and loss
+    // below 0.006 the engine is unable to reach a steady-state temperature above 60 deg C
+    // this factors allows it to be ready within 5 seconds vs the normal 2-3 minutes
+    const float factor = 0.006;
     temperature += (current_rpm * time_delta_ms * (1/1000.0f) * factor);
     // cap the heat of the motor:
     temperature = MIN(temperature, 150);
