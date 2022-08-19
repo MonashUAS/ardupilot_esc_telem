@@ -2477,6 +2477,40 @@ class AutoTestCopter(AutoTest):
         self.context_pop()
         self.fly_auto_test()
 
+    def AGLMissionTakeoff(self):
+        self.set_analog_rangefinder_parameters()
+        self.reboot_sitl()
+        self.set_analog_rangefinder_parameters()
+        self.reboot_sitl()
+
+        self.progress("Creating mission")
+        alt = 50
+        items = [
+            (mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, alt),
+            (mavutil.mavlink.MAV_CMD_NAV_DELAY, 0, 0, 0),
+            (mavutil.mavlink.MAV_CMD_NAV_LAND, 0, 0, 0),
+        ]
+
+        mission = self.create_simple_relhome_mission(items)
+        # change the frame on the takeoff item:
+        mission[1].frame = mavutil.mavlink.MAV_FRAME_GLOBAL_TERRAIN_ALT
+        mission[1].param1 = 15
+        # change the frame on the delay item as it isn't echoed:
+        mission[2].frame = mavutil.mavlink.MAV_FRAME_GLOBAL
+        mission[2].x = 0
+        mission[2].y = 0
+
+        self.progress("Uploading mission")
+        self.check_mission_upload_download(mission, strict=False)
+
+        self.progress("Running mission")
+        self.set_parameter("AUTO_OPTIONS", 3)
+        self.change_mode('AUTO')
+        self.wait_ready_to_arm()
+        self.arm_vehicle()
+        self.wait_altitude(alt-0.5, alt+0.5, minimum_duration=10, relative=True)
+        self.wait_disarmed()
+
     # test takeoff altitude
     def test_takeoff_alt(self):
         # Test case #1 (set target altitude to relative -10m from the ground, -10m is invalid, so it is set to 1m)
@@ -9199,6 +9233,10 @@ class AutoTestCopter(AutoTest):
             Test("DataFlash",
                  "Test DataFlash Block backend",
                  self.test_dataflash_sitl),
+
+            Test("AGLMissionTakeoff",
+                 "Test AGL Mission Takeoff",
+                 self.AGLMissionTakeoff),
 
             Test("DataFlashErase",
                  "Test DataFlash Block backend erase",
