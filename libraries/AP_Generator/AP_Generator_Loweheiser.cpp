@@ -64,7 +64,9 @@ void AP_Generator_Loweheiser::init()
 {
     AP_Param::setup_object_defaults(this, var_info);
 
+    _frontend._has_current = true;
     _frontend._has_consumed_energy = true;
+    _frontend._has_fuel_remaining_pct = false;
 
     // nothing in this method may use parameters as AP_Generator loads
     // values from eeprom!
