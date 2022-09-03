@@ -63,11 +63,11 @@ public:
         return var_info;
     }
 
-    // method to reset the amount of energy remaining in a generator.
+    // method to reset the amount of energy consumed by the generator.
     // This typically means someone has refueled the vehicle without
-    // powering it off, and is indicating that the fuel tank is full.
+    // powering it off.
     bool reset_consumed_energy() override {
-        last_consumed_mah_reset_value = _consumed_mah;
+        accumulated_consumed_fuel_litres = 0.0f;
         return true;
     }
 
@@ -171,20 +171,6 @@ private:
     void update_common_backend_variables();
 
     float accumulated_consumed_fuel_litres;
-
-    // if we have been told that the fuel tank has been topped up
-    // (e.g. via mavlink command, see reset_consumed_energy), this is
-    // the value that was present in _consumed_mah at that time.  If
-    // we have never received such a command then this value will be
-    // zero.  We subtract this value from the integrated
-    // _fuel_consumed value when we report the consumed amount to the
-    // rest of the system.  Note that _consumed_mah comes from the
-    // Loweheiser device, 'though our own integration code currently
-    // remains.  Notionally we could pass the reset to the generator -
-    // but it is reporting consumed_mah, which doesn't *actually*
-    // reset, it's ArduPilot which is taking the ratio of consumed_mah
-    // to battery capcity to give a level remaining.
-    float last_consumed_mah_reset_value;
 
     // should_emergency_stop - returns true if the generator must stop
     // immediately
