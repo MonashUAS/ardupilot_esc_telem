@@ -1004,6 +1004,11 @@ void Aircraft::update_external_payload(const struct sitl_input &input)
         richenpower->update(input);
     }
 
+    // update Hirth EFI
+    if (hirth) {
+        hirth->update(input);
+    }
+
     if (fetteconewireesc) {
         fetteconewireesc->update(*this);
     }
