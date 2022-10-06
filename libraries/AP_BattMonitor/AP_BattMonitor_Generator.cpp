@@ -110,6 +110,25 @@ void AP_BattMonitor_Generator_FuelLevel::read()
     _state.last_time_micros = AP_HAL::micros();
 }
 
+// capacity_remaining_ml - returns true if the capacity remaining in (mL) is valid and writes to capacity_ml
+bool AP_BattMonitor_Generator_FuelLevel::capacity_remaining_ml(float &capacity_ml) const
+{
+        // we consider anything under 10 ml as being an invalid capacity and so will be our measurement of remaining capacity
+        if ( _params._pack_capacity <= 10) {
+            return false;
+        }
+
+        // we get the initial fuel multiplying pack capacity parameter by initial fuel percentage.
+        // this initial fuel percentage will be 100% by default, but we can change it using the
+        // mavlink command MAV_CMD_BATTERY_RESET
+        const float initial_fuel = _params._pack_capacity * _initial_fuel_pct * 0.01;
+
+        // to get the actual remaining level we need to substract the consumed ml
+        capacity_ml = initial_fuel - _state.consumed_mah;
+
+        return true;
+}
+
 bool AP_BattMonitor_Generator_FuelLevel::capacity_remaining_pct(uint8_t &percentage) const
 {
     // Get pointer to generator singleton
@@ -126,18 +145,14 @@ bool AP_BattMonitor_Generator_FuelLevel::capacity_remaining_pct(uint8_t &percent
 
     // If generator doesn't have its own pct count, use ours
     if (!generator->has_fuel_remaining_pct()) {
-        // we consider anything under 10 ml as being an invalid capacity and so will be our measurement of remaining capacity
-        if ( _params._pack_capacity <= 10) {
+        float remaining_ml;
+        // return false if _params._pack_capacity is too small
+        if (!capacity_remaining_ml(remaining_ml)) {
             return false;
         }
-        // we get the initial fuel multiplying pack capacity parameter by initial fuel percentage.
-        // this initial fuel percentage will be 100% by default, but we can change it using the
-        // mavlink command MAV_CMD_BATTERY_RESET
-        const float initial_fuel = _params._pack_capacity * _initial_fuel_pct * 0.01f;
-        // to get the actual remaining level we need to substract the consumed ml
-        const float ml_remaining = initial_fuel - _state.consumed_mah;
+
         // now we get the percentage according to tank capacity (pack_capacity parameter)
-        percentage = constrain_float(100 * ml_remaining / _params._pack_capacity, 0, UINT8_MAX);;
+        percentage = constrain_float(100 * remaining_ml / _params._pack_capacity, 0, UINT8_MAX);;
         return true;
         
     // Otherwise use generator's own percentage
@@ -155,21 +170,23 @@ AP_BattMonitor::Failsafe AP_BattMonitor_Generator_FuelLevel::update_failsafes()
 
     if (generator != nullptr) {
         if (!generator->has_fuel_remaining_pct()) {
-            // we use the same logic as the capacity_remaining_pct() function
-            const float initial_fuel = _params._pack_capacity * _initial_fuel_pct * 0.01f;
-            const float ml_remaining = initial_fuel - _state.consumed_mah;
+            float remaining_ml;
+            // only returns false if _params._pack_capacity is too small less than 10 mL
+            if (!capacity_remaining_ml(remaining_ml)) {
+                return AP_BattMonitor::Failsafe::Critical;
+            }
 
-            if (ml_remaining < _params._low_capacity) {
+            if (remaining_ml < _params._low_capacity) {
                 return AP_BattMonitor::Failsafe::Low;
             }
 
-            if (ml_remaining < _params._critical_capacity) {
+            if (remaining_ml < _params._critical_capacity) {
                 return AP_BattMonitor::Failsafe::Critical;
             }
         }
     }
 
-    return AP_BattMonitor_Backend::update_failsafes();
+    return AP_BattMonitor::Failsafe::None;
 }
 
 /*

@@ -50,6 +50,9 @@ public:
     // reset remaining percentage to given value
     bool reset_remaining(float percentage) override;
 
+    // capacity_remaining_ml - returns true if the capacity remaining in (mL) is valid and writes to capacity_ml
+    bool capacity_remaining_ml(float &capacity_ml) const;
+
     // capacity_remaining_pct - returns true if the percentage is valid and writes to percentage argument
     bool capacity_remaining_pct(uint8_t &percentage) const override;
 
