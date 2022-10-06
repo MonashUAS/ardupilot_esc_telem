@@ -746,7 +746,7 @@ void AP_Generator_Loweheiser::send_generator_status(const GCS_MAVLINK &channel)
         _rpm, // generator_speed
         packet.curr_batt,  // Current into/out of battery
         packet.curr_gen, // load_current; Current going to UAV
-        std::numeric_limits<double>::quiet_NaN(), // power_generated; the power being generated
+        (packet.curr_rot * _voltage),               // power_generated (w)
         _voltage, // bus_voltage; Voltage of the bus seen at the generator
         rectifier_temp, // rectifier_temperature
         std::numeric_limits<double>::quiet_NaN(), // bat_current_setpoint; The target battery current
