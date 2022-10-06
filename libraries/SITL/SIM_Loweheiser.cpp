@@ -246,9 +246,11 @@ void Loweheiser::update_send()
     float efi_egt = std::numeric_limits<float>::quiet_NaN();
     float efi_batt = std::numeric_limits<float>::quiet_NaN();
 
-    float curr_batt = 0.3;
-    float curr_gen = 0.1;
-    float curr_rot = 4.0;
+    float curr_batt = -0.3;
+    float curr_gen = 10.12;
+
+    // Current from the generator is the  battery charging current (defined to be negative) plus the generator current
+    float curr_rot = (curr_batt < 0 ? -curr_batt : 0.0) + curr_gen;
 
     // controlled by param2, this turns on/off the DC/DC component which
     // powers the efi
