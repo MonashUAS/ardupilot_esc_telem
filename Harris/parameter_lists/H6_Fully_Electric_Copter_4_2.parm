@@ -1,0 +1,21 @@
+# H6 fully electric
+
+BATT_CAPACITY 32000
+BATT_LOW_VOLT 43.5
+
+# Explicitly Turn off settings related to other power generation types
+GEN_TYPE 0
+
+BATT2_MONITOR 0
+BATT3_MONITOR 0
+
+# Turn off Lowheiser Settings
+RC9_OPTION 0
+EFI_TYPE 0
+SERIAL4_PROTOCOL -1
+SERIAL4_OPTIONS 0
+
+# Turn off RichenPower Settings
+SERVO10_FUNCTION 0
+SERVO11_FUNCTION 0
+RC10_OPTION 0

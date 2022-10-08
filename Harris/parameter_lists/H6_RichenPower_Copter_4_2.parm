@@ -1,0 +1,65 @@
+# H6_RichenPower
+
+BATT_LOW_VOLT 47.5
+BATT_CAPACITY 0
+
+# RichenPower: Fuel Flow Monitoring
+
+BATT2_CAPACITY 4000
+BATT2_FS_LOW_ACT 2
+BATT2_CURR_PIN 52
+
+# This is required as the AUX3 is BATT2_CURR_PIN 52
+SERVO11_FUNCTION -1
+
+# BATT2_FS_VOLTSRC 0
+
+# Richenpower LOW_MAH 800 corresponds approx. to a 20% pressure sensed fuel level not flow rate
+BATT2_LOW_MAH 800
+BATT2_MONITOR 12
+BATT2_LOW_VOLT 0
+BATT2_FS_LOW_ACT 2
+
+# RichenPower setting
+# Controls generator throttle with PWM signal via states of OFF, IDLE, RUN
+SERVO10_FUNCTION 42
+
+# Setup RichenPower Generator
+GEN_TYPE 3
+
+# Generator Settings
+# Potentiometer to control OFF, IDLE, RUN from the autopilot to ensure prearm checks keep generator operating in safe limits
+RC10_OPTION 85
+
+# Generator Serial Port Settings
+SERIAL4_BAUD 9600
+SERIAL4_PROTOCOL 30
+
+# Enable the in-flight FFT
+FFT_ENABLE 1
+FFT_HMNC_PEAK 5
+FFT_MAXHZ 160
+FFT_MINHZ 25
+FFT_SNR_REF 20
+FFT_WINDOW_SIZE 256
+
+# Set the Harmonic Notch
+# This uses the FFT based notch until the dual dynamic notch is available in a future version of Copter (likely 4.2.3)
+INS_HNTCH_ATT 40
+INS_HNTCH_BW 20.5
+INS_HNTCH_ENABLE 1
+INS_HNTCH_FREQ 41
+INS_HNTCH_HMNCS 7
+INS_HNTCH_MODE 4
+INS_HNTCH_OPTS 2
+INS_HNTCH_REF 1
+
+# Sets a static notch until a another dynamic notch is available
+INS_HNTC2_ATT 40
+INS_HNTC2_BW 20.5
+INS_HNTC2_ENABLE 1
+INS_HNTC2_FREQ 41
+INS_HNTC2_HMNCS 15
+INS_HNTC2_MODE 1
+INS_HNTC2_OPTS 1
+INS_HNTC2_REF 0.35

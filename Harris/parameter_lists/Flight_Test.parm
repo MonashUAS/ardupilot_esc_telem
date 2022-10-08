@@ -1,0 +1,35 @@
+# List of parameters to use during flight testing
+
+INS_LOG_BAT_MASK 1
+INS_LOG_BAT_OPT 2
+
+# Enable for easy use of scripting
+SCR_ENABLE 1
+
+# Enable the iin-flight FFT for logging only purposes and it gives some info we can use for filter performance
+FFT_ENABLE 1
+# FFT_HMNC_PEAK 5
+FFT_MAXHZ 160
+FFT_MINHZ 25
+FFT_SNR_REF 20
+FFT_WINDOW_SIZE 256
+
+
+
+LOG_FILE_DSRMROT 1
+LOG_BITMASK 65535
+
+
+# Increase the pilot input time constant to smooth output inputs due to the type of 
+# joysticks and controllers used
+ATC_INPUT_TC 0.2
+
+
+# Start with these limits at minimum for new designs. It is better to have slow laggy motion than massive uncommanded oscillations occur. 
+ATC_RAT_RLL_SMAX 20
+ATC_RAT_PIT_SMAX 20
+ATC_RAT_YAW_SMAX 20
+
+ATC_RATE_P_MAX 75
+ATC_RATE_R_MAX 75
+ATC_RATE_Y_MAX 75
