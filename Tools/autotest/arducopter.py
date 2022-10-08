@@ -6525,9 +6525,9 @@ class AutoTestCopter(AutoTest):
         self.assert_received_message_field_values('GENERATOR_STATUS', {
             "status": 1,
             "generator_speed": 0,
-            "battery_current": 0.30000001192092896,
-            "load_current": 0.10000000149011612,
-            "power_generated": float("nan"),
+            "battery_current": -0.30000001192092896,
+            "load_current": 10.119999885559082,
+            "power_generated": 521.0,
             "bus_voltage": 50,
             "rectifier_temperature": 32767,
             "bat_current_setpoint": float("nan"),
@@ -6559,9 +6559,9 @@ class AutoTestCopter(AutoTest):
 
         self.assert_received_message_field_values('GENERATOR_STATUS', {
             "status": 0,
-            "battery_current": 0.30000001192092896,
-            "load_current": 0.10000000149011612,
-            "power_generated": float("nan"),
+            "battery_current": -0.30000001192092896,
+            "load_current": 10.119999885559082,
+            "power_generated": 521.0,
             "bus_voltage": 50,
             "rectifier_temperature": 32767,
             "bat_current_setpoint": float("nan"),
