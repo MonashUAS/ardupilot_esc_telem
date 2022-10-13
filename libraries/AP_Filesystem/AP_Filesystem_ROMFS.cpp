@@ -118,6 +118,10 @@ int32_t AP_Filesystem_ROMFS::lseek(int fd, int32_t offset, int seek_from)
 
 int AP_Filesystem_ROMFS::stat(const char *name, struct stat *stbuf)
 {
+    if (name[0] == '/') {
+        name += 1;
+    }
+
     uint32_t size;
     const uint8_t *data = AP_ROMFS::find_decompress(name, size);
     if (data == nullptr) {
@@ -174,10 +178,13 @@ struct dirent *AP_Filesystem_ROMFS::readdir(void *dirp)
         return nullptr;
     }
     const uint32_t plen = strlen(dir[idx].path);
-    if (strncmp(name, dir[idx].path, plen) != 0 || name[plen] != '/') {
+    if (strncmp(name, dir[idx].path, plen) != 0 ||
+        (plen != 0 && name[plen] != '/')) {
         return nullptr;
     }
-    name += plen + 1;
+    if (plen != 0) {
+        name += plen + 1;
+    }
     dir[idx].de.d_type = DT_REG;
     strncpy(dir[idx].de.d_name, name, sizeof(dir[idx].de.d_name));
     return &dir[idx].de;
