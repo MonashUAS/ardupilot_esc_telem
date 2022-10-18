@@ -6544,7 +6544,7 @@ class AutoTestCopter(AutoTest):
         self.start_subtest("Generator to idle")
         self.set_rc(gen_ctrl_ch, 1500) # remember this is a switch position - idle
         self.wait_statustext("Generator MIDDLE", check_context=True)
-        self.delay_sim_time(1)
+        self.delay_sim_time(2)
         self.drain_mav()
         self.assert_received_message_field_values('EFI_STATUS', {
             "intake_manifold_pressure": 94,
@@ -6612,7 +6612,7 @@ class AutoTestCopter(AutoTest):
         self.wait_message_field_values("BATTERY_STATUS", {
             "id": 2,
             "battery_remaining": bs.battery_remaining-1,
-        }, timeout=30)
+        }, timeout=100)
 
         bs2 = self.assert_receive_message(
             "BATTERY_STATUS",
@@ -6626,19 +6626,26 @@ class AutoTestCopter(AutoTest):
             raise NotAchievedException("Expected energy consumed to rise")
 
         self.progress("Checking battery reset")
-        self.run_cmd(mavutil.mavlink.MAV_CMD_BATTERY_RESET,
-                     (1 << 2), # param1 - bitmask of batteries to reset
-                     100, # level to reset to
-                     0, # param3
-                     0, # param4
-                     0, # param5
-                     0, # param6
-                     0 # param7
-                     )
-        self.wait_message_field_values("BATTERY_STATUS", {
-            "id": 2,
-            "battery_remaining": 99,
-        }, timeout=5)
+        batt_reset_values = [(25, 24),
+                             (50, 49),
+                             (63, 62),
+                             (87, 86),
+                             (100, 99)]
+
+        for (reset_val, return_val) in batt_reset_values:
+            self.run_cmd(mavutil.mavlink.MAV_CMD_BATTERY_RESET,
+                         (1 << 2), # param1 - bitmask of batteries to reset
+                         reset_val, # level to reset to
+                         0, # param3
+                         0, # param4
+                         0, # param5
+                         0, # param6
+                         0 # param7
+                         )
+            self.wait_message_field_values("BATTERY_STATUS", {
+                "id": 2,
+                "battery_remaining": return_val,
+            }, timeout=5)
 
         self.progress("Moving *back* to idle")
         self.set_rc(gen_ctrl_ch, 1500) # remember this is a switch position - idle
