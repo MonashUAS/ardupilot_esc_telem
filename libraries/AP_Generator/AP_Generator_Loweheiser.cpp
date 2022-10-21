@@ -384,6 +384,7 @@ void AP_Generator_Loweheiser::command_generator()
     uint8_t run_electric_starter = 0;
     uint8_t desired_engine_state = 0;
 
+    bool user_controlled_starter = false;
     switch (commanded_runstate) {
     case RunState::STOP:
         // the variable initialisation above is sufficient
@@ -416,11 +417,11 @@ void AP_Generator_Loweheiser::command_generator()
     case RunState::IDLE:
         // consider acting on manual throttle input:
         if (rc_channel_manual_throttle != nullptr &&
-            rc().has_valid_input() &&
-            !rc_channel_manual_throttle->in_min_dz()) {
+            rc().has_valid_input()) {
             throttle = rc_channel_manual_throttle->percent_input();
             // honour an electric start channel, too:
             if (rc_channel_starter_motor != nullptr) {
+                user_controlled_starter = true;
                 switch (rc_channel_starter_motor->get_aux_switch_pos()) {
                 case RC_Channel::AuxSwitchPos::LOW:
                 case RC_Channel::AuxSwitchPos::MIDDLE:
@@ -443,8 +444,8 @@ void AP_Generator_Loweheiser::command_generator()
     }
 
     // if our desired run state is not "stop", and the RPM is zero,
-    // then consider running the starter motor.  Run motor for 5s
-    if (commanded_runstate != RunState::STOP) {
+    // then consider running the starter motor.  Run motor for 5s.
+    if (!user_controlled_starter && commanded_runstate != RunState::STOP) {
         bool configure_for_start = false;
         if (last_start_time_ms == 0) {
             if (is_zero(packet.efi_rpm)) {
