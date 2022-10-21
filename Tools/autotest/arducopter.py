@@ -7308,12 +7308,6 @@ class AutoTestCopter(AutoTest):
             "BATT3_MONITOR": 18,  # generator (fuel-level)
             "BATT3_CAPACITY": 10000,  # generator (fuel) in mL
             "RC%u_OPTION" % gen_ctrl_ch: 85,  # generator control
-            "RC%u_OPTION" % loweheiser_man_throt_ch: loweheiser_manual_start_rc_option,  # loweheiser manual throttle control
-            "RC%u_DZ" % loweheiser_man_throt_ch: 20,
-            "RC%u_TRIM" % loweheiser_man_throt_ch: 1000,
-            "RC%u_MIN" % loweheiser_man_throt_ch: 1000,
-            "RC%u_MAX" % loweheiser_man_throt_ch: 2000,
-            "RC%u_OPTION" % loweheiser_man_start_ch: loweheiser_starter_rc_option, # loweheiser starter channel
         })
 
         self.set_rc_from_map({
@@ -7498,17 +7492,46 @@ class AutoTestCopter(AutoTest):
         if not self.current_onboard_log_contains_message("LOEG"):
             raise NotAchievedException("Did not find expected GEN message")
 
-        self.start_subtest("loweHeiser manual control")
-        self.set_rc(gen_ctrl_ch, 1000)  # off
-        self.set_rc(loweheiser_man_throt_ch, 1000)  # zero throttle
-        self.set_rc(loweheiser_man_start_ch, 1000)  # zero starter channel
+        self.progress("Stopping generator")
+        self.set_rc(gen_ctrl_ch, 1000)
+
+        self.wait_statustext("ooling down")
 
         self.wait_generator_speed_and_state(0, 0, mavutil.mavlink.MAV_GENERATOR_STATUS_FLAG_OFF)
 
-        self.assert_received_message_field_values('EFI_STATUS', {
-            "throttle_out": 0,
-            "rpm": 0,
+        self.end_subtest("Move generator to run")
+
+        self.start_subtest("LoweHeiser manual control")
+        self.context_push()
+        self.set_parameters({
+            "RC%u_OPTION" % loweheiser_man_throt_ch: loweheiser_manual_start_rc_option,  # loweheiser manual throttle control
+            "RC%u_DZ" % loweheiser_man_throt_ch: 20,
+            "RC%u_TRIM" % loweheiser_man_throt_ch: 1000,
+            "RC%u_MIN" % loweheiser_man_throt_ch: 1000,
+            "RC%u_MAX" % loweheiser_man_throt_ch: 2000,
+            "RC%u_OPTION" % loweheiser_man_start_ch: loweheiser_starter_rc_option, # loweheiser starter channel
         })
+        self.set_rc(loweheiser_man_throt_ch, 1000)  # zero throttle
+        self.set_rc(loweheiser_man_start_ch, 1000)  # zero starter channel
+
+        # check generator doesn't auto-start - except in "run"
+        for pwm in 1000, 1500:  # off, idle
+            self.set_rc(gen_ctrl_ch, pwm)
+            self.delay_sim_time(5)
+            self.wait_generator_speed_and_state(0, 0, mavutil.mavlink.MAV_GENERATOR_STATUS_FLAG_OFF)
+
+            self.assert_received_message_field_values('EFI_STATUS', {
+                "throttle_out": 0,
+                "rpm": 0,
+            })
+
+        self.set_rc(gen_ctrl_ch, 2000)
+        self.delay_sim_time(5)
+        self.wait_generator_speed_and_state(8000, 30000, mavutil.mavlink.MAV_GENERATOR_STATUS_FLAG_GENERATING)
+
+        self.progress("Stopping generator again")
+        self.set_rc(gen_ctrl_ch, 1000)
+        self.wait_generator_speed_and_state(0, 0, mavutil.mavlink.MAV_GENERATOR_STATUS_FLAG_OFF)
 
         rc_dz = self.get_parameter('RC%u_DZ' % loweheiser_man_throt_ch)
         rc_trim = int(self.get_parameter('RC%u_TRIM' % loweheiser_man_throt_ch))
@@ -7522,17 +7545,33 @@ class AutoTestCopter(AutoTest):
             self.wait_message_field_values('EFI_STATUS', {
                 "throttle_position": 0,
                 "rpm": 0,
-            }, timeout=0.5)
+            })
 
-        self.progress("Generator at idle should not run governor and use throttle input")
+        # at 50 percent throttle
         pwm_for_fifty_percent_throttle = int(rc_min + rc_dz + int((rc_max-rc_min-rc_dz)/2))
         self.progress("Using PWM of %u for 50 percent throttle" % pwm_for_fifty_percent_throttle)
+        self.set_rc(loweheiser_man_throt_ch, pwm_for_fifty_percent_throttle)
+
+        self.progress("Turning EFI on (setting IDLE)")
         self.set_rc(gen_ctrl_ch, 1500)
+
+        # should not start until user triggers starter
+        self.wait_message_field_values('EFI_STATUS', {
+            # note that percent isn't honouring dead-zones...
+            "throttle_position": 51,  # magic fixed throttle value from AP_Generator_Loweheiser.cpp
+            "rpm": 0,
+        }, timeout=20)
+
+        self.progress("Running starter")
+        self.set_rc(loweheiser_man_start_ch, 2000)
+
+        self.progress("Generator at idle should not run governor and use throttle input")
+        self.delay_sim_time(30)
         self.set_rc(loweheiser_man_throt_ch, pwm_for_fifty_percent_throttle)
         self.wait_message_field_values('EFI_STATUS', {
             # note that percent isn't honouring dead-zones...
-            "throttle_position": 51,
-            "rpm": 4000,  # RPM for 50% throttle
+            "throttle_position": 51,  # magic fixed throttle value from AP_Generator_Loweheiser.cpp
+            "rpm": 4080,  # RPM for 50% throttle
         }, timeout=20)
 
         pwm_for_seventyfive_percent_throttle = int(rc_min + rc_dz + int((rc_max-rc_min-rc_dz)*3/4))
@@ -7564,6 +7603,12 @@ class AutoTestCopter(AutoTest):
             "rpm": 6000,  # RPM for 75% throttle
         }, timeout=20)
 
+        # stop generator:
+        self.set_rc(gen_ctrl_ch, 1000)
+        self.wait_generator_speed_and_state(0, 0, mavutil.mavlink.MAV_GENERATOR_STATUS_FLAG_OFF)
+
+        self.context_pop()
+
         self.start_subtest("Battery Failsafes")
         self.context_push()
         batt3_capacity = 500
@@ -7578,7 +7623,7 @@ class AutoTestCopter(AutoTest):
             "BATT3_LOW_VOLT": 0,
         })
         self.reboot_sitl()
-        self.set_rc(9, 2000)
+        self.set_rc(gen_ctrl_ch, 2000)  # start generator
         self.takeoff(10, mode='GUIDED')
 
         first_efi_status = self.assert_receive_message('EFI_STATUS', verbose=True)
