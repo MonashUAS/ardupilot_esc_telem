@@ -462,6 +462,8 @@ void AP_Generator_Loweheiser::command_generator()
         if (configure_for_start) {
             run_electric_starter = 1;
             desired_governor_state = 0;
+            // force the throttle to the idle throttle for starting:
+            throttle = idle_throttle;
         }
     }
 
