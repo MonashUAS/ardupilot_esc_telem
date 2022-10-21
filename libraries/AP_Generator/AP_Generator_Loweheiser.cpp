@@ -426,7 +426,8 @@ void AP_Generator_Loweheiser::command_generator()
                 case RC_Channel::AuxSwitchPos::MIDDLE:
                     break;
                 case RC_Channel::AuxSwitchPos::HIGH:
-                    run_electric_starter = (rc_channel_starter_motor != nullptr);
+                    run_electric_starter = 1;
+                    break;
                 }
             }
         } else {
