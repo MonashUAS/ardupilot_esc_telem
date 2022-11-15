@@ -1219,26 +1219,20 @@ bool AP_AHRS_DCM::get_origin(Location &ret) const
 
 bool AP_AHRS_DCM::get_relative_position_NED_origin(Vector3f &posNED) const
 {
-    Location origin;
-    if (!AP_AHRS_DCM::get_origin(origin)) {
-        return false;
-    }
     Location loc;
     if (!AP_AHRS_DCM::get_location(loc)) {
         return false;
     }
-    posNED = origin.get_distance_NED(loc);
-    return true;
+    return loc.get_vector_from_origin_NED(posNED);
 }
 
 bool AP_AHRS_DCM::get_relative_position_NE_origin(Vector2f &posNE) const
 {
-    Vector3f posNED;
-    if (!AP_AHRS_DCM::get_relative_position_NED_origin(posNED)) {
+    Location loc;
+    if (!AP_AHRS_DCM::get_location(loc)) {
         return false;
     }
-    posNE = posNED.xy();
-    return true;
+    return loc.get_vector_from_origin_NE(posNE);
 }
 
 bool AP_AHRS_DCM::get_relative_position_D_origin(float &posD) const
