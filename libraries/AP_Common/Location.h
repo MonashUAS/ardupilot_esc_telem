@@ -59,6 +59,12 @@ public:
     // x, y and z are in centimetres
     bool get_vector_xy_from_origin_NE(Vector2f &vec_ne) const WARN_IF_UNUSED;
     bool get_vector_from_origin_NEU(Vector3f &vec_neu) const WARN_IF_UNUSED;
+    bool get_vector_from_origin_NED(Vector3f &vec_neu) const WARN_IF_UNUSED;
+
+    // like get_vector_from_origin_NE but takes an arbitrary location
+    bool get_vector_NE_from_location(Vector2f &vec_ne, const Location &loc) const WARN_IF_UNUSED;
+    // like get_vector_from_origin_NED but takes an arbitrary location
+    bool get_vector_NED_from_location(Vector3f &vec_ned, const Location &loc) const WARN_IF_UNUSED;
 
     // return horizontal distance in meters between two locations
     ftype get_distance(const Location &loc2) const;

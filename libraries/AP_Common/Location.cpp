@@ -205,31 +205,65 @@ bool Location::get_alt_cm(AltFrame desired_frame, int32_t &ret_alt_cm) const
     return false;  // LCOV_EXCL_LINE  - not reachable
 }
 
+bool Location::get_vector_NED_from_location(Vector3f &vec_ned, const Location &loc) const
+{
+    // convert lat, lon
+    if (!get_vector_NE_from_location(vec_ned.xy(), loc)) {
+        return false;
+    }
+
+    // convert altitude
+    if (get_alt_frame() == loc.get_alt_frame()) {
+        vec_ned.z = loc.alt - alt;
+    } else {
+        int32_t my_alt_cm;
+        if (!get_alt_cm(AltFrame::ABOVE_ORIGIN, my_alt_cm)) {
+            return false;
+        }
+        int32_t loc_alt_cm;
+        if (!loc.get_alt_cm(AltFrame::ABOVE_ORIGIN, loc_alt_cm)) {
+            return false;
+        }
+        vec_ned.z = loc_alt_cm - my_alt_cm;
+    }
+
+    return true;
+}
+
+bool Location::get_vector_NE_from_location(Vector2f &vec_ne, const Location &loc) const
+{
+    vec_ne.x = (lat-loc.lat) * LATLON_TO_CM;
+    vec_ne.y = diff_longitude(lng,loc.lng) * LATLON_TO_CM * longitude_scale((lat+loc.lat)/2);
+    return true;
+}
+
 bool Location::get_vector_xy_from_origin_NE(Vector2f &vec_ne) const
 {
     Location ekf_origin;
     if (!AP::ahrs().get_origin(ekf_origin)) {
         return false;
     }
-    vec_ne.x = (lat-ekf_origin.lat) * LATLON_TO_CM;
-    vec_ne.y = diff_longitude(lng,ekf_origin.lng) * LATLON_TO_CM * longitude_scale((lat+ekf_origin.lat)/2);
+    return get_vector_NE_from_location(vec_ne, ekf_origin);
+}
+
+bool Location::get_vector_from_origin_NED(Vector3f &vec_ned) const
+{
+    Location ekf_origin;
+    if (!AP::ahrs().get_origin(ekf_origin)) {
+        return false;
+    }
+    if (!get_vector_NED_from_location(vec_ned, ekf_origin)) {
+        return false;
+    }
     return true;
 }
 
 bool Location::get_vector_from_origin_NEU(Vector3f &vec_neu) const
 {
-    // convert lat, lon
-    if (!get_vector_xy_from_origin_NE(vec_neu.xy())) {
+    if (!get_vector_from_origin_NED(vec_neu)) {
         return false;
     }
-
-    // convert altitude
-    int32_t alt_above_origin_cm = 0;
-    if (!get_alt_cm(AltFrame::ABOVE_ORIGIN, alt_above_origin_cm)) {
-        return false;
-    }
-    vec_neu.z = alt_above_origin_cm;
-
+    vec_neu.z = -vec_neu.z;  // NED -> NEU
     return true;
 }
 
