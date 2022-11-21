@@ -47,6 +47,7 @@
 #include "AP_RangeFinder_UAVCAN.h"
 #include "AP_RangeFinder_Lanbao.h"
 #include "AP_RangeFinder_LeddarVu8.h"
+#include "AP_RangeFinder_NRA24.h"
 #include "AP_RangeFinder_SITL.h"
 #include "AP_RangeFinder_MSP.h"
 #include "AP_RangeFinder_USD1_CAN.h"
@@ -483,6 +484,12 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
     case Type::LeddarVu8_Serial:
 #if AP_RANGEFINDER_LEDDARVU8_ENABLED
         serial_create_fn = AP_RangeFinder_LeddarVu8::create;
+#endif
+        break;
+
+    case Type::NRA24:
+#if AP_RANGEFINDER_NRA24_ENABLED
+        serial_create_fn = AP_RangeFinder_NRA24::create;
 #endif
         break;
 
