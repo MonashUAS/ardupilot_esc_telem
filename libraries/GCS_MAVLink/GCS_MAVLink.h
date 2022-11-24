@@ -2,7 +2,9 @@
 /// @brief	One size fits all header for MAVLink integration.
 #pragma once
 
-#include <AP_HAL/AP_HAL_Boards.h>
+#include "GCS_config.h"
+
+#if HAL_GCS_ENABLED
 
 // we have separate helpers disabled to make it possible
 // to select MAVLink 1.0 in the arduino GUI build
@@ -75,3 +77,5 @@ void comm_send_unlock(mavlink_channel_t chan);
 HAL_Semaphore &comm_chan_lock(mavlink_channel_t chan);
 
 #pragma GCC diagnostic pop
+
+#endif  // HAL_GCS_ENABLED

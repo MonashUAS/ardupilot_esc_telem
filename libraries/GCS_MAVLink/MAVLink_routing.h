@@ -2,6 +2,10 @@
 /// @brief	handle routing of MAVLink packets by ID
 #pragma once
 
+#include "GCS_config.h"
+
+#if HAL_GCS_ENABLED
+
 #include <AP_Common/AP_Common.h>
 #include "GCS_MAVLink.h"
 
@@ -74,3 +78,5 @@ private:
 
     void send_to_components(const char *pkt, const mavlink_msg_entry_t *entry, uint8_t pkt_len);
 };
+
+#endif   // HAL_GCS_ENABLED
