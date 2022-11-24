@@ -2,7 +2,9 @@
 
 #include <AP_HAL/AP_HAL.h>
 
-#ifndef HAL_BOOTLOADER_BUILD
+#include <GCS_MAVLink/GCS_config.h>
+
+#ifndef HAL_GCS_ENABLED
 #include <GCS_MAVLink/GCS.h>
 #endif
 
