@@ -382,6 +382,14 @@ SITL::SerialDevice *SITL_State::create_serial_sim(const char *name, const char *
         sf45b = new SITL::PS_LightWare_SF45B(_sitl->proximity_sensor_parameters);
         return sf45b;
 #endif
+#if HAL_SIM_PS_NRA24_ENABLED
+    } else if (streq(name, "nra24")) {
+        if (sf45b != nullptr) {
+            AP_HAL::panic("Only one nra24 at a time");
+        }
+        nra24 = new SITL::PS_NRA24(_sitl->proximity_sensor_parameters);
+        return nra24;
+#endif
     } else if (streq(name, "richenpower")) {
         sitl_model->set_richenpower(&_sitl->richenpower_sim);
         return &_sitl->richenpower_sim;
@@ -676,6 +684,12 @@ void SITL_State::_fdm_input_local(void)
 #if HAL_SIM_PS_LIGHTWARE_SF45B_ENABLED
     if (sf45b != nullptr) {
         sf45b->update(sitl_model->get_location());
+    }
+#endif
+
+#if HAL_SIM_PS_NRA24_ENABLED
+    if (nra24 != nullptr) {
+        nra24->update(sitl_model->get_location());
     }
 #endif
 

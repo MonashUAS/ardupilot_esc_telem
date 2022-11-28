@@ -56,6 +56,7 @@
 #include <SITL/SIM_PS_RPLidarA2.h>
 #include <SITL/SIM_PS_TeraRangerTower.h>
 #include <SITL/SIM_PS_LightWare_SF45B.h>
+#include <SITL/SIM_PS_NRA24.h>
 
 #include <SITL/SIM_RichenPower.h>
 #include <SITL/SIM_FETtecOneWireESC.h>
@@ -257,6 +258,11 @@ private:
 #if HAL_SIM_PS_LIGHTWARE_SF45B_ENABLED
     // simulated SF45B proximity sensor:
     SITL::PS_LightWare_SF45B *sf45b;
+#endif
+
+#if HAL_SIM_PS_NRA24_ENABLED
+    // simulated NRA24 proximity sensor:
+    SITL::PS_NRA24 *nra24;
 #endif
 
 #if HAL_SIM_PS_TERARANGERTOWER_ENABLED
