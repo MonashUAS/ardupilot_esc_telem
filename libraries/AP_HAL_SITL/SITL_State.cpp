@@ -363,7 +363,7 @@ SITL::SerialDevice *SITL_State::create_serial_sim(const char *name, const char *
         if (rplidara2 != nullptr) {
             AP_HAL::panic("Only one rplidara2 at a time");
         }
-        rplidara2 = new SITL::PS_RPLidarA2();
+        rplidara2 = new SITL::PS_RPLidarA2(_sitl->proximity_sensor_parameters);
         return rplidara2;
 #endif
 #if HAL_SIM_PS_TERARANGERTOWER_ENABLED
@@ -371,7 +371,7 @@ SITL::SerialDevice *SITL_State::create_serial_sim(const char *name, const char *
         if (terarangertower != nullptr) {
             AP_HAL::panic("Only one terarangertower at a time");
         }
-        terarangertower = new SITL::PS_TeraRangerTower();
+        terarangertower = new SITL::PS_TeraRangerTower(_sitl->proximity_sensor_parameters);
         return terarangertower;
 #endif
 #if HAL_SIM_PS_LIGHTWARE_SF45B_ENABLED
@@ -379,7 +379,7 @@ SITL::SerialDevice *SITL_State::create_serial_sim(const char *name, const char *
         if (sf45b != nullptr) {
             AP_HAL::panic("Only one sf45b at a time");
         }
-        sf45b = new SITL::PS_LightWare_SF45B();
+        sf45b = new SITL::PS_LightWare_SF45B(_sitl->proximity_sensor_parameters);
         return sf45b;
 #endif
     } else if (streq(name, "richenpower")) {
