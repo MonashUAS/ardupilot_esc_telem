@@ -1,5 +1,3 @@
 include ../CubeOrange-Harris/hwdef.dat
 
-USB_STRING_PRODUCT "CubeOrange"
-
 define AP_CUSTOM_FIRMWARE_STRING "Harris_Aerial_H6_HL_4_2"

@@ -1,8 +1,3 @@
 include ../CubeOrange-Harris-H6/hwdef.dat
 
-define AP_GENERATOR_LOWEHEISER_ENABLED 1
-define AP_EFI_LOWEHEISER_ENABLED 1
-
-USB_STRING_PRODUCT "CubeOrange"
-
 define AP_CUSTOM_FIRMWARE_STRING "Harris_Aerial_H6_Loweheiser_4_2"
