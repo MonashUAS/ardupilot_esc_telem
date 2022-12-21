@@ -228,3 +228,9 @@ WP_YAW_BEHAVIOR 1
 WPNAV_JERK 0.5
 WPNAV_RFND_USE 0
 WPNAV_SPEED 600
+
+# Required Due to ICM20602 Fast Reset Bug See ArduPilot 
+# https://github.com/ArduPilot/ardupilot/pull/22477
+# This changes to using the second IMU as the default IMU
+EK2_PRIMARY 1
+EK3_PRIMARY 1
