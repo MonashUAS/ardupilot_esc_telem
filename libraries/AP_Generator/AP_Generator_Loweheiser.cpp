@@ -7,6 +7,9 @@
 extern const AP_HAL::HAL& hal;
 
 #define MASK_LOG_ANY                    0xFFFF
+#define LOWEHEISER_EFI_COMS_TIMEOUT_MS  1500
+#define LOWEHEISER_EFI_VOLT_MIN         11.0
+#define LOWEHEISER_EFI_VOLT_MAX         13.5
 
 const AP_Param::GroupInfo AP_Generator_Loweheiser::var_info[] = {
 
@@ -81,13 +84,13 @@ bool AP_Generator_Loweheiser::healthy() const
         return true;
     }
 
-    if (AP_HAL::millis() - last_packet_received_ms > 1000) {
+    if (AP_HAL::millis() - last_packet_received_ms > LOWEHEISER_EFI_COMS_TIMEOUT_MS) {
         return false;
     }
 
     // these voltage constants were supplied by the manufacturer:
     if (!isnan(packet.efi_batt) &&
-        (packet.efi_batt < 12 || packet.efi_batt > 13.5)) {
+        (packet.efi_batt < LOWEHEISER_EFI_VOLT_MIN || packet.efi_batt > LOWEHEISER_EFI_VOLT_MAX)) {
         return false;
     }
 
