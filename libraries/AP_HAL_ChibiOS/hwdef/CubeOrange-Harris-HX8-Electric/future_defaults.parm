@@ -2,9 +2,29 @@ include ../CubeOrange-Harris/defaults.parm
 
 # HX8 Parameter file
 
-# Battery 1
+# Battery 1 (DRONECAN) Voltage & Current
+BATT_MONITOR 8
 BATT_LOW_VOLT 43.5
-BATT_CAPACITY 32000
+BATT_CAPACITY 15800
+
+# Failsafe LOW Action is RTL
+BATT_FS_LOW_ACT 2
+
+# Battery 2 (DRONECAN)
+BATT2_MONITOR 8
+BATT2_LOW_VOLT 43.5
+BATT2_CAPACITY 15800
+
+# Failsafe LOW Action is RTL
+BATT2_FS_LOW_ACT 2
+
+# Battery 3
+# Average of 1 and 2
+BATT3_MONITOR 10
+BATT3_SUM_MASK 3
+BATT3_LOW_VOLT 43.5
+BATT3_CAPACITY 31600
+# Failsafe LOW Action is not set yet (Batt 1 and 2 are sufficient?)
 
 # Attitude Control
 ATC_ACCEL_P_MAX 30000
