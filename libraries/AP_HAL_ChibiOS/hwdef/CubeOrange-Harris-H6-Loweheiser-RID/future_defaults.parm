@@ -2,70 +2,7 @@ include ../CubeOrange-Harris-H6/defaults.parm
 
 # H6_EV2
 # Lowheiser EFI Electrical Generator
-
-
-# Battery 1
-BATT_LOW_VOLT 47.5
-BATT_CAPACITY 0
-
-# this monitor is for fuel consumed measured via flow rate
-# capacity 4 000 mL
-BATT2_MONITOR 18
-BATT2_CAPACITY 4000
-BATT2_LOW_MAH 800
-BATT2_LOW_VOLT 0
-BATT2_FS_LOW_ACT 2
-
-# Backup Battery Voltage Generator Electric: this combines the voltage of the back up battery and generator electric
-BATT3_MONITOR 17
-BATT3_FS_LOW_ACT 2
-BATT3_LOW_VOLT 47.5
-
-# Lowheiser Generator Setup
-GEN_TYPE 4
-EFI_TYPE 4
-
-# SERIAL4 Lowehesier uses MAVLINK2 comms must have the do not forward traffic to/from set via _OPTIONS
-SERIAL4_PROTOCOL 2
-SERIAL4_BAUD 115
-SERIAL4_OPTIONS 1024
-
-# Generator Three Position Mode State Switch
-RC9_OPTION 85
-
-# Set the Harmonic Notch
-# this uses the throttle based notch
-# Note: the throttle reference point and frequency need to be set per vehicle and energy source combination
-INS_HNTCH_ATT 40
-INS_HNTCH_BW 22
-INS_HNTCH_ENABLE 1
-INS_HNTCH_FREQ 37
-INS_HNTCH_HMNCS 15
-INS_HNTCH_MODE 1
-INS_HNTCH_OPTS 1
-INS_HNTCH_REF 0.20
-
-
-# Settings when using the Dual Dynamic Harmonic Notch
-# The idea here is to set a throttle based notch based on the filter data. Then fly with noctch collecting post filter data.
-# Then collect post filter data and set the second notch based upon the post filter with just the first notch enabled
-#INS_HNTCH_ATT 40
-#INS_HNTCH_BW 15.5
-#INS_HNTCH_ENABLE 1
-#INS_HNTCH_FREQ 31
-#INS_HNTCH_HMNCS 15
-#INS_HNTCH_MODE 1
-#INS_HNTCH_OPTS 1
-#INS_HNTCH_REF 0.25
-
-#INS_HNTC2_ATT 40
-#INS_HNTC2_BW 22
-#INS_HNTC2_ENABLE 1
-#INS_HNTC2_FREQ 37
-#INS_HNTC2_HMNCS 15
-#INS_HNTC2_MODE 1
-#INS_HNTC2_OPTS 1
-#INS_HNTC2_REF 0.25
+# RID
 
 # OpenDroneID Parameters
 
