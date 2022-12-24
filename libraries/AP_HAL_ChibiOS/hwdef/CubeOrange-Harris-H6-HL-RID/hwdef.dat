@@ -1,0 +1,11 @@
+include ../CubeOrange-Harris-H6-HL/hwdef.dat
+
+undef AP_CUSTOM_FIRMWARE_STRING
+define AP_CUSTOM_FIRMWARE_STRING "Harris_Aerial_H6_HL_4_2_RID"
+
+# use a different board ID, so vehicles with this installed are prevented from loading
+# the firmware without OpenDroneID enabled
+APJ_BOARD_ID 10140
+
+# enable and enforce OpenDroneID
+define AP_OPENDRONEID_ENABLED 1
