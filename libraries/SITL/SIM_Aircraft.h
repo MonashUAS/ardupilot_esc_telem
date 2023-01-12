@@ -36,6 +36,7 @@
 #include "SIM_Battery.h"
 #include <Filter/Filter.h>
 #include "SIM_JSON_Master.h"
+#include "SIM_HobbyWing_Platinum_PRO_v3.h"
 
 #ifndef USE_PICOJSON
 #define USE_PICOJSON (CONFIG_HAL_BOARD == HAL_BOARD_SITL || CONFIG_HAL_BOARD == HAL_BOARD_LINUX)
@@ -152,6 +153,8 @@ public:
 #endif
     float get_battery_voltage() const { return battery_voltage; }
     float get_battery_temperature() const { return battery.get_temperature(); }
+
+    HobbyWing_Platinum_PRO_v3s hwing_escs;
 
 protected:
     SIM *sitl;
