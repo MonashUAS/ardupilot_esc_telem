@@ -176,12 +176,12 @@ AP_BattMonitor::Failsafe AP_BattMonitor_Generator_FuelLevel::update_failsafes()
                 return AP_BattMonitor::Failsafe::Critical;
             }
 
-            if (remaining_ml < _params._low_capacity) {
-                return AP_BattMonitor::Failsafe::Low;
-            }
-
             if (remaining_ml < _params._critical_capacity) {
                 return AP_BattMonitor::Failsafe::Critical;
+            }
+
+            if (remaining_ml < _params._low_capacity) {
+                return AP_BattMonitor::Failsafe::Low;
             }
         }
     }
