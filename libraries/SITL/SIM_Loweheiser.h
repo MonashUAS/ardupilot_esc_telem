@@ -34,6 +34,9 @@ param set BATT3_LOW_VOLT 0
 
 param set RC9_OPTION 85   # generator control
 
+param set GEN_IDLE_TH_H 40 # NOTE without this the engine never warms up past 36 deg C
+param set GEN_IDLE_TH 25
+
 param set RC10_OPTION 212 # loweheiser manual throttle control
 param set RC10_DZ 20
 param set RC10_TRIM 1000
