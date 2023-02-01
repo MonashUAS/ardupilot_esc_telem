@@ -81,6 +81,7 @@ jobs:
           fi
           PATH="/usr/lib/ccache:/opt/gcc-arm-none-eabi-${{matrix.gcc}}/bin:$PATH"
           PATH="/github/home/.local/bin:$PATH"
+          export WAF_BUILD_FOR_BOARD_TARGET=copter
           Tools/scripts/build_ci.sh
           ccache -s
           ccache -z
