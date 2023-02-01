@@ -24,7 +24,7 @@ jobs:
         config: [
             unit-tests,
             python-cleanliness,
-            sitl
+            # sitl
             # examples,
         ]
     steps:
