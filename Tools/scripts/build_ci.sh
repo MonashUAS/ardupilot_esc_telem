@@ -23,6 +23,10 @@ if [ -z "$CI_BUILD_TARGET" ]; then
     CI_BUILD_TARGET="sitl linux fmuv3 omnibusf4pro-one"
 fi
 
+if [ -z "$WAF_BUILD_FOR_BOARD_TARGET" ]; then
+    WAF_BUILD_FOR_BOARD_TARGET="all"
+fi
+
 waf=modules/waf/waf-light
 
 echo "Targets: $CI_BUILD_TARGET"
@@ -350,7 +354,7 @@ for t in $CI_BUILD_TARGET; do
                 --check-c-compiler="$c_compiler" \
                 --check-cxx-compiler="$cxx_compiler"
         $waf clean
-        $waf all
+        $waf $WAF_BUILD_FOR_BOARD_TARGET
         ccache -s && ccache -z
 
         if [[ $t == "linux" ]]; then
