@@ -7360,7 +7360,7 @@ class AutoTestCopter(AutoTest):
             "exhaust_gas_temperature": float("nan"),
             "throttle_out": 0.0,
             "pt_compensation": 0.0,
-            "ignition_voltage": float("nan"),
+            "ignition_voltage": 0,  # zero means "unknown" in this extension
         }, epsilon=1.0)
         self.assert_received_message_field_values('GENERATOR_STATUS', {
             "status": 1,
