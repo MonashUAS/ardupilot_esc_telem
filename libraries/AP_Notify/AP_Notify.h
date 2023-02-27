@@ -87,6 +87,10 @@ public:
         Notify_LED_LP5562_I2C_External          = (1 << 13), // LP5562
         Notify_LED_LP5562_I2C_Internal          = (1 << 14), // LP5562
 #endif
+#if AP_NOTIFY_LM2755_ENABLED
+        Notify_LED_LM2755_I2C_External             = (1 << 15), // LM2755
+        Notify_LED_LM2755_I2C_Internal             = (1 << 16), // LM2755
+#endif
         Notify_LED_MAX
     };
 
