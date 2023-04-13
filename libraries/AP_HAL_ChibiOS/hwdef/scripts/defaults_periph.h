@@ -205,6 +205,11 @@
 #define AP_AIRSPEED_ANALOG_ENABLED 0
 #endif
 
+// rangefinder is disabled by default:
+#ifndef AP_RANGEFINDER_ENABLED
+#define AP_RANGEFINDER_ENABLED 0
+#endif
+
 // disable various rangefinder backends
 #define AP_RANGEFINDER_ANALOG_ENABLED 0
 #define AP_RANGEFINDER_HC_SR04_ENABLED 0
