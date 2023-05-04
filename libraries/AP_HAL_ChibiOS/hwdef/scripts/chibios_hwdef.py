@@ -1923,8 +1923,8 @@ def write_UART_config(f):
 #ifndef HAL_OTG2_PROTOCOL
 #define HAL_OTG2_PROTOCOL SerialProtocol_SLCAN
 #endif
-#define HAL_SERIAL%d_PROTOCOL HAL_OTG2_PROTOCOL
-#define HAL_SERIAL%d_BAUD 115200
+#define DEFAULT_SERIAL%d_PROTOCOL HAL_OTG2_PROTOCOL
+#define DEFAULT_SERIAL%d_BAUD 115200
 #endif
 ''' % (OTG2_index, OTG2_index))
 
@@ -3012,10 +3012,10 @@ def add_apperiph_defaults(f):
 #endif
 
 // default to no protocols, AP_Periph enables with params
-#define HAL_SERIAL1_PROTOCOL -1
-#define HAL_SERIAL2_PROTOCOL -1
-#define HAL_SERIAL3_PROTOCOL -1
-#define HAL_SERIAL4_PROTOCOL -1
+#define DEFAULT_SERIAL1_PROTOCOL -1
+#define DEFAULT_SERIAL2_PROTOCOL -1
+#define DEFAULT_SERIAL3_PROTOCOL -1
+#define DEFAULT_SERIAL4_PROTOCOL -1
 
 #ifndef HAL_LOGGING_MAVLINK_ENABLED
 #define HAL_LOGGING_MAVLINK_ENABLED 0
