@@ -2682,7 +2682,7 @@ class AutoTestCopter(AutoTest):
         self.set_parameter("ARMING_CHECK", 1)
         self.stop_sup_program(instance=0)
         self.start_sup_program(instance=0, args="-M")
-        self.delay_sim_time(2)
+        self.delay_sim_time(5)
         self.context_collect('STATUSTEXT')
         self.run_cmd(mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
                      1,  # ARM
