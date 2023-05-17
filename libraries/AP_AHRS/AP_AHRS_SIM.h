@@ -27,18 +27,17 @@
 
 #include "AP_AHRS_Backend.h"
 
-#include <GCS_MAVLink/GCS.h>
 #include <SITL/SITL.h>
 
-#if HAL_NAVEKF3_AVAILABLE
-#include <AP_NavEKF3/AP_NavEKF3.h>
+#if AP_AHRS_NAVEKF3_ENABLED
+#include "AP_AHRS_NavEKF3.h"
 #endif
 
 class AP_AHRS_SIM : public AP_AHRS_Backend {
 public:
 
-#if HAL_NAVEKF3_AVAILABLE
-    AP_AHRS_SIM(NavEKF3 &_EKF3) :
+#if AP_AHRS_NAVEKF3_ENABLED
+    AP_AHRS_SIM(AP_AHRS_NavEKF3 &_EKF3) :
         AP_AHRS_Backend(),
         EKF3(_EKF3)
         { }
@@ -115,15 +114,15 @@ public:
 
     void get_control_limits(float &ekfGndSpdLimit, float &controlScaleXY) const override;
     bool get_innovations(Vector3f &velInnov, Vector3f &posInnov, Vector3f &magInnov, float &tasInnov, float &yawInnov) const override;
-    bool get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar) const override;
+    bool get_variances(float &velVar, float &posVar, float &hgtVar, Vector3f &magVar, float &tasVar, Vector2f &offset) const override;
 
 private:
 
-#if HAL_NAVEKF3_AVAILABLE
+#if AP_AHRS_NAVEKF3_ENABLED
     // a reference to the EKF3 backend that we can use to send in
     // body-frame-odometry data into the EKF.  Rightfully there should
     // be something over in the SITL directory doing this.
-    NavEKF3 &EKF3;
+    AP_AHRS_NavEKF3 &EKF3;
 #endif
 
     class SITL::SIM *_sitl;
