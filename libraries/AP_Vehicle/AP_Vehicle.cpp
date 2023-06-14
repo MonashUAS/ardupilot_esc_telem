@@ -289,6 +289,9 @@ void AP_Vehicle::setup()
     gcs().setup_console();
 #endif
 
+    // inform the user about errors in their setup
+    serial_manager.check_configuration();
+
     // Register scheduler_delay_cb, which will run anytime you have
     // more than 5ms remaining in your call to hal.scheduler->delay
     hal.scheduler->register_delay_callback(scheduler_delay_callback, 5);
