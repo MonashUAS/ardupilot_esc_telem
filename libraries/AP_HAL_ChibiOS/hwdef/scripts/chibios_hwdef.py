@@ -3258,6 +3258,10 @@ INCLUDE common.ld
 
 #ifndef HAL_SPEKTRUM_TELEM_ENABLED
 #define HAL_SPEKTRUM_TELEM_ENABLED 0
+
+// RTC is on by default but can be disabled in hwdef:
+#ifndef AP_RTC_ENABLED
+#define AP_RTC_ENABLED 1
 #endif
 
 #ifndef AP_FILESYSTEM_ROMFS_ENABLED
