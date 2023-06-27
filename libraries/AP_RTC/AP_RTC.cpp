@@ -1,5 +1,7 @@
 #include "AP_RTC.h"
 
+#if AP_RTC_ENABLED
+
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include <GCS_MAVLink/GCS.h>
@@ -239,3 +241,5 @@ AP_RTC &rtc()
 }
 
 }
+
+#endif
