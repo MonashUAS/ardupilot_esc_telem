@@ -39,6 +39,7 @@
 #if AP_SIM_ENABLED
 #include <SITL/SITL.h>
 #endif
+#include <AP_OpticalFlow/AP_OpticalFlow.h>
 
 #include <AP_NMEA_Output/AP_NMEA_Output.h>
 #if HAL_NMEA_OUTPUT_ENABLED && !(HAL_GCS_ENABLED && defined(HAL_PERIPH_ENABLE_GPS))
@@ -368,6 +369,15 @@ public:
     AP_InertialSensor ins;
 #endif
 
+#ifdef HAL_PERIPH_ENABLE_OPTICALFLOW
+    void of_init();
+    void of_update();
+    void of_send_can();
+    AP_OpticalFlow of;
+    struct {
+        uint32_t last_update_ms; // timestamp of last data from OF lib
+    } of_state;
+#endif
     // setup the var_info table
     AP_Param param_loader{var_info};
 

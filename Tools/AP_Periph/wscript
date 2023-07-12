@@ -81,6 +81,7 @@ def build(bld):
                      'AP_RobotisServo',
                      'AP_FETtecOneWire',
                      'AP_InertialSensor',
+                     'AP_OpticalFlow',
                      ]
     bld.ap_stlib(
         name= 'AP_Periph_libs',

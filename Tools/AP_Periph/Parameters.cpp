@@ -608,6 +608,12 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     GSCALAR(can_mirror_ports, "CAN_MIRROR_PORTS", 0),
 #endif // HAL_PERIPH_CAN_MIRROR
 
+#ifdef HAL_PERIPH_ENABLE_OPTICALFLOW
+    // @Group: OF
+    // @Path: ../libraries/AP_OpticalFlow/AP_OpticalFlow.cpp
+    GOBJECT(of, "FLOW",   AP_OpticalFlow),
+#endif   // HAL_PERIPH_ENABLE_OPTICALFLOW
+
     AP_VAREND
 };
 
