@@ -106,8 +106,13 @@ bool Plane::auto_takeoff_check(void)
 
     if (do_takeoff_attitude_check) {
         // Check aircraft attitude for bad launch
+#if AP_INVERTED_FLIGHT_ENABLED
+        const bool flying_inverted = fly_inverted();
+#else
+        const bool flying_inverted = false;
+#endif
         if (ahrs.pitch_sensor <= -3000 || ahrs.pitch_sensor >= 4500 ||
-            (!fly_inverted() && labs(ahrs.roll_sensor) > 3000)) {
+            (!flying_inverted && labs(ahrs.roll_sensor) > 3000)) {
             gcs().send_text(MAV_SEVERITY_WARNING, "Bad launch AUTO");
             takeoff_state.accel_event_counter = 0;
             goto no_launch;
