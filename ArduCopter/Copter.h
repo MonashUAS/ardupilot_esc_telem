@@ -567,7 +567,9 @@ private:
     // Tradheli flags
     typedef struct {
         uint8_t dynamic_flight          : 1;    // 0   // true if we are moving at a significant speed (used to turn on/off leaky I terms)
+#if AP_INVERTED_FLIGHT_ENABLED
         uint8_t inverted_flight         : 1;    // 1   // true for inverted flight mode
+#endif
         uint8_t in_autorotation         : 1;    // 2   // true when heli is in autorotation
         bool coll_stk_low                  ;    // 3   // true when collective stick is on lower limit
     } heli_flags_t;
