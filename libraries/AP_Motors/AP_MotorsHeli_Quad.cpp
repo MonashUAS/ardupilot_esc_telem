@@ -208,9 +208,11 @@ void AP_MotorsHeli_Quad::move_actuators(float roll_out, float pitch_out, float c
 
     float collective_range = (_collective_max - _collective_min) * 0.001f;
 
+#if AP_INVERTED_FLIGHT_ENABLED
     if (_heliflags.inverted_flight) {
         collective_out = 1.0f - collective_out;
     }
+#endif
 
     // feed power estimate into main rotor controller
     _main_rotor.set_collective(fabsf(collective_out));

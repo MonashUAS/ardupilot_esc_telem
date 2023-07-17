@@ -78,8 +78,10 @@ public:
     // set_collective_for_landing - limits collective from going too low if we know we are landed
     void set_collective_for_landing(bool landing) { _heliflags.landing_collective = landing; }
 
+#if AP_INVERTED_FLIGHT_ENABLED
     // set_inverted_flight - enables/disables inverted flight
     void set_inverted_flight(bool inverted) { _heliflags.inverted_flight = inverted; }
+#endif
 
     // get_rsc_mode - gets the current rotor speed control method
     uint8_t get_rsc_mode() const { return _main_rotor.get_control_mode(); }
@@ -245,7 +247,9 @@ protected:
     struct heliflags_type {
         uint8_t landing_collective      : 1;    // true if collective is setup for landing which has much higher minimum
         uint8_t rotor_runup_complete    : 1;    // true if the rotors have had enough time to wind up
+#if AP_INVERTED_FLIGHT_ENABLED
         uint8_t inverted_flight         : 1;    // true for inverted flight
+#endif
         uint8_t init_targets_on_arming  : 1;    // 0 if targets were initialized, 1 if targets were not initialized after arming
         uint8_t save_rsc_mode           : 1;    // used to determine the rsc mode needs to be saved while disarmed
         uint8_t in_autorotation         : 1;    // true if aircraft is in autorotation
