@@ -311,6 +311,7 @@ class Board:
             
         env.CXXFLAGS += [
             '-std=gnu++17',
+            '-Wno-psabi',  # disable ABI-change-warnings
 
             '-fdata-sections',
             '-ffunction-sections',
