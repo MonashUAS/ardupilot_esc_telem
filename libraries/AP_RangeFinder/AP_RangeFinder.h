@@ -94,6 +94,7 @@ public:
         TeraRanger_Serial = 35,
         Lua_Scripting = 36,
         NoopLoop_P = 37,
+        JRE_Serial = 38,
         SIM = 100,
     };
 
