@@ -14,6 +14,7 @@
  */
 
 #include "AP_RangeFinder_JRE_Serial.h"
+#include <AP_Math/AP_Math.h>
 
 #if AP_RANGEFINDER_JRE_SERIAL_ENABLED
 
@@ -21,29 +22,6 @@
 #define FRAME_HEADER_2   'A'    // 0x41
 
 #define DIST_MAX_CM 50000
-
-#define CCITT_INITPARA   0xffff	
-#define CCITT_POLYNOMIAL 0x8408	
-#define CCITT_OUTPARA    0xffff	
-
-/* CRC16CCITT */	
-static uint16_t CalcCRC16CCITT(uint8_t *cbuffer, uint16_t csize)	
-{	
-    uint16_t crc = CCITT_INITPARA;	
-    for (int i = 0; i < csize; i++) {	
-        crc ^= *cbuffer++;	
-        for (int j = 0; j < 8; j++) {	
-            if ((crc & 0x0001) != 0) {	
-                crc >>= 1;	
-                crc ^= CCITT_POLYNOMIAL;	
-            } else {	
-                crc >>= 1;	
-            }	
-        }	
-    }	
-    crc = crc ^ CCITT_OUTPARA;	
-    return crc;	
-}	
 
 bool AP_RangeFinder_JRE_Serial::get_reading(float &reading_m)
 {
@@ -102,7 +80,7 @@ bool AP_RangeFinder_JRE_Serial::get_reading(float &reading_m)
         } else { // data set
             if (data_buff_idx >= ARRAY_SIZE(data_buff)) {  // 1 data set complete
                 // crc check
-                uint16_t crc = CalcCRC16CCITT(data_buff, ARRAY_SIZE(data_buff) - 2);
+                uint16_t crc = crc16_ccitt_r(data_buff, ARRAY_SIZE(data_buff) - 2, 0xffff, 0xffff);
                 if ((((crc>>8) & 0xff) == data_buff[15]) && ((crc & 0xff) == data_buff[14])) {
                     // status check
                     if (data_buff[13] & 0x02) { // NTRK
