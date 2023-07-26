@@ -1,9 +1,11 @@
 #pragma once
 
-#include "AP_RangeFinder.h"
-#include "AP_RangeFinder_Backend_Serial.h"
+#include "AP_RangeFinder_config.h"
 
 #if AP_RANGEFINDER_JRE_SERIAL_ENABLED
+
+#include "AP_RangeFinder.h"
+#include "AP_RangeFinder_Backend_Serial.h"
 
 #define DATA_LENGTH 16
 
