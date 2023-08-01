@@ -379,6 +379,14 @@ const AP_Param::Info Tracker::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: PITCH2SRV_PDMX
+    // @DisplayName: Pitch axis PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0 4000
+    // @Increment: 10
+    // @Units: d%
+    // @User: Standard
+
     GGROUP(pidPitch2Srv,       "PITCH2SRV_", AC_PID),
 
     // @Param: YAW2SRV_P
@@ -447,6 +455,14 @@ const AP_Param::Info Tracker::var_info[] = {
     // @Range: 0 200
     // @Increment: 0.5
     // @User: Advanced
+
+    // @Param: YAW2SRV_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0 4000
+    // @Increment: 10
+    // @Units: d%
+    // @User: Standard
 
     GGROUP(pidYaw2Srv,         "YAW2SRV_", AC_PID),
 
