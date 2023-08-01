@@ -829,6 +829,7 @@ class sitl_periph_gps(sitl):
             HAL_PERIPH_ENABLE_EFI = 1,
             HAL_PERIPH_ENABLE_RPM = 1,
             HAL_PERIPH_ENABLE_RC_OUT = 1,
+            HAL_PERIPH_ENABLE_OPTICALFLOW = 1,
             AP_AIRSPEED_ENABLED = 1,
             AP_AIRSPEED_AUTOCAL_ENABLE = 0,
             AP_AHRS_ENABLED = 1,
@@ -862,7 +863,7 @@ class sitl_periph_gps(sitl):
             HAL_NAVEKF3_AVAILABLE = 0,
             HAL_PWM_COUNT = 32,
             HAL_WITH_ESC_TELEM = 1,
-            AP_INERTIALSENSOR_ENABLED = 0,
+            AP_INERTIALSENSOR_ENABLED = 1,
             HAL_GYROFFT_ENABLED = 0,
         )
 
