@@ -145,6 +145,13 @@ const AP_Param::GroupInfo AP_YawController::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: _RATE_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Standard
+
     AP_SUBGROUPINFO(rate_pid, "_RATE_", 9, AP_YawController, AC_PID),
 
     AP_GROUPEND

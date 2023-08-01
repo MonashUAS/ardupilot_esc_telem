@@ -141,6 +141,13 @@ const AP_Param::GroupInfo AR_AttitudeControl::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: _STR_RAT_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @Increment: 0.01
+    // @User: Standard
+
     AP_SUBGROUPINFO(_steer_rate_pid, "_STR_RAT_", 1, AR_AttitudeControl, AC_PID),
 
     // @Param: _SPEED_P
@@ -216,6 +223,13 @@ const AP_Param::GroupInfo AR_AttitudeControl::var_info[] = {
     // @Range: 0 200
     // @Increment: 0.5
     // @User: Advanced
+
+    // @Param: _SPEED_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @Increment: 0.01
+    // @User: Standard
 
     AP_SUBGROUPINFO(_throttle_speed_pid, "_SPEED_", 2, AR_AttitudeControl, AC_PID),
 
@@ -353,6 +367,13 @@ const AP_Param::GroupInfo AR_AttitudeControl::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: _BAL_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @Increment: 0.01
+    // @User: Standard
+
     AP_SUBGROUPINFO(_pitch_to_throttle_pid, "_BAL_", 10, AR_AttitudeControl, AC_PID),
 
     // @Param: _BAL_PIT_FF
@@ -436,6 +457,13 @@ const AP_Param::GroupInfo AR_AttitudeControl::var_info[] = {
     // @Range: 0 200
     // @Increment: 0.5
     // @User: Advanced
+
+    // @Param: _SAIL_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @Increment: 0.01
+    // @User: Standard
 
     AP_SUBGROUPINFO(_sailboat_heel_pid, "_SAIL_", 12, AR_AttitudeControl, AC_PID),
 
