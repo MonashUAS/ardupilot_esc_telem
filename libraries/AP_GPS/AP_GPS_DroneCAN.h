@@ -44,17 +44,17 @@ public:
 
     const char *name() const override { return _name; }
 
-    static void subscribe_msgs(AP_DroneCAN* ap_dronecan);
+    static void subscribe_msgs(class AP_DroneCAN* ap_dronecan);
     static AP_GPS_Backend* probe(AP_GPS &_gps, AP_GPS::GPS_State &_state);
 
-    static void handle_fix2_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const uavcan_equipment_gnss_Fix2& msg);
+    static void handle_fix2_msg_trampoline(AP_DroneCAN *ap_dronecan, const class CanardRxTransfer& transfer, const class uavcan_equipment_gnss_Fix2& msg);
 
-    static void handle_aux_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const uavcan_equipment_gnss_Auxiliary& msg);
-    static void handle_heading_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const ardupilot_gnss_Heading& msg);
-    static void handle_status_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const ardupilot_gnss_Status& msg);
+    static void handle_aux_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const class uavcan_equipment_gnss_Auxiliary& msg);
+    static void handle_heading_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const class ardupilot_gnss_Heading& msg);
+    static void handle_status_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const class ardupilot_gnss_Status& msg);
 #if GPS_MOVING_BASELINE
-    static void handle_moving_baseline_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const ardupilot_gnss_MovingBaselineData& msg);
-    static void handle_relposheading_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const ardupilot_gnss_RelPosHeading& msg);
+    static void handle_moving_baseline_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const class ardupilot_gnss_MovingBaselineData& msg);
+    static void handle_relposheading_msg_trampoline(AP_DroneCAN *ap_dronecan, const CanardRxTransfer& transfer, const class ardupilot_gnss_RelPosHeading& msg);
 #endif
     static bool backends_healthy(char failure_msg[], uint16_t failure_msg_len);
     void inject_data(const uint8_t *data, uint16_t len) override;
