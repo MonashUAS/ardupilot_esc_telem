@@ -3338,6 +3338,10 @@ INCLUDE common.ld
 #define HAL_BOARD_TERRAIN_DIRECTORY "/APM/TERRAIN"
 #endif
 
+#ifndef AP_DRONECAN_SEND_GPS
+#define AP_DRONECAN_SEND_GPS 0
+#endif
+
 // end AP_Periph defaults
 ''')
 
