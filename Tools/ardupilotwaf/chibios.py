@@ -452,14 +452,13 @@ def setup_canmgr_build(cfg):
         ]
     env.CFLAGS += ['-DHAL_CAN_IFACES=2']
 
-    if not env.AP_PERIPH:
-        env.DEFINES += [
-            'DRONECAN_CXX_WRAPPERS=1',
-            'USE_USER_HELPERS=1',
-            'CANARD_ENABLE_DEADLINE=1',
-            'CANARD_MULTI_IFACE=1',
-            'CANARD_ALLOCATE_SEM=1'
-            ]
+    env.DEFINES += [
+        'DRONECAN_CXX_WRAPPERS=1',
+        'USE_USER_HELPERS=1',
+        'CANARD_ENABLE_DEADLINE=1',
+        'CANARD_MULTI_IFACE=1',
+        'CANARD_ALLOCATE_SEM=1'
+    ]
 
     if cfg.env.HAL_CANFD_SUPPORTED:
         env.DEFINES += ['UAVCAN_SUPPORT_CANFD=1']
@@ -576,7 +575,7 @@ def configure(cfg):
     if ret != 0:
         cfg.fatal("Failed to process hwdef.dat ret=%d" % ret)
     load_env_vars(cfg.env)
-    if env.HAL_NUM_CAN_IFACES and not env.AP_PERIPH:
+    if env.HAL_NUM_CAN_IFACES:
         setup_canmgr_build(cfg)
     setup_optimization(cfg.env)
 

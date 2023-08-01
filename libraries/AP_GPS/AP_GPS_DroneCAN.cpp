@@ -803,7 +803,9 @@ void AP_GPS_DroneCAN::inject_data(const uint8_t *data, uint16_t len)
     // don't want to send duplicates
     const uint32_t now_ms = AP_HAL::millis();
     if (_detected_module == 0 ||
+#if GPS_MAX_RECEIVERS > 1
         _detected_modules[_detected_module].ap_dronecan != _detected_modules[0].ap_dronecan ||
+#endif
         now_ms - _detected_modules[0].last_inject_ms > 2000) {
         if (_rtcm_stream.buf == nullptr) {
             // give enough space for a full round from a NTRIP server with all

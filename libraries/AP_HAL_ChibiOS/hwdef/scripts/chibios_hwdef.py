@@ -3230,7 +3230,9 @@ INCLUDE common.ld
 #define AP_RANGEFINDER_PWM_ENABLED 0
 
 // no CAN manager in AP_Periph:
+#ifndef HAL_CANMANAGER_ENABLED
 #define HAL_CANMANAGER_ENABLED 0
+#endif
 
 // SLCAN is off by default:
 #ifndef AP_CAN_SLCAN_ENABLED

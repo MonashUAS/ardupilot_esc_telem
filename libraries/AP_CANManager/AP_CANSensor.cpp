@@ -21,6 +21,7 @@
 
 #include <AP_Scheduler/AP_Scheduler.h>
 #include "AP_CANSensor.h"
+#include <AP_CANManager/AP_CANManager.h>
 
 extern const AP_HAL::HAL& hal;
 

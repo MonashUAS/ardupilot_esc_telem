@@ -427,7 +427,7 @@ class Board:
                 '-Wl,--gc-sections',
             ]
 
-        if self.with_can and not cfg.env.AP_PERIPH:
+        if self.with_can:
             env.AP_LIBRARIES += [
                 'AP_DroneCAN',
                 'modules/DroneCAN/libcanard/*.c',

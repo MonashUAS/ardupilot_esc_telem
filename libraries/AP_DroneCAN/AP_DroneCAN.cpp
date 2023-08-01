@@ -153,10 +153,12 @@ _dna_server(*this, canard_iface, driver_index)
 {
     AP_Param::setup_object_defaults(this, var_info);
 
+#if DRONECAN_SRV_NUMBER
     for (uint8_t i = 0; i < DRONECAN_SRV_NUMBER; i++) {
         _SRV_conf[i].esc_pending = false;
         _SRV_conf[i].servo_pending = false;
     }
+#endif
 
     debug_dronecan(AP_CANManager::LOG_INFO, "AP_DroneCAN constructed\n\r");
 }
@@ -395,9 +397,11 @@ void AP_DroneCAN::loop(void)
                 } else {
                     SRV_send_actuator();
                 }
+#if DRONECAN_SRV_NUMBER
                 for (uint8_t i = 0; i < DRONECAN_SRV_NUMBER; i++) {
                     _SRV_conf[i].servo_pending = false;
                 }
+#endif
             }
         }
     }
@@ -538,6 +542,7 @@ void AP_DroneCAN::handle_node_info_request(const CanardRxTransfer& transfer, con
 
 void AP_DroneCAN::SRV_send_actuator(void)
 {
+#if DRONECAN_SRV_NUMBER
     uint8_t starting_servo = 0;
     bool repeat_send;
 
@@ -590,6 +595,7 @@ void AP_DroneCAN::SRV_send_actuator(void)
             }
         }
     } while (repeat_send);
+#endif
 }
 
 /*
@@ -597,6 +603,7 @@ void AP_DroneCAN::SRV_send_actuator(void)
  */
 void AP_DroneCAN::SRV_send_himark(void)
 {
+#if DRONECAN_SRV_NUMBER
     WITH_SEMAPHORE(SRV_sem);
 
     // ServoCmd can hold maximum of 17 commands. First find the highest pending servo < 17
@@ -622,6 +629,7 @@ void AP_DroneCAN::SRV_send_himark(void)
     msg.cmd.len = highest_to_send+1;
 
     himark_out.broadcast(msg);
+#endif // DRONECAN_SRV_NUMBER
 }
 
 void AP_DroneCAN::SRV_send_esc(void)
@@ -635,6 +643,7 @@ void AP_DroneCAN::SRV_send_esc(void)
     // esc offset allows for efficient packing of higher ESC numbers in RawCommand
     const uint8_t esc_offset = constrain_int16(_esc_offset.get(), 0, DRONECAN_SRV_NUMBER);
 
+#if DRONECAN_SRV_NUMBER
     // find out how many esc we have enabled and if they are active at all
     for (uint8_t i = esc_offset; i < DRONECAN_SRV_NUMBER; i++) {
         if ((((uint32_t) 1) << i) & _ESC_armed_mask) {
@@ -644,6 +653,7 @@ void AP_DroneCAN::SRV_send_esc(void)
             }
         }
     }
+#endif
 
     // if at least one is active (update) we need to send to all
     if (active_esc_num > 0) {
@@ -674,9 +684,11 @@ void AP_DroneCAN::SRV_send_esc(void)
         canard_iface.processTx(true);
     }
 
+#if DRONECAN_SRV_NUMBER
     for (uint8_t i = 0; i < DRONECAN_SRV_NUMBER; i++) {
         _SRV_conf[i].esc_pending = false;
     }
+#endif
 }
 
 #if AP_DRONECAN_HOBBYWING_ESC_SUPPORT
@@ -739,6 +751,7 @@ void AP_DroneCAN::SRV_push_servos()
 {
     WITH_SEMAPHORE(SRV_sem);
 
+#if DRONECAN_SRV_NUMBER
     for (uint8_t i = 0; i < DRONECAN_SRV_NUMBER; i++) {
         // Check if this channels has any function assigned
         if (SRV_Channels::channel_function(i) >= SRV_Channel::k_none) {
@@ -747,6 +760,7 @@ void AP_DroneCAN::SRV_push_servos()
             _SRV_conf[i].servo_pending = true;
         }
     }
+#endif
 
     uint32_t servo_armed_mask = _servo_bm;
     uint32_t esc_armed_mask = _esc_bm;

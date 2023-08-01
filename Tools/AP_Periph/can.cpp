@@ -252,9 +252,11 @@ static void handle_get_node_info(CanardInstance* canard_instance,
                                                     total_size
 #if CANARD_MULTI_IFACE
                                                     , IFACE_ALL
+#warning fred iface
 #endif
 #if HAL_CANFD_SUPPORTED
                                                     , periph.canfdout()
+#warning fred canfd
 #endif
 );
     if (resp_res <= 0) {
