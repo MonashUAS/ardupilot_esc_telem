@@ -86,6 +86,12 @@ const AP_Param::GroupInfo AP_WheelRateControl::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: _RATE_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @User: Standard
+
     AP_SUBGROUPINFO(_rate_pid0, "_RATE_", 3, AP_WheelRateControl, AC_PID),
 
     // @Param: 2_RATE_FF
@@ -155,6 +161,12 @@ const AP_Param::GroupInfo AP_WheelRateControl::var_info[] = {
     // @Range: 0 200
     // @Increment: 0.5
     // @User: Advanced
+
+    // @Param: 2_RATE_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0.000 1.000
+    // @User: Standard
 
     AP_SUBGROUPINFO(_rate_pid1, "2_RATE_", 4, AP_WheelRateControl, AC_PID),
 
