@@ -73,6 +73,13 @@ const AP_Param::GroupInfo AC_AttitudeControl_Sub::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: RAT_RLL_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Standard
+
     AP_SUBGROUPINFO(_pid_rate_roll, "RAT_RLL_", 1, AC_AttitudeControl_Sub, AC_PID),
 
     // @Param: RAT_PIT_P
@@ -141,6 +148,13 @@ const AP_Param::GroupInfo AC_AttitudeControl_Sub::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
+    // @Param: RAT_PIT_IMAX
+    // @DisplayName: Pitch axis rate controller I gain maximum
+    // @Description: Pitch axis rate controller I gain maximum.  Constrains the maximum that the I term will output
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Standard
+
     AP_SUBGROUPINFO(_pid_rate_pitch, "RAT_PIT_", 2, AC_AttitudeControl_Sub, AC_PID),
 
     // @Param: RAT_YAW_P
@@ -208,6 +222,13 @@ const AP_Param::GroupInfo AC_AttitudeControl_Sub::var_info[] = {
     // @Range: 0 200
     // @Increment: 0.5
     // @User: Advanced
+
+    // @Param: RAT_YAW_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
+    // @Range: 0 1
+    // @Increment: 0.01
+    // @User: Standard
 
     AP_SUBGROUPINFO(_pid_rate_yaw, "RAT_YAW_", 3, AC_AttitudeControl_Sub, AC_PID),
 
