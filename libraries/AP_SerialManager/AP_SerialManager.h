@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "AP_SerialManager_config.h"
+
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
 
@@ -184,6 +186,9 @@ public:
     // init - initialise serial ports
     void init();
 
+    // inform the user about errors in their setup
+    void check_configuration() const;
+
     // find_serial - searches available serial ports that allows the given protocol
     //  instance should be zero if searching for the first instance, 1 for the second, etc
     //  returns uart on success, nullptr if a serial port cannot be found
@@ -266,6 +271,9 @@ private:
     void set_options(uint16_t i);
 
     bool init_console_done;
+
+    static const uint64_t compiled_in_protocols;
+    static const uint64_t check_no_duplicates;
 };
 
 namespace AP {

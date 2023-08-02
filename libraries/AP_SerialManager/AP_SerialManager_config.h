@@ -1,0 +1,5 @@
+#pragma once
+
+#ifndef AP_SERIAL_PROTOCOL_NAMES_ENABLED
+#define AP_SERIAL_PROTOCOL_NAMES_ENABLED 1
+#endif
