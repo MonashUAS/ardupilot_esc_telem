@@ -307,6 +307,7 @@ void AP_EFI_Serial_Hirth::decode_data() {
 
         //EFI1 Log
         internal_state.engine_speed_rpm = (raw_data[10] | raw_data[11] << 0x08);
+        gcs().send_text(MAV_SEVERITY_INFO, "%u", internal_state.engine_speed_rpm);
         internal_state.cylinder_status->injection_time_ms = ((raw_data[32] | raw_data[33] << 0x08)) * INJECTION_TIME_RESOLUTION;
         internal_state.cylinder_status->ignition_timing_deg = (raw_data[34] | raw_data[35] << 0x08);
         //air temperature
