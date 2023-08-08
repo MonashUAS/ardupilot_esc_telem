@@ -265,6 +265,12 @@ SITL::SerialDevice *SITL_State::create_serial_sim(const char *name, const char *
         }
         nooploop = new SITL::RF_Nooploop();
         return nooploop;
+    } else if (streq(name, "jre")) {
+        if (jre != nullptr) {
+            AP_HAL::panic("Only one jre at a time");
+        }
+        jre = new SITL::RF_JRE();
+        return jre;
     } else if (streq(name, "teraranger_serial")) {
         if (teraranger_serial != nullptr) {
             AP_HAL::panic("Only one teraranger_serial at a time");
@@ -626,6 +632,9 @@ void SITL_State::_fdm_input_local(void)
     }
     if (nooploop != nullptr) {
         nooploop->update(sitl_model->rangefinder_range());
+    }
+    if (jre != nullptr) {
+        jre->update(sitl_model->rangefinder_range());
     }
     if (teraranger_serial != nullptr) {
         teraranger_serial->update(sitl_model->rangefinder_range());

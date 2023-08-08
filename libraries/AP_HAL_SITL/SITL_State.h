@@ -32,6 +32,7 @@
 #include <SITL/SIM_RF_Benewake_TF03.h>
 #include <SITL/SIM_RF_Benewake_TFmini.h>
 #include <SITL/SIM_RF_NoopLoop.h>
+#include <SITL/SIM_RF_JRE.h>
 #include <SITL/SIM_RF_TeraRanger_Serial.h>
 #include <SITL/SIM_RF_LightWareSerial.h>
 #include <SITL/SIM_RF_LightWareSerialBinary.h>
@@ -218,6 +219,8 @@ private:
     SITL::RF_Benewake_TFmini *benewake_tfmini;
     //simulated NoopLoop TOFSense rangefinder:
     SITL::RF_Nooploop *nooploop;
+    //simulated JAE JRE rangefinder:
+    SITL::RF_JRE *jre;
     // simulated TeraRanger Serial:
     SITL::RF_TeraRanger_Serial *teraranger_serial;
 
