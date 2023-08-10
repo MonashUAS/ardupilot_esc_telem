@@ -79,22 +79,29 @@ bool CanardInterface::broadcast(const Canard::Transfer &bcast_transfer) {
     }
 #endif
 
-    tx_transfer = {
-        .transfer_type = bcast_transfer.transfer_type,
-        .data_type_signature = bcast_transfer.data_type_signature,
-        .data_type_id = bcast_transfer.data_type_id,
-        .inout_transfer_id = bcast_transfer.inout_transfer_id,
-        .priority = bcast_transfer.priority,
-        .payload = (const uint8_t*)bcast_transfer.payload,
-        .payload_len = uint16_t(bcast_transfer.payload_len),
+    tx_transfer.transfer_type = bcast_transfer.transfer_type;
+    tx_transfer.data_type_signature = bcast_transfer.data_type_signature;
+    tx_transfer.data_type_id = bcast_transfer.data_type_id;
+    tx_transfer.inout_transfer_id = bcast_transfer.inout_transfer_id;
+    tx_transfer.priority = bcast_transfer.priority;
+    tx_transfer.payload = (const uint8_t*)bcast_transfer.payload;
+    tx_transfer.payload_len = uint16_t(bcast_transfer.payload_len);
 #if CANARD_ENABLE_CANFD
-        .canfd = bcast_transfer.canfd,
+#warning canfd here
+    tx_transfer.canfd = bcast_transfer.canfd;
 #endif
-        .deadline_usec = AP_HAL::native_micros64() + (bcast_transfer.timeout_ms * 1000),
+#if CANARD_ENABLE_DEADLINE
+#warning deadline here
+    tx_transfer.deadline_usec = AP_HAL::native_micros64() + (bcast_transfer.timeout_ms * 1000);
+#endif
 #if CANARD_MULTI_IFACE
-        .iface_mask = uint8_t((1<<num_ifaces) - 1),
+#warning iface here
+    tx_transfer.iface_mask = uint8_t((1<<num_ifaces) - 1);
 #endif
-    };
+#if CANARD_ENABLE_TAO_OPTION
+        #error y
+#endif
+
     // do canard broadcast
     int16_t ret = canardBroadcastObj(&canard, &tx_transfer);
 #if AP_TEST_DRONECAN_DRIVERS
@@ -116,7 +123,7 @@ bool CanardInterface::request(uint8_t destination_node_id, const Canard::Transfe
     }
     WITH_SEMAPHORE(_sem_tx);
 
-    tx_transfer = {
+    const CanardTxTransfer bob {
         .transfer_type = req_transfer.transfer_type,
         .data_type_signature = req_transfer.data_type_signature,
         .data_type_id = req_transfer.data_type_id,
@@ -127,11 +134,14 @@ bool CanardInterface::request(uint8_t destination_node_id, const Canard::Transfe
 #if CANARD_ENABLE_CANFD
         .canfd = req_transfer.canfd,
 #endif
+#if CANARD_ENABLE_DEADLINE
         .deadline_usec = AP_HAL::native_micros64() + (req_transfer.timeout_ms * 1000),
+#endif
 #if CANARD_MULTI_IFACE
         .iface_mask = uint8_t((1<<num_ifaces) - 1),
 #endif
     };
+    tx_transfer = bob;
     // do canard request
     int16_t ret = canardRequestOrRespondObj(&canard, destination_node_id, &tx_transfer);
     if (ret <= 0) {
@@ -148,7 +158,7 @@ bool CanardInterface::respond(uint8_t destination_node_id, const Canard::Transfe
     }
     WITH_SEMAPHORE(_sem_tx);
 
-    tx_transfer = {
+    const CanardTxTransfer bob {
         .transfer_type = res_transfer.transfer_type,
         .data_type_signature = res_transfer.data_type_signature,
         .data_type_id = res_transfer.data_type_id,
@@ -159,11 +169,14 @@ bool CanardInterface::respond(uint8_t destination_node_id, const Canard::Transfe
 #if CANARD_ENABLE_CANFD
         .canfd = res_transfer.canfd,
 #endif
+#if CANARD_ENABLE_DEADLINE
         .deadline_usec = AP_HAL::native_micros64() + (res_transfer.timeout_ms * 1000),
+#endif
 #if CANARD_MULTI_IFACE
         .iface_mask = uint8_t((1<<num_ifaces) - 1),
 #endif
     };
+    tx_transfer = bob;
     // do canard respond
     int16_t ret = canardRequestOrRespondObj(&canard, destination_node_id, &tx_transfer);
     if (ret <= 0) {
@@ -242,6 +255,7 @@ void CanardInterface::processTx(bool raw_commands_only = false) {
                 // top of the queue, so wait for the next loop
                 break;
             }
+#if CANARD_ENABLE_DEADLINE
             if ((txf->iface_mask & (1U<<iface)) && (AP_HAL::native_micros64() < txf->deadline_usec)) {
                 // try sending to interfaces, clearing the mask if we succeed
                 if (ifaces[iface]->send(txmsg, txf->deadline_usec, 0) > 0) {
@@ -251,6 +265,7 @@ void CanardInterface::processTx(bool raw_commands_only = false) {
                     break;
                 }
             }
+#endif
             // look at next transfer
             txq = txq->next;
             if (txq == nullptr) {

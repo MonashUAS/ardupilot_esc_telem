@@ -455,10 +455,14 @@ def setup_canmgr_build(cfg):
     env.DEFINES += [
         'DRONECAN_CXX_WRAPPERS=1',
         'USE_USER_HELPERS=1',
-        'CANARD_ENABLE_DEADLINE=1',
         'CANARD_MULTI_IFACE=1',
         'CANARD_ALLOCATE_SEM=1'
     ]
+
+    if not cfg.env.AP_PERIPH:
+        env.DEFINES += [
+            'CANARD_ENABLE_DEADLINE=1',
+        ]
 
     if cfg.env.HAL_CANFD_SUPPORTED:
         env.DEFINES += ['UAVCAN_SUPPORT_CANFD=1']

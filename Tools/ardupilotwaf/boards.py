@@ -440,9 +440,12 @@ class Board:
             env.DEFINES.update(
                 DRONECAN_CXX_WRAPPERS = 1,
                 USE_USER_HELPERS = 1,
-                CANARD_ENABLE_DEADLINE = 1,
                 CANARD_ALLOCATE_SEM=1
             )
+            if not cfg.env.AP_PERIPH:
+                env.DEFINES.update(
+                    CANARD_ENABLE_DEADLINE = 1,
+                )
 
 
         if cfg.options.build_dates:
@@ -1120,7 +1123,7 @@ class chibios(Board):
 
         if cfg.env.HAL_CANFD_SUPPORTED:
             env.DEFINES.update(CANARD_ENABLE_CANFD=1)
-        else:
+        elif not cfg.env.AP_PERIPH:
             env.DEFINES.update(CANARD_ENABLE_TAO_OPTION=1)
         if not cfg.options.bootloader and cfg.env.HAL_NUM_CAN_IFACES:
             if int(cfg.env.HAL_NUM_CAN_IFACES) >= 1:
