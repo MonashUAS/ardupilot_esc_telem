@@ -288,3 +288,6 @@ BARO DPS280      SPI:dps310
 COMPASS AK09916:probe_ICM20948 0 ROTATION_ROLL_180
 
 define HAL_PROBE_EXTERNAL_I2C_COMPASSES
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

@@ -464,3 +464,6 @@ DMA_PRIORITY TIM1_CH3 TIM1_CH2 TIM1_UP USART6* ADC1* SDIO* SPI*
 # is "ROMFS ROMFS-filename source-filename". Paths are relative to the
 # ardupilot root.
 ROMFS io_firmware.bin Tools/IO_Firmware/iofirmware_lowpolh.bin
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

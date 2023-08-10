@@ -155,3 +155,6 @@ define HAL_PERIPH_LISTEN_FOR_SERIAL_UART_REBOOT_CMD_PORT 0
 DMA_NOSHARE USART1* USART2* CAN1*
 
 AUTOBUILD_TARGETS None
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

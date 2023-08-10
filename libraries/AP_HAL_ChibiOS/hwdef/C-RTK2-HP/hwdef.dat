@@ -121,3 +121,6 @@ define AP_GPS_NMEA_CUSTOM_CONFIG_STRING "CONFIG COM1 230400 8 N 1"
 
 # custom config for GPS probe
 define NMEA_UNICORE_SETUP "CONFIG COM1 230400 8 n 1\r\nGPGGA 0.2\r\n"
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

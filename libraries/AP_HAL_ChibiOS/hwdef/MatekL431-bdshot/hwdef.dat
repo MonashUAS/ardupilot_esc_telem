@@ -33,3 +33,6 @@ define HAL_PERIPH_ENABLE_NOTIFY
 # enable ESC control
 define HAL_SUPPORT_RCOUT_SERIAL 1
 define HAL_WITH_ESC_TELEM 1
+
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

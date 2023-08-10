@@ -30,3 +30,5 @@ PB15 TIM1_CH3N TIM1 PWM(4) GPIO(53)
 # enable PWM
 define HAL_PERIPH_ENABLE_RC_OUT
 
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

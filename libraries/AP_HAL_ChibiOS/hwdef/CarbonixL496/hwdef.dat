@@ -142,7 +142,5 @@ define HAL_PERIPH_ADSB_BAUD_DEFAULT 57600
 BARO MS56XX I2C:0:0x76
 COMPASS MMC5XX3 I2C:0:0x30 false ROTATION_NONE
 
-
-
-
-
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0

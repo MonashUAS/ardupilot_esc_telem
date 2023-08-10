@@ -11,3 +11,5 @@ define HAL_PROXIMITY_ENABLED 1
 
 define AP_PERIPH_PRX_PORT_DEFAULT 2
 
+# bootloader embedding / bootloader flashing not available
+define AP_BOOTLOADER_FLASHING_ENABLED 0
