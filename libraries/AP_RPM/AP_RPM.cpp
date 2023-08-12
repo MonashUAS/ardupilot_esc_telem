@@ -201,7 +201,7 @@ void AP_RPM::update(void)
 
             drivers[i]->update();
 
-#if HAL_WITH_ESC_TELEM
+#if AP_RPM_ESC_TELEM_ENABLED
             // Check if we need to write to esc_telem(). Note:
             // RPM_TYPE_ESC_TELEM = read ESC_TELEM and store it in AP_RPM
             // RPM_TYPE_EverythingElse = write to ESC_TELEM with data generated from AP_RPM
