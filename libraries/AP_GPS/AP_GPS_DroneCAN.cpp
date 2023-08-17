@@ -28,6 +28,13 @@
 #include <AP_DroneCAN/AP_DroneCAN.h>
 #include <GCS_MAVLink/GCS.h>
 
+#include <canard.h>
+
+#include <canard_helpers_user.h>
+#include <canard/publisher.h>
+#include <canard/subscriber.h>
+#include <dronecan_msgs.h>
+
 #include <AP_Logger/AP_Logger.h>
 
 #include <stdio.h>
@@ -86,6 +93,7 @@ AP_GPS_DroneCAN::~AP_GPS_DroneCAN()
 #endif
 }
 
+#if HAL_ENABLE_DRONECAN_DRIVERS
 void AP_GPS_DroneCAN::subscribe_msgs(AP_DroneCAN* ap_dronecan)
 {
     if (ap_dronecan == nullptr) {
@@ -117,6 +125,7 @@ void AP_GPS_DroneCAN::subscribe_msgs(AP_DroneCAN* ap_dronecan)
     }
 #endif
 }
+#endif
 
 AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
 {
@@ -181,7 +190,7 @@ AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
             return NULL;
     }
     if (backend == nullptr) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR,
+        CAN_LOG_TEXT(AP_CANManager::LOG_ERROR,
                             LOG_TAG,
                             "Failed to register DroneCAN GPS Node %d on Bus %d\n",
                             _detected_modules[found_match].node_id,
@@ -189,13 +198,15 @@ AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
     } else {
         _detected_modules[found_match].driver = backend;
         backend->_detected_module = found_match;
-        AP::can().log_text(AP_CANManager::LOG_INFO,
+        CAN_LOG_TEXT(AP_CANManager::LOG_INFO,
                             LOG_TAG,
                             "Registered DroneCAN GPS Node %d on Bus %d as instance %d\n",
                             _detected_modules[found_match].node_id,
                             _detected_modules[found_match].ap_dronecan->get_driver_index(),
                             _state.instance);
+#if HAL_ENABLE_DRONECAN_DRIVERS
         snprintf(backend->_name, ARRAY_SIZE(backend->_name), "DroneCAN%u-%u", _detected_modules[found_match].ap_dronecan->get_driver_index()+1, _detected_modules[found_match].node_id);
+#endif
         _detected_modules[found_match].instance = _state.instance;
         for (uint8_t i=0; i < GPS_MAX_RECEIVERS; i++) {
             if (_detected_modules[found_match].node_id == AP::gps()._node_id[i]) {
@@ -658,6 +669,7 @@ void AP_GPS_DroneCAN::handle_relposheading_msg_trampoline(AP_DroneCAN *ap_dronec
 }
 #endif
 
+#if HAL_ENABLE_DRONECAN_DRIVERS
 bool AP_GPS_DroneCAN::do_config()
 {
     AP_DroneCAN *ap_dronecan = _detected_modules[_detected_module].ap_dronecan;
@@ -691,15 +703,18 @@ bool AP_GPS_DroneCAN::do_config()
     }
     return false;
 }
+#endif
 
 // Consume new data and mark it received
 bool AP_GPS_DroneCAN::read(void)
 {
+#if HAL_ENABLE_DRONECAN_DRIVERS
     if (gps._auto_config >= AP_GPS::GPS_AUTO_CONFIG_ENABLE_ALL) {
         if (!do_config()) {
             return false;
         }
     }
+#endif
 
     WITH_SEMAPHORE(sem);
 
@@ -786,12 +801,15 @@ void AP_GPS_DroneCAN::send_rtcm(void)
     msg.protocol_id = UAVCAN_EQUIPMENT_GNSS_RTCMSTREAM_PROTOCOL_ID_RTCM3;
     memcpy(msg.data.data, ptr, outlen);
     msg.data.len = outlen;
+#if HAL_ENABLE_DRONECAN_DRIVERS
     if (_detected_modules[_detected_module].ap_dronecan->rtcm_stream.broadcast(msg)) {
         _rtcm_stream.buf->advance(outlen);
         _rtcm_stream.last_send_ms = now;
     }
+#endif
 }
 
+#if HAL_ENABLE_DRONECAN_DRIVERS
 /*
   handle RTCM data from MAVLink GPS_RTCM_DATA, forwarding it over MAVLink
  */
@@ -881,6 +899,7 @@ void AP_GPS_DroneCAN::handle_param_save_response(AP_DroneCAN* ap_dronecan, const
     Debug("AP_GPS_DroneCAN: sending reboot command %d\n", node_id);
     ap_dronecan->send_reboot_request(node_id);
 }
+#endif
 
 #if AP_DRONECAN_SEND_GPS
 bool AP_GPS_DroneCAN::instance_exists(const AP_DroneCAN* ap_dronecan)

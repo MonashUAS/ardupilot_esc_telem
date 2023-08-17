@@ -428,6 +428,14 @@ static void handle_param_executeopcode(CanardInstance* canard_instance, CanardRx
 );
 }
 
+static void handle_gnss_fix2(CanardInstance* canard_instance, CanardRxTransfer* transfer)
+{
+    uavcan_equipment_gnss_Fix2 req;
+    if (uavcan_equipment_gnss_Fix2_decode(transfer, &req)) {
+        return;
+    }
+}
+
 static void processTx(void);
 static void processRx(void);
 
@@ -942,6 +950,10 @@ static void onTransferReceived(CanardInstance* canard_instance,
         handle_param_executeopcode(canard_instance, transfer);
         break;
 
+    case UAVCAN_EQUIPMENT_GNSS_FIX2_ID:
+        handle_gnss_fix2(canard_instance, transfer);
+        break;
+
 #if defined(HAL_PERIPH_ENABLE_BUZZER_WITHOUT_NOTIFY) || defined (HAL_PERIPH_ENABLE_NOTIFY)
     case UAVCAN_EQUIPMENT_INDICATION_BEEPCOMMAND_ID:
         handle_beep_command(canard_instance, transfer);
@@ -1075,6 +1087,10 @@ static bool shouldAcceptTransfer(const CanardInstance* canard_instance,
         return true;
 #endif
 #endif // HAL_PERIPH_ENABLE_GPS
+
+    case UAVCAN_EQUIPMENT_GNSS_FIX2_ID:
+        *out_data_type_signature = UAVCAN_EQUIPMENT_GNSS_FIX2_SIGNATURE;
+        return true;
 
 #if AP_UART_MONITOR_ENABLED
     case UAVCAN_TUNNEL_TARGETTED_ID:

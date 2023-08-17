@@ -198,4 +198,10 @@ namespace AP
 AP_CANManager& can();
 }
 
+#define CAN_LOG_TEXT(severity, tag, format, args...) AP::can().log_text(severity, tag, format, ##args)
+
+#else  // HAL_CANMANAGER_ENABLED is false
+
+#define CAN_LOG_TEXT(severity, tag, format, args...)
+
 #endif  // HAL_CANMANAGER_ENABLED

@@ -384,7 +384,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     AP_GROUPINFO("_PRIMARY", 27, AP_GPS, _primary, 0),
 #endif
 
-#if HAL_ENABLE_DRONECAN_DRIVERS
+#if AP_GPS_DRONECAN_ENABLED
     // @Param: _CAN_NODEID1
     // @DisplayName: GPS Node ID 1
     // @Description: GPS Node id for first-discovered GPS.
@@ -413,7 +413,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("2_CAN_OVRIDE", 31, AP_GPS, _override_node_id[1], 0),
 #endif // GPS_MAX_RECEIVERS > 1
-#endif // HAL_ENABLE_DRONECAN_DRIVERS
+#endif // AP_GPS_DRONECAN_ENABLED
 
     AP_GROUPEND
 };

@@ -604,7 +604,7 @@ protected:
     AP_Float _blend_tc;
     AP_Int16 _driver_options;
     AP_Int8 _primary;
-#if HAL_ENABLE_DRONECAN_DRIVERS
+#if AP_GPS_DRONECAN_ENABLED
     AP_Int32 _node_id[GPS_MAX_RECEIVERS];
     AP_Int32 _override_node_id[GPS_MAX_RECEIVERS];
 #endif
