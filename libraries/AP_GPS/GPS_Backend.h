@@ -101,6 +101,10 @@ public:
         return gps.option_set(option);
     }
 
+#if AP_GPS_DRONECAN_ENABLED
+    virtual void handle_dronecan_message(const class uavcan_equipment_gnss_Fix2 &foo) {}
+#endif
+
 protected:
     AP_HAL::UARTDriver *port;           ///< UART we are attached to
     AP_GPS &gps;                        ///< access to frontend (for parameters)

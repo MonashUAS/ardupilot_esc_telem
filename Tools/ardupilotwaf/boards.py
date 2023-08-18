@@ -845,6 +845,8 @@ class sitl_periph_gps(sitl):
             HAL_PROXIMITY_ENABLED = 0,
             AP_SCRIPTING_ENABLED = 0,
             AP_AHRS_ENABLED = 0,
+            AP_GPS_DRONECAN_ENABLED = 1,
+            AP_DRONECAN_SEND_GPS = 0,
         )
 
 

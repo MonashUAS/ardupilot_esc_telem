@@ -44,6 +44,8 @@
 #if HAL_ENABLE_DRONECAN_DRIVERS
 #include <AP_CANManager/AP_CANManager.h>
 #include <AP_DroneCAN/AP_DroneCAN.h>
+#endif
+#if AP_GPS_DRONECAN_ENABLED
 #include "AP_GPS_DroneCAN.h"
 #endif
 
@@ -728,7 +730,7 @@ AP_GPS_Backend *AP_GPS::_detect_instance(uint8_t instance)
     case GPS_TYPE_UAVCAN:
     case GPS_TYPE_UAVCAN_RTK_BASE:
     case GPS_TYPE_UAVCAN_RTK_ROVER:
-#if HAL_ENABLE_DRONECAN_DRIVERS
+#if AP_GPS_DRONECAN_ENABLED
         dstate->auto_detected_baud = false; // specified, not detected
         return AP_GPS_DroneCAN::probe(*this, state[instance]);
 #endif
@@ -2311,6 +2313,17 @@ bool AP_GPS::gps_yaw_deg(uint8_t instance, float &yaw_deg, float &accuracy_deg, 
     }
     return true;
 }
+
+#if AP_GPS_DRONECAN_ENABLED
+template<>
+void AP_GPS::handle_dronecan_message<uavcan_equipment_gnss_Fix2>(class uavcan_equipment_gnss_Fix2 const&msg)
+{
+    if (drivers[0] == nullptr) {
+        return;
+    }
+    drivers[0]->handle_dronecan_message(msg);
+}
+#endif
 
 namespace AP {
 

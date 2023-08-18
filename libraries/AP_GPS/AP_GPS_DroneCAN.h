@@ -70,6 +70,8 @@ public:
     static bool instance_exists(const AP_DroneCAN* ap_dronecan);
 #endif
 
+    void handle_dronecan_message(const uavcan_equipment_gnss_Fix2 &msg) override;
+
 private:
 
     bool param_configured = true;

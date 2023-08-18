@@ -75,9 +75,11 @@ AP_GPS_DroneCAN::AP_GPS_DroneCAN(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_GPS
     interim_state(_state),
     role(_role)
 {
+#if HAL_ENABLE_DRONECAN_DRIVERS
     param_int_cb = FUNCTOR_BIND_MEMBER(&AP_GPS_DroneCAN::handle_param_get_set_response_int, bool, AP_DroneCAN*, const uint8_t, const char*, int32_t &);
     param_float_cb = FUNCTOR_BIND_MEMBER(&AP_GPS_DroneCAN::handle_param_get_set_response_float, bool, AP_DroneCAN*, const uint8_t, const char*, float &);
     param_save_cb = FUNCTOR_BIND_MEMBER(&AP_GPS_DroneCAN::handle_param_save_response, void, AP_DroneCAN*, const uint8_t, bool);
+#endif
 }
 
 AP_GPS_DroneCAN::~AP_GPS_DroneCAN()
@@ -130,8 +132,9 @@ void AP_GPS_DroneCAN::subscribe_msgs(AP_DroneCAN* ap_dronecan)
 AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
 {
     WITH_SEMAPHORE(_sem_registry);
-    int8_t found_match = -1, last_match = -1;
     AP_GPS_DroneCAN* backend = nullptr;
+#if 0
+    int8_t found_match = -1, last_match = -1;
     bool bad_override_config = false;
     for (int8_t i = GPS_MAX_RECEIVERS - 1; i >= 0; i--) {
         if (_detected_modules[i].driver == nullptr && _detected_modules[i].ap_dronecan != nullptr) {
@@ -173,6 +176,9 @@ AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
     if (found_match == -1) {
         return NULL;
     }
+#else
+    const int8_t found_match = 0;
+#endif
     // initialise the backend based on the UAVCAN Moving baseline selection
     switch (_gps.get_type(_state.instance)) {
         case AP_GPS::GPS_TYPE_UAVCAN:
@@ -190,20 +196,20 @@ AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
             return NULL;
     }
     if (backend == nullptr) {
-        CAN_LOG_TEXT(AP_CANManager::LOG_ERROR,
-                            LOG_TAG,
-                            "Failed to register DroneCAN GPS Node %d on Bus %d\n",
-                            _detected_modules[found_match].node_id,
-                            _detected_modules[found_match].ap_dronecan->get_driver_index());
+        // CAN_LOG_TEXT(AP_CANManager::LOG_ERROR,
+        //                     LOG_TAG,
+        //                     "Failed to register DroneCAN GPS Node %d on Bus %d\n",
+        //                     _detected_modules[found_match].node_id,
+        //                     _detected_modules[found_match].ap_dronecan->get_driver_index());
     } else {
         _detected_modules[found_match].driver = backend;
         backend->_detected_module = found_match;
-        CAN_LOG_TEXT(AP_CANManager::LOG_INFO,
-                            LOG_TAG,
-                            "Registered DroneCAN GPS Node %d on Bus %d as instance %d\n",
-                            _detected_modules[found_match].node_id,
-                            _detected_modules[found_match].ap_dronecan->get_driver_index(),
-                            _state.instance);
+        // CAN_LOG_TEXT(AP_CANManager::LOG_INFO,
+        //                     LOG_TAG,
+        //                     "Registered DroneCAN GPS Node %d on Bus %d as instance %d\n",
+        //                     _detected_modules[found_match].node_id,
+        //                     _detected_modules[found_match].ap_dronecan->get_driver_index(),
+                            // _state.instance);
 #if HAL_ENABLE_DRONECAN_DRIVERS
         snprintf(backend->_name, ARRAY_SIZE(backend->_name), "DroneCAN%u-%u", _detected_modules[found_match].ap_dronecan->get_driver_index()+1, _detected_modules[found_match].node_id);
 #endif
@@ -224,7 +230,9 @@ AP_GPS_Backend* AP_GPS_DroneCAN::probe(AP_GPS &_gps, AP_GPS::GPS_State &_state)
         if (backend->role == AP_GPS::GPS_ROLE_MB_BASE) {
             backend->rtcm3_parser = new RTCM3_Parser;
             if (backend->rtcm3_parser == nullptr) {
+#if HAL_ENABLE_DRONECAN_DRIVERS
                 GCS_SEND_TEXT(MAV_SEVERITY_ERROR, "DroneCAN%u-%u: failed RTCMv3 parser allocation", _detected_modules[found_match].ap_dronecan->get_driver_index()+1, _detected_modules[found_match].node_id);
+#endif
             }
         }
 #endif // GPS_MOVING_BASELINE
@@ -899,6 +907,9 @@ void AP_GPS_DroneCAN::handle_param_save_response(AP_DroneCAN* ap_dronecan, const
     Debug("AP_GPS_DroneCAN: sending reboot command %d\n", node_id);
     ap_dronecan->send_reboot_request(node_id);
 }
+
+#else
+void AP_GPS_DroneCAN::inject_data(const uint8_t *data, uint16_t len) {}
 #endif
 
 #if AP_DRONECAN_SEND_GPS
@@ -912,5 +923,11 @@ bool AP_GPS_DroneCAN::instance_exists(const AP_DroneCAN* ap_dronecan)
     return false;
 }
 #endif // AP_DRONECAN_SEND_GPS
+
+
+void AP_GPS_DroneCAN::handle_dronecan_message(const uavcan_equipment_gnss_Fix2 &msg)
+{
+    handle_fix2_msg(msg, 0);
+}
 
 #endif // AP_GPS_DRONECAN_ENABLED

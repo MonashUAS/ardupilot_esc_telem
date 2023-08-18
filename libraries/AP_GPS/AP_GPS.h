@@ -14,6 +14,8 @@
  */
 #pragma once
 
+#include "AP_GPS_config.h"
+
 #include <AP_HAL/AP_HAL.h>
 #include <inttypes.h>
 #include <AP_Common/AP_Common.h>
@@ -579,6 +581,11 @@ public:
     bool get_RTCMV3(const uint8_t *&bytes, uint16_t &len);
     void clear_RTCMV3();
 #endif // GPS_MOVING_BASELINE
+
+#if AP_GPS_DRONECAN_ENABLED
+    template<typename T>
+    void handle_dronecan_message(const T &foo);
+#endif
 
 protected:
 

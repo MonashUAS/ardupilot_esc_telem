@@ -434,6 +434,19 @@ static void handle_gnss_fix2(CanardInstance* canard_instance, CanardRxTransfer* 
     if (uavcan_equipment_gnss_Fix2_decode(transfer, &req)) {
         return;
     }
+
+    static bool source_node_id_has_been_set = false;
+    static uint8_t source_node_id;
+    if (!source_node_id_has_been_set) {
+        source_node_id = transfer->source_node_id;
+        source_node_id_has_been_set = true;
+    }
+
+    if (source_node_id != transfer->source_node_id) {
+        return;
+    }
+
+    AP::gps().handle_dronecan_message(req);
 }
 
 static void processTx(void);
