@@ -670,33 +670,15 @@ class task_ctx {
 public:
 
     // constructor:
-    task_ctx() { }
-    ~task_ctx() {
-        free(init);
-        free(body);
-        init = nullptr;
-        body = nullptr;
-    }
-    bool initialise(AP_HAL::MemberProc proc_init, AP_HAL::Scheduler::TaskBodyMemberProc proc_body) {
+    task_ctx(AP_HAL::MemberProc proc_init, AP_HAL::Scheduler::TaskBodyMemberProc proc_body) {
         // take copies of the init and body functors:
-        init = (AP_HAL::MemberProc *)malloc(sizeof(proc_init));
-        if (init == nullptr) {
-            return false;
-        }
-        body = (AP_HAL::Scheduler::Scheduler::TaskBodyMemberProc *)malloc(sizeof(proc_body));
-        if (body == nullptr) {
-            free(init);
-            return false;
-        }
-
-        *(init) = proc_init;
-        *(body) = proc_body;
-        return true;
+        init = proc_init;
+        body = proc_body;
     }
 
     // copies of both the init and body functors
-    AP_HAL::MemberProc *init;
-    AP_HAL::Scheduler::TaskBodyMemberProc *body;
+    AP_HAL::MemberProc init;
+    AP_HAL::Scheduler::TaskBodyMemberProc body;
 };
 
 /*
@@ -705,11 +687,11 @@ public:
 void Scheduler::task_create_thread_trampoline(void *ctx)
 {
     task_ctx *t = (task_ctx *)ctx;
-    t->init[0]();
+    t->init();
     while (true) {
         // the body returns us a delay after which the body should be
         // called again
-        const uint32_t delay_us = t->body[0]();
+        const uint32_t delay_us = t->body();
         hal.scheduler->delay_microseconds(delay_us);
     }
 }
@@ -793,12 +775,8 @@ bool Scheduler::task_create(
         int8_t priority)
 {
     // take a copy of the Procs, they are freed after thread exits
-    task_ctx *tctx = new task_ctx();
+    task_ctx *tctx = new task_ctx(proc_init, proc_body);
     if (tctx == nullptr) {
-        return false;
-    }
-    if (!tctx->initialise(proc_init, proc_body)) {
-        delete tctx;
         return false;
     }
 
@@ -809,13 +787,12 @@ bool Scheduler::task_create(
                                                thread_priority,
                                                task_create_thread_trampoline,
                                                tctx);
-    if (thread_ctx != nullptr) {
-        return true;
+    if (thread_ctx == nullptr) {
+        delete tctx;
+        return false;
     }
 
-    delete tctx;
-
-    return false;
+    return true;
 }
 
 /*
