@@ -666,7 +666,35 @@ void Scheduler::restore_interrupts(void *state)
     chSysRestoreStatusX((syssts_t)(uintptr_t)state);
 }
 
-struct task_ctx {
+class task_ctx {
+public:
+
+    // constructor:
+    task_ctx() { }
+    ~task_ctx() {
+        free(init);
+        free(body);
+        init = nullptr;
+        body = nullptr;
+    }
+    bool initialise(AP_HAL::MemberProc proc_init, AP_HAL::Scheduler::TaskBodyMemberProc proc_body) {
+        // take copies of the init and body functors:
+        init = (AP_HAL::MemberProc *)malloc(sizeof(proc_init));
+        if (init == nullptr) {
+            return false;
+        }
+        body = (AP_HAL::Scheduler::Scheduler::TaskBodyMemberProc *)malloc(sizeof(proc_body));
+        if (body == nullptr) {
+            free(init);
+            return false;
+        }
+
+        *(init) = proc_init;
+        *(body) = proc_body;
+        return true;
+    }
+
+    // copies of both the init and body functors
     AP_HAL::MemberProc *init;
     AP_HAL::Scheduler::TaskBodyMemberProc *body;
 };
@@ -765,24 +793,14 @@ bool Scheduler::task_create(
         int8_t priority)
 {
     // take a copy of the Procs, they are freed after thread exits
-    task_ctx *tctx = (task_ctx*)malloc(sizeof(task_ctx));
+    task_ctx *tctx = new task_ctx();
     if (tctx == nullptr) {
         return false;
     }
-
-    tctx->init = (AP_HAL::MemberProc *)malloc(sizeof(proc_init));
-    tctx->body = (AP_HAL::Scheduler::Scheduler::TaskBodyMemberProc *)malloc(sizeof(proc_body));
-
-    if (tctx->init == nullptr ||
-        tctx->body == nullptr) {
-        free(tctx->init);
-        free(tctx->body);
-        free(tctx);
+    if (!tctx->initialise(proc_init, proc_body)) {
+        delete tctx;
         return false;
     }
-
-    *(tctx->init) = proc_init;
-    *(tctx->body) = proc_body;
 
     const uint8_t thread_priority = calculate_thread_priority(base, priority);
 
@@ -795,9 +813,7 @@ bool Scheduler::task_create(
         return true;
     }
 
-    free(tctx->init);
-    free(tctx->body);
-    free(tctx);
+    delete tctx;
 
     return false;
 }
