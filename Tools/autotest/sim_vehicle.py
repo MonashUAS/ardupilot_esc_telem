@@ -893,6 +893,9 @@ def start_mavproxy(opts, stuff):
         if stuff["sitl-port"] and not opts.no_rcin:
             cmd.extend(["--sitl", "127.0.0.1:" + str(5501 + 10 * i)])
 
+    if "force_connected" in stuff or True:
+        cmd.append("--force-connected")
+
     if opts.tracker:
         cmd.extend(["--load-module", "tracker"])
         global tracker_uarta
