@@ -17,8 +17,8 @@ void AP_Periph_FW::of_send_can()
 
     com_hex_equipment_flow_Measurement pkt {
         dt,
-        {bodyRateIntegral.x, bodyRateIntegral.y},
         {flowRateIntegral.x, flowRateIntegral.y},
+        {bodyRateIntegral.x, bodyRateIntegral.y},
         of.quality()
     };
 
