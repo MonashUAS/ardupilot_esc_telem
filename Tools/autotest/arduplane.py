@@ -4674,6 +4674,23 @@ class AutoTestPlane(AutoTest):
         )
         self.fly_home_land_and_disarm()
 
+    def TECSTesting(self):
+        '''simple program to test going to tecs-controlled-mode in-flight'''
+        self.set_parameters({
+            'SCHED_LOOP_RATE': 300,
+        })
+        self.reboot_sitl()
+        i = 0
+        while True:
+            self.progress("loop %u" % i)
+            i += 1
+            self.takeoff(20)
+            self.change_mode('GUIDED')
+            self.zero_throttle()
+            self.delay_sim_time(1)
+            self.disarm_vehicle(force=True)
+            self.reboot_sitl()
+
     def tests(self):
         '''return list of all tests'''
         ret = super(AutoTestPlane, self).tests()
@@ -4765,6 +4782,7 @@ class AutoTestPlane(AutoTest):
             self.MODE_SWITCH_RESET,
             self.ExternalPositionEstimate,
             self.MAV_CMD_GUIDED_CHANGE_ALTITUDE,
+            self.TECSTesting,
         ])
         return ret
 
