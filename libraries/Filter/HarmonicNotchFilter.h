@@ -138,4 +138,3 @@ private:
 };
 
 typedef HarmonicNotchFilter<Vector3f> HarmonicNotchFilterVector3f;
-

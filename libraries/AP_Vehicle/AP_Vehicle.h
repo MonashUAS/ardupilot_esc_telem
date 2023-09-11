@@ -32,6 +32,7 @@
 #include <AP_EFI/AP_EFI.h>
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Generator/AP_Generator.h>
+#include <AP_InertialSensor/AP_InertialSensor.h>
 #include <AP_Notify/AP_Notify.h>                    // Notify library
 #include <AP_Param/AP_Param.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
@@ -437,6 +438,7 @@ private:
     // statustext:
     void send_watchdog_reset_statustext();
 
+#if AP_INERTIALSENSOR_HARMONICNOTCH_ENABLED
     // update the harmonic notch for throttle based notch
     void update_throttle_notch(AP_InertialSensor::HarmonicNotch &notch);
 
@@ -446,13 +448,15 @@ private:
     // run notch update at either loop rate or 200Hz
     void update_dynamic_notch_at_specified_rate();
 
+    uint32_t _last_notch_update_ms[HAL_INS_NUM_HARMONIC_NOTCH_FILTERS]; // last time update_dynamic_notch() was run
+#endif
+
     // decimation for 1Hz update
     uint8_t one_Hz_counter;
     void one_Hz_update();
 
     bool likely_flying;         // true if vehicle is probably flying
     uint32_t _last_flying_ms;   // time when likely_flying last went true
-    uint32_t _last_notch_update_ms[HAL_INS_NUM_HARMONIC_NOTCH_FILTERS]; // last time update_dynamic_notch() was run
 
     static AP_Vehicle *_singleton;
 
