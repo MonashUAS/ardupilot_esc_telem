@@ -148,9 +148,9 @@ const AP_Param::GroupInfo AC_AttitudeControl_Sub::var_info[] = {
     // @Increment: 0.5
     // @User: Advanced
 
-    // @Param: RAT_PIT_IMAX
-    // @DisplayName: Pitch axis rate controller I gain maximum
-    // @Description: Pitch axis rate controller I gain maximum.  Constrains the maximum that the I term will output
+    // @Param: RAT_PIT_PDMX
+    // @DisplayName: PD Sum Maximum
+    // @Description: The maximum/minimum value that the sum of the P and D term can output
     // @Range: 0 1
     // @Increment: 0.01
     // @User: Standard
