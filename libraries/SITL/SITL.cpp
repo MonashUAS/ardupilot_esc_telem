@@ -160,6 +160,11 @@ const AP_Param::GroupInfo SIM::var_info[] = {
     // @Range: 1 10
     // @User: Advanced    
     AP_GROUPINFO("SPEEDUP",       52, SIM,  speedup, -1),
+    // @Param: IMU_POS
+    // @DisplayName: IMU Offsets
+    // @Description: XYZ position of the IMU accelerometer relative to the body frame origin
+    // @Units: m
+    // @Vector3Parameter: 1
     AP_GROUPINFO("IMU_POS",       53, SIM,  imu_pos_offset, 0),
     AP_SUBGROUPEXTENSION("",      54, SIM,  var_ins),
     AP_GROUPINFO("SONAR_POS",     55, SIM,  rngfnd_pos_offset, 0),
@@ -353,7 +358,9 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
 
     AP_GROUPINFO("RATE_HZ",  22, SIM,  loop_rate_hz, SIM_RATE_HZ_DEFAULT),
 
-    // count of simulated IMUs
+    // @Param: IMU_COUNT
+    // @DisplayName: IMU count
+    // @Description: Number of simulated IMUs to create
     AP_GROUPINFO("IMU_COUNT",    23, SIM,  imu_count,  2),
 
     // @Path: ./SIM_FETtecOneWireESC.cpp
@@ -432,8 +439,10 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
     // @User: Advanced
     AP_GROUPINFO("UART_LOSS", 42, SIM,  uart_byte_loss_pct, 0),
 
+    // @Group: ARSPD_
     AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, SIM::AirspeedParm),
 #if AIRSPEED_MAX_SENSORS > 1
+    // @Group: ARSPD2_
     AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, SIM::AirspeedParm),
 #endif
 
@@ -469,15 +478,34 @@ const AP_Param::GroupInfo SIM::AirspeedParm::var_info[] = {
         // user settable parameters for the 1st airspeed sensor
     AP_GROUPINFO("RND",     1, SIM::AirspeedParm,  noise, 2.0),
     AP_GROUPINFO("OFS",     2, SIM::AirspeedParm,  offset, 2013),
-    // @Param: ARSPD_FAIL
+    // @Param: FAIL
     // @DisplayName: Airspeed sensor failure
     // @Description: Simulates Airspeed sensor 1 failure
     // @Values: 0:Disabled, 1:Enabled
     // @User: Advanced
     AP_GROUPINFO("FAIL",    3, SIM::AirspeedParm,  fail, 0),
+    // @Param: FAILP
+    // @DisplayName: Airspeed sensor failure pressure
+    // @Description: Simulated airspeed sensor failure pressure
+    // @Units: Pa
+    // @User: Advanced
     AP_GROUPINFO("FAILP",   4, SIM::AirspeedParm,  fail_pressure, 0),
+    // @Param: PITOT
+    // @DisplayName: Airspeed pitot tube failure pressure
+    // @Description: Simulated airspeed sensor pitot tube failure pressure
+    // @Units: Pa
+    // @User: Advanced
     AP_GROUPINFO("PITOT",   5, SIM::AirspeedParm,  fail_pitot_pressure, 0),
+    // @Param: SIGN
+    // @DisplayName: Airspeed signflip
+    // @Description: Simulated airspeed sensor with reversed pitot/static connections
+    // @Values: 0:Disabled, 1:Enabled
+    // @User: Advanced
     AP_GROUPINFO("SIGN",    6, SIM::AirspeedParm,  signflip, 0),
+    // @Param: RATIO
+    // @DisplayName: Airspeed ratios
+    // @Description: Simulated airspeed sensor ratio
+    // @User: Advanced
     AP_GROUPINFO("RATIO",   7, SIM::AirspeedParm,  ratio, 1.99),
     AP_GROUPEND
 };
