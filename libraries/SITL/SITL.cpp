@@ -440,9 +440,11 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
     AP_GROUPINFO("UART_LOSS", 42, SIM,  uart_byte_loss_pct, 0),
 
     // @Group: ARSPD_
+    // @Path: ./../AP_HAL_SITL/sitl_airspeed.cpp
     AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, SIM::AirspeedParm),
 #if AIRSPEED_MAX_SENSORS > 1
     // @Group: ARSPD2_
+    // @Path: ./../AP_HAL_SITL/sitl_airspeed.cpp
     AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, SIM::AirspeedParm),
 #endif
 
