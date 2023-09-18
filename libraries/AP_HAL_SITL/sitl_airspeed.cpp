@@ -20,6 +20,16 @@ extern const AP_HAL::HAL& hal;
 
 using namespace HALSITL;
 
+// Simulated Airspeed(s)
+const AP_Param::GroupInfo ARSPD::var_info[] = {
+    // @Group: ARSPD_
+    AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, SIM::AirspeedParm),
+#if AIRSPEED_MAX_SENSORS > 1
+    // @Group: ARSPD2_
+    AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, SIM::AirspeedParm),
+#endif
+}
+
 // scaling value taken from AP_Airspeed_analog.cpp
 #define VOLTS_TO_PASCAL 819
 #define PASCAL_TO_VOLTS(_p) (_p/VOLTS_TO_PASCAL)
