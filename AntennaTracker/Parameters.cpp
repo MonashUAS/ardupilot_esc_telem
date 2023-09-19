@@ -457,12 +457,7 @@ const AP_Param::Info Tracker::var_info[] = {
     // @User: Advanced
 
     // @Param: YAW2SRV_PDMX
-    // @DisplayName: PD Sum Maximum
-    // @Description: The maximum/minimum value that the sum of the P and D term can output
-    // @Range: 0 4000
-    // @Increment: 10
-    // @Units: d%
-    // @User: Standard
+    // @CopyFieldsFrom: PITCH2SRV_PDMX
 
     GGROUP(pidYaw2Srv,         "YAW2SRV_", AC_PID),
 
