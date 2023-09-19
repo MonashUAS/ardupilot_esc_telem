@@ -441,11 +441,11 @@ const AP_Param::GroupInfo SIM::var_info3[] = {
 
     // @Group: ARSPD_
     // @Path: ./../AP_HAL_SITL/sitl_airspeed.cpp
-    AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, SIM::AirspeedParm),
+    AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, AirspeedParm),
 #if AIRSPEED_MAX_SENSORS > 1
     // @Group: ARSPD2_
     // @Path: ./../AP_HAL_SITL/sitl_airspeed.cpp
-    AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, SIM::AirspeedParm),
+    AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, AirspeedParm),
 #endif
 
 
@@ -472,43 +472,6 @@ const AP_Param::GroupInfo SIM::BaroParm::var_info[] = {
     AP_GROUPINFO("WCF_LFT", 10, SIM::BaroParm, wcof_yn, 0.0),
     AP_GROUPINFO("WCF_UP",  11, SIM::BaroParm, wcof_zp, 0.0),
     AP_GROUPINFO("WCF_DN",  12, SIM::BaroParm, wcof_zn, 0.0),
-    AP_GROUPEND
-};
-
-// user settable parameters for airspeed sensors
-const AP_Param::GroupInfo SIM::AirspeedParm::var_info[] = {
-        // user settable parameters for the 1st airspeed sensor
-    AP_GROUPINFO("RND",     1, SIM::AirspeedParm,  noise, 2.0),
-    AP_GROUPINFO("OFS",     2, SIM::AirspeedParm,  offset, 2013),
-    // @Param: FAIL
-    // @DisplayName: Airspeed sensor failure
-    // @Description: Simulates Airspeed sensor 1 failure
-    // @Values: 0:Disabled, 1:Enabled
-    // @User: Advanced
-    AP_GROUPINFO("FAIL",    3, SIM::AirspeedParm,  fail, 0),
-    // @Param: FAILP
-    // @DisplayName: Airspeed sensor failure pressure
-    // @Description: Simulated airspeed sensor failure pressure
-    // @Units: Pa
-    // @User: Advanced
-    AP_GROUPINFO("FAILP",   4, SIM::AirspeedParm,  fail_pressure, 0),
-    // @Param: PITOT
-    // @DisplayName: Airspeed pitot tube failure pressure
-    // @Description: Simulated airspeed sensor pitot tube failure pressure
-    // @Units: Pa
-    // @User: Advanced
-    AP_GROUPINFO("PITOT",   5, SIM::AirspeedParm,  fail_pitot_pressure, 0),
-    // @Param: SIGN
-    // @DisplayName: Airspeed signflip
-    // @Description: Simulated airspeed sensor with reversed pitot/static connections
-    // @Values: 0:Disabled, 1:Enabled
-    // @User: Advanced
-    AP_GROUPINFO("SIGN",    6, SIM::AirspeedParm,  signflip, 0),
-    // @Param: RATIO
-    // @DisplayName: Airspeed ratios
-    // @Description: Simulated airspeed sensor ratio
-    // @User: Advanced
-    AP_GROUPINFO("RATIO",   7, SIM::AirspeedParm,  ratio, 1.99),
     AP_GROUPEND
 };
 

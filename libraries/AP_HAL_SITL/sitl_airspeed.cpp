@@ -18,17 +18,45 @@
 
 extern const AP_HAL::HAL& hal;
 
+using namespace SITL;
 using namespace HALSITL;
 
-// Simulated Airspeed(s)
-const AP_Param::GroupInfo ARSPD::var_info[] = {
-    // @Group: ARSPD_
-    AP_SUBGROUPINFO(airspeed[0], "ARSPD_", 50, SIM, SIM::AirspeedParm),
-#if AIRSPEED_MAX_SENSORS > 1
-    // @Group: ARSPD2_
-    AP_SUBGROUPINFO(airspeed[1], "ARSPD2_", 51, SIM, SIM::AirspeedParm),
-#endif
-}
+// user settable parameters for airspeed sensors
+const AP_Param::GroupInfo AirspeedParm::var_info[] = {
+        // user settable parameters for the 1st airspeed sensor
+    AP_GROUPINFO("RND",     1, AirspeedParm,  noise, 2.0),
+    AP_GROUPINFO("OFS",     2, AirspeedParm,  offset, 2013),
+    // @Param: FAIL
+    // @DisplayName: Airspeed sensor failure
+    // @Description: Simulates Airspeed sensor 1 failure
+    // @Values: 0:Disabled, 1:Enabled
+    // @User: Advanced
+    AP_GROUPINFO("FAIL",    3, AirspeedParm,  fail, 0),
+    // @Param: FAILP
+    // @DisplayName: Airspeed sensor failure pressure
+    // @Description: Simulated airspeed sensor failure pressure
+    // @Units: Pa
+    // @User: Advanced
+    AP_GROUPINFO("FAILP",   4, AirspeedParm,  fail_pressure, 0),
+    // @Param: PITOT
+    // @DisplayName: Airspeed pitot tube failure pressure
+    // @Description: Simulated airspeed sensor pitot tube failure pressure
+    // @Units: Pa
+    // @User: Advanced
+    AP_GROUPINFO("PITOT",   5, AirspeedParm,  fail_pitot_pressure, 0),
+    // @Param: SIGN
+    // @DisplayName: Airspeed signflip
+    // @Description: Simulated airspeed sensor with reversed pitot/static connections
+    // @Values: 0:Disabled, 1:Enabled
+    // @User: Advanced
+    AP_GROUPINFO("SIGN",    6, AirspeedParm,  signflip, 0),
+    // @Param: RATIO
+    // @DisplayName: Airspeed ratios
+    // @Description: Simulated airspeed sensor ratio
+    // @User: Advanced
+    AP_GROUPINFO("RATIO",   7, AirspeedParm,  ratio, 1.99),
+    AP_GROUPEND
+};
 
 // scaling value taken from AP_Airspeed_analog.cpp
 #define VOLTS_TO_PASCAL 819
