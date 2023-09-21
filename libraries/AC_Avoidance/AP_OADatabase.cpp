@@ -410,7 +410,8 @@ void AP_OADatabase::send_adsb_vehicle(mavlink_channel_t chan, uint16_t interval_
         }
 
         // convert object's position as an offset from EKF origin to Location
-        const Location item_loc(Vector3f(_database.items[idx].pos.x * 100.0f, _database.items[idx].pos.y * 100.0f, _database.items[idx].pos.z * 100.0f), Location::AltFrame::ABOVE_ORIGIN);
+        Location item_loc;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(item_loc, _database.items[idx].pos, Location::AltFrame::ABOVE_ORIGIN));
 
         mavlink_msg_adsb_vehicle_send(chan,
             idx,
