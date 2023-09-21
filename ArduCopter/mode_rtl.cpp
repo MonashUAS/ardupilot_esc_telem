@@ -388,7 +388,8 @@ void ModeRTL::build_path()
     Vector3p stopping_point;
     pos_control->get_stopping_point_xy_cm(stopping_point.xy());
     pos_control->get_stopping_point_z_cm(stopping_point.z);
-    rtl_path.origin_point = Location(stopping_point.tofloat(), Location::AltFrame::ABOVE_ORIGIN);
+
+    UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(rtl_path.origin_point, stopping_point.tofloat(), Location::AltFrame::ABOVE_ORIGIN));
     rtl_path.origin_point.change_alt_frame(Location::AltFrame::ABOVE_HOME);
 
     // compute return target

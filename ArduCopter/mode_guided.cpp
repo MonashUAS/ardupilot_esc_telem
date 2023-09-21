@@ -330,7 +330,10 @@ bool ModeGuided::set_destination(const Vector3f& destination, bool use_yaw, floa
 {
 #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!copter.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK
@@ -405,8 +408,7 @@ bool ModeGuided::get_wp(Location& destination) const
     case SubMode::WP:
         return wp_nav->get_oa_wp_destination(destination);
     case SubMode::Pos:
-        destination = Location(guided_pos_target_cm.tofloat(), guided_pos_terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
-        return true;
+        return AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(destination, guided_pos_target_cm.tofloat(), guided_pos_terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
     default:
         return false;
     }
@@ -565,7 +567,10 @@ bool ModeGuided::set_destination_posvelaccel(const Vector3f& destination, const 
 {
 #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!copter.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK

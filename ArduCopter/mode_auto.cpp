@@ -456,7 +456,8 @@ void ModeAuto::circle_movetoedge_start(const Location &circle_center, float radi
     // if more than 3m then fly to edge
     if (dist_to_edge > 300.0f) {
         // convert circle_edge_neu to Location
-        Location circle_edge(circle_edge_neu, Location::AltFrame::ABOVE_ORIGIN);
+        Location circle_edge;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(circle_edge, circle_edge_neu, Location::AltFrame::ABOVE_ORIGIN));
 
         // convert altitude to same as command
         circle_edge.set_alt_cm(circle_center.alt, circle_center.get_alt_frame());
@@ -1596,7 +1597,8 @@ void ModeAuto::do_loiter_unlimited(const AP_Mission::Mission_Command& cmd)
         // To-Do: make this simpler
         Vector3f temp_pos;
         copter.wp_nav->get_wp_stopping_point_xy(temp_pos.xy());
-        const Location temp_loc(temp_pos, Location::AltFrame::ABOVE_ORIGIN);
+        Location temp_loc;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(temp_loc, temp_pos, Location::AltFrame::ABOVE_ORIGIN));
         target_loc.lat = temp_loc.lat;
         target_loc.lng = temp_loc.lng;
     }
