@@ -277,12 +277,10 @@ bool AC_WPNav::set_wp_destination_next_loc(const Location& destination)
 // returns false if unable to return a destination (for example if origin has not yet been set)
 bool AC_WPNav::get_wp_destination_loc(Location& destination) const
 {
-    if (!AP::ahrs().get_origin(destination)) {
-        return false;
-    }
-
-    destination = Location{get_wp_destination(), _terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN};
-    return true;
+    return AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(
+        destination,
+        get_wp_destination(),
+        _terrain_alt ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
 }
 
 /// set_wp_destination - set destination waypoints using position vectors (distance from ekf origin in cm)

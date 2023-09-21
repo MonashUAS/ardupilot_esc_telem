@@ -80,8 +80,13 @@ bool AC_WPNav_OA::update_wpnav()
         }
 
         // convert origin and destination to Locations and pass into oa
-        const Location origin_loc(_origin_oabak, _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
-        const Location destination_loc(_destination_oabak, _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
+        const Location::AltFrame alt_frame = _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN;
+        Location origin_loc;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(origin_loc, _origin_oabak, alt_frame));
+
+        Location destination_loc;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(destination_loc, _destination_oabak, alt_frame));
+
         Location oa_origin_new, oa_destination_new;
         AP_OAPathPlanner::OAPathPlannerUsed path_planner_used = AP_OAPathPlanner::OAPathPlannerUsed::None;
         const AP_OAPathPlanner::OA_RetState oa_retstate = oa_ptr->mission_avoidance(current_loc, origin_loc, destination_loc, oa_origin_new, oa_destination_new, path_planner_used);
@@ -104,7 +109,7 @@ bool AC_WPNav_OA::update_wpnav()
                 // calculate stopping point
                 Vector3f stopping_point;
                 get_wp_stopping_point(stopping_point);
-                _oa_destination = Location(stopping_point, Location::AltFrame::ABOVE_ORIGIN);
+                UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(_oa_destination, stopping_point, Location::AltFrame::ABOVE_ORIGIN));
                 if (set_wp_destination(stopping_point, false)) {
                     _oa_state = oa_retstate;
                 }
@@ -124,8 +129,11 @@ bool AC_WPNav_OA::update_wpnav()
             case AP_OAPathPlanner::OAPathPlannerUsed::Dijkstras:
                 // Dijkstra's.  Action is only needed if path planner has just became active or the target destination's lat or lon has changed
                 if ((_oa_state != AP_OAPathPlanner::OA_SUCCESS) || !oa_destination_new.same_latlon_as(_oa_destination)) {
-                    Location origin_oabak_loc(_origin_oabak, _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
-                    Location destination_oabak_loc(_destination_oabak, _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN);
+                    const Location::AltFrame _alt_frame = _terrain_alt_oabak ? Location::AltFrame::ABOVE_TERRAIN : Location::AltFrame::ABOVE_ORIGIN;
+                    Location origin_oabak_loc;
+                    UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(origin_oabak_loc, _origin_oabak, _alt_frame));
+                    Location destination_oabak_loc;
+                    UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(destination_oabak_loc, _destination_oabak, _alt_frame));
                     oa_destination_new.linearly_interpolate_alt(origin_oabak_loc, destination_oabak_loc);
                     if (!set_wp_destination_loc(oa_destination_new)) {
                         // trigger terrain failsafe
