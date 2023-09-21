@@ -195,7 +195,8 @@ void ModeAuto::auto_circle_movetoedge_start(const Location &circle_center, float
         sub.auto_mode = Auto_CircleMoveToEdge;
 
         // convert circle_edge_neu to Location
-        Location circle_edge(circle_edge_neu, Location::AltFrame::ABOVE_ORIGIN);
+        Location circle_edge;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(circle_edge, circle_edge_neu, Location::AltFrame::ABOVE_ORIGIN));
 
         // convert altitude to same as command
         circle_edge.set_alt_cm(circle_center.alt, circle_center.get_alt_frame());

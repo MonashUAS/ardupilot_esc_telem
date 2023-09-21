@@ -299,7 +299,8 @@ void Sub::do_loiter_unlimited(const AP_Mission::Mission_Command& cmd)
         // To-Do: make this simpler
         Vector3f temp_pos;
         wp_nav.get_wp_stopping_point_xy(temp_pos.xy());
-        const Location temp_loc(temp_pos, Location::AltFrame::ABOVE_ORIGIN);
+        Location temp_loc;
+        UNUSED_RESULT(AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(temp_loc, temp_pos, Location::AltFrame::ABOVE_ORIGIN));
         target_loc.lat = temp_loc.lat;
         target_loc.lng = temp_loc.lng;
     }

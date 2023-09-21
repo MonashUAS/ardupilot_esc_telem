@@ -168,7 +168,10 @@ bool ModeGuided::guided_set_destination(const Vector3f& destination)
 
 #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!sub.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK
@@ -228,7 +231,10 @@ bool ModeGuided::guided_set_destination(const Vector3f& destination, bool use_ya
 
 #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!sub.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK
@@ -291,7 +297,10 @@ bool ModeGuided::guided_set_destination_posvel(const Vector3f& destination, cons
 
 #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!sub.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK
@@ -323,7 +332,10 @@ bool ModeGuided::guided_set_destination_posvel(const Vector3f& destination, cons
 
     #if AP_FENCE_ENABLED
     // reject destination if outside the fence
-    const Location dest_loc(destination, Location::AltFrame::ABOVE_ORIGIN);
+    Location dest_loc;
+    if (!AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(dest_loc, destination, Location::AltFrame::ABOVE_ORIGIN)) {
+        return false;
+    }
     if (!sub.fence.check_destination_within_fence(dest_loc)) {
         AP::logger().Write_Error(LogErrorSubsystem::NAVIGATION, LogErrorCode::DEST_OUTSIDE_FENCE);
         // failure is propagated to GCS with NAK
