@@ -143,7 +143,8 @@ TEST(Location, Tests)
     EXPECT_TRUE(test_home.initialised());
 
     const Vector3f test_vect{-42, 42, 0};
-    Location test_location3{test_vect, Location::AltFrame::ABOVE_HOME};
+    Location test_location3;
+    AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(test_location3, test_vect, Location::AltFrame::ABOVE_HOME);
     EXPECT_EQ(0, test_location3.lat);
     EXPECT_EQ(0, test_location3.lng);
     EXPECT_EQ(0, test_location3.alt);
@@ -271,7 +272,8 @@ TEST(Location, Tests)
     Location test_origin = test_home;
     test_origin.offset(2, 2);
     const Vector3f test_vecto{200, 200, 10};
-    const Location test_location4{test_vecto, Location::AltFrame::ABOVE_ORIGIN};
+    Location test_location4;
+    AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(test_location4, test_vecto, Location::AltFrame::ABOVE_ORIGIN);
     EXPECT_EQ(10, test_location4.alt);
     EXPECT_EQ(0, test_location4.relative_alt);
     EXPECT_EQ(0, test_location4.terrain_alt);
@@ -280,7 +282,8 @@ TEST(Location, Tests)
     EXPECT_EQ(0, test_location4.loiter_xtrack);
     EXPECT_TRUE(test_location4.initialised());
 
-    const Location test_location_empty{test_vect, Location::AltFrame::ABOVE_HOME};
+    Location test_location_empty;
+    AP::ahrs().get_location_from_origin_offset_NEU_cm_frame(test_location_empty, test_vect, Location::AltFrame::ABOVE_HOME);
     EXPECT_FALSE(test_location_empty.get_vector_from_origin_NEU(test_vec3));
 }
 

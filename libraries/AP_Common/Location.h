@@ -30,8 +30,6 @@ public:
     /// constructors
     Location();
     Location(int32_t latitude, int32_t longitude, int32_t alt_in_cm, AltFrame frame);
-    Location(const Vector3f &ekf_offset_neu, AltFrame frame);
-    Location(const Vector3d &ekf_offset_neu, AltFrame frame);
 
     // set altitude
     void set_alt_cm(int32_t alt_cm, AltFrame frame);
