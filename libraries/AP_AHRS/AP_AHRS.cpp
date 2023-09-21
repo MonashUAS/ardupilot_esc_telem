@@ -3252,6 +3252,25 @@ bool AP_AHRS::get_location_from_origin_offset(Location &loc, const Vector3p &off
     return true;
 }
 
+bool AP_AHRS::get_location_from_origin_offset_NEU_cm_frame(Location &loc, const Vector3f &offset_neu_cm, Location::AltFrame frame) const
+{
+    loc.zero();
+
+    loc.set_alt_cm(offset_neu_cm.z, frame);
+
+    Location ekf_origin;
+    if (!get_origin(ekf_origin)) {
+        return false;
+    }
+
+    loc.lat = ekf_origin.lat;
+    loc.lng = ekf_origin.lng;
+
+    loc.offset(offset_neu_cm.x * 0.01, offset_neu_cm.y * 0.01);
+
+    return true;
+}
+
 // return location corresponding to vector relative to the
 // vehicle's home location
 bool AP_AHRS::get_location_from_home_offset(Location &loc, const Vector3p &offset_ned) const
