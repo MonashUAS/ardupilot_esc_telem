@@ -79,6 +79,7 @@ struct PACKED log_Control_Tuning {
     float rudder_out;
     float throttle_dem;
     float airspeed_estimate;
+    uint8_t airspeed_estimate_status;
     float synthetic_airspeed;
     float EAS2TAS;
     int32_t groundspeed_undershoot;
@@ -94,6 +95,9 @@ void Plane::Log_Write_Control_Tuning()
     if (!ahrs.synthetic_airspeed(synthetic_airspeed)) {
         synthetic_airspeed = logger.quiet_nan();
     }
+    
+    uint8_t airspeed_status;
+    airspeed_status = ahrs.get_airspeed_estimate_status();
 
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CTUN_MSG),
@@ -106,6 +110,7 @@ void Plane::Log_Write_Control_Tuning()
         rudder_out      : SRV_Channels::get_output_scaled(SRV_Channel::k_rudder),
         throttle_dem    : TECS_controller.get_throttle_demand(),
         airspeed_estimate : est_airspeed,
+        airspeed_estimate_status : airspeed_status,
         synthetic_airspeed : synthetic_airspeed,
         EAS2TAS            : ahrs.get_EAS2TAS(),
         groundspeed_undershoot  : groundspeed_undershoot,
@@ -298,20 +303,22 @@ const struct LogStructure Plane::log_structure[] = {
 // @LoggerMessage: CTUN
 // @Description: Control Tuning information
 // @Field: TimeUS: Time since system startup
-// @Field: NavRoll: desired roll
-// @Field: Roll: achieved roll
-// @Field: NavPitch: desired pitch
-// @Field: Pitch: achieved pitch
+// @Field: NavRll: desired roll
+// @Field: Rll: achieved roll
+// @Field: NavPit: desired pitch
+// @Field: Pit: achieved pitch
 // @Field: ThO: scaled output throttle
 // @Field: RdrOut: scaled output rudder
 // @Field: ThD: demanded speed-height-controller throttle
 // @Field: As: airspeed estimate (or measurement if airspeed sensor healthy and ARSPD_USE>0)
+// @Field: AsStat: airspeed status ( old estimate or source of new estimate)
+// @FieldValueEnum: AsStat: AP_AHRS::Aspd_Status
 // @Field: SAs: synthetic airspeed measurement derived from non-airspeed sensors, NaN if not available
 // @Field: E2T: equivalent to true airspeed ratio
 // @Field: GU: groundspeed undershoot when flying with minimum groundspeed
 
     { LOG_CTUN_MSG, sizeof(log_Control_Tuning),     
-      "CTUN", "Qccccffffffi",    "TimeUS,NavRoll,Roll,NavPitch,Pitch,ThO,RdrOut,ThD,As,SAs,E2T,GU", "sdddd---nn-n", "FBBBB---00-B" , true },
+      "CTUN", "QccccffffBffi",    "TimeUS,NavRll,Rll,NavPit,Pit,ThO,RdrOut,ThD,As,AsStat,SAs,E2T,GU", "sdddd---n-n-n", "FBBBB---000-B" , true },
 
 // @LoggerMessage: NTUN
 // @Description: Navigation Tuning information - e.g. vehicle destination
