@@ -805,7 +805,7 @@ bool AP_AHRS::airspeed_sensor_enabled(void) const
 
 // return an airspeed estimate if available. return true
 // if we have an estimate
-bool AP_AHRS::_airspeed_estimate(float &airspeed_ret) const
+bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
 {
 #if AP_AIRSPEED_ENABLED
     if (airspeed_sensor_enabled()) {
@@ -822,12 +822,13 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret) const
                                             gnd_speed + _wind_max);
             airspeed_ret = true_airspeed / get_EAS2TAS();
         }
-
+        airspeed_estimate_status = Aspd_Status::AIRSPEED_SENSOR;
         return true;
     }
 #endif
 
     if (!get_wind_estimation_enabled()) {
+        airspeed_estimate_status = Aspd_Status::NO_NEW_ESTIMATE;
         return false;
     }
 
@@ -839,15 +840,18 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret) const
 
     switch (active_EKF_type()) {
     case EKFType::DCM:
+        airspeed_estimate_status = Aspd_Status::DCM_SYNTHETIC;
         return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
 
 #if AP_AHRS_SIM_ENABLED
     case EKFType::SIM:
+        airspeed_estimate_status = Aspd_Status::SIM;
         return sim.airspeed_estimate(airspeed_ret);
 #endif
 
 #if HAL_NAVEKF2_AVAILABLE
     case EKFType::TWO:
+        airspeed_estimate_status = Aspd_Status::EKF2_SYNTHETIC;
         return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
 #endif
 
@@ -859,6 +863,7 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret) const
 
 #if HAL_EXTERNAL_AHRS_ENABLED
     case EKFType::EXTERNAL:
+        airspeed_estimate_status = Aspd_Status::EXTERNAL;
         return false;
 #endif
     }
@@ -877,11 +882,18 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret) const
             true_airspeed = MAX(0.0f, true_airspeed);
         }
         airspeed_ret = true_airspeed / get_EAS2TAS();
+        airspeed_estimate_status = Aspd_Status::EKF3_SYNTHETIC;
         return true;
     }
 
     // fallback to DCM
+    airspeed_estimate_status = Aspd_Status::DCM_SYNTHETIC;
     return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
+}
+
+uint8_t AP_AHRS::get_airspeed_estimate_status(void) const
+{
+    return airspeed_estimate_status;
 }
 
 bool AP_AHRS::_airspeed_estimate_true(float &airspeed_ret) const
