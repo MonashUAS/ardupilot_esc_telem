@@ -135,6 +135,20 @@ public:
     // if we have an estimate
     bool airspeed_estimate(float &airspeed_ret) const;
 
+    enum AirspeedEstimateType : uint8_t {
+        NO_NEW_ESTIMATE = 0,
+        AIRSPEED_SENSOR = 1,
+        DCM_SYNTHETIC = 2,
+        EKF2_SYNTHETIC = 3,
+        EKF3_SYNTHETIC = 4,
+        SIM = 5,
+        EXTERNAL = 6,
+    };
+
+    // return an airspeed estimate if available. return true
+    // if we have an estimate
+    bool airspeed_estimate(float &airspeed_ret, AirspeedEstimateType &type) const;
+
     // return a true airspeed estimate (navigation airspeed) if
     // available. return true if we have an estimate
     bool airspeed_estimate_true(float &airspeed_ret) const;
@@ -361,9 +375,6 @@ public:
     // to use, i.e, the one being used by the primary lane. A lane switch could have happened due to an 
     // airspeed sensor fault, which makes this even more necessary
     uint8_t get_active_airspeed_index() const;
-        
-    // return the staus of the airspeed_estimate
-    uint8_t get_airspeed_estimate_status(void) const;
 
     // return the index of the primary core or -1 if no primary core selected
     int8_t get_primary_core_index() const { return state.primary_core; }
@@ -826,20 +837,7 @@ private:
 
     // return an airspeed estimate if available. return true
     // if we have an estimate
-    bool _airspeed_estimate(float &airspeed_ret);
-
-    
-    uint8_t airspeed_estimate_status;
-    
-    enum  Aspd_Status : uint8_t {
-        NO_NEW_ESTIMATE = 0,
-        AIRSPEED_SENSOR = 1,
-        DCM_SYNTHETIC = 2,
-        EKF2_SYNTHETIC = 3,
-        EKF3_SYNTHETIC = 4,
-        SIM = 5,
-        EXTERNAL = 6,
-    };
+    bool _airspeed_estimate(float &airspeed_ret, AirspeedEstimateType &status) const;
 
     // return secondary attitude solution if available, as eulers in radians
     bool _get_secondary_attitude(Vector3f &eulers) const;
@@ -928,6 +926,7 @@ private:
         float EAS2TAS;
         bool airspeed_ok;
         float airspeed;
+        AirspeedEstimateType airspeed_estimate_type;
         bool airspeed_true_ok;
         float airspeed_true;
         Vector3f airspeed_vec;

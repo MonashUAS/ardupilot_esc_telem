@@ -326,7 +326,7 @@ void AP_AHRS::update_state(void)
     state.primary_core = _get_primary_core_index();
     state.wind_estimate_ok = _wind_estimate(state.wind_estimate);
     state.EAS2TAS = AP_AHRS_Backend::get_EAS2TAS();
-    state.airspeed_ok = _airspeed_estimate(state.airspeed);
+    state.airspeed_ok = _airspeed_estimate(state.airspeed, state.airspeed_estimate_type);
     state.airspeed_true_ok = _airspeed_estimate_true(state.airspeed_true);
     state.airspeed_vec_ok = _airspeed_vector_true(state.airspeed_vec);
     state.quat_ok = _get_quaternion(state.quat);
@@ -805,7 +805,7 @@ bool AP_AHRS::airspeed_sensor_enabled(void) const
 
 // return an airspeed estimate if available. return true
 // if we have an estimate
-bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
+bool AP_AHRS::_airspeed_estimate(float &airspeed_ret, AirspeedEstimateType &airspeed_estimate_type) const
 {
 #if AP_AIRSPEED_ENABLED
     if (airspeed_sensor_enabled()) {
@@ -822,13 +822,13 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
                                             gnd_speed + _wind_max);
             airspeed_ret = true_airspeed / get_EAS2TAS();
         }
-        airspeed_estimate_status = Aspd_Status::AIRSPEED_SENSOR;
+        airspeed_estimate_type = AirspeedEstimateType::AIRSPEED_SENSOR;
         return true;
     }
 #endif
 
     if (!get_wind_estimation_enabled()) {
-        airspeed_estimate_status = Aspd_Status::NO_NEW_ESTIMATE;
+        airspeed_estimate_type = AirspeedEstimateType::NO_NEW_ESTIMATE;
         return false;
     }
 
@@ -840,18 +840,18 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
 
     switch (active_EKF_type()) {
     case EKFType::DCM:
-        airspeed_estimate_status = Aspd_Status::DCM_SYNTHETIC;
+        airspeed_estimate_type = AirspeedEstimateType::DCM_SYNTHETIC;
         return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
 
 #if AP_AHRS_SIM_ENABLED
     case EKFType::SIM:
-        airspeed_estimate_status = Aspd_Status::SIM;
+        airspeed_estimate_type = AirspeedEstimateType::SIM;
         return sim.airspeed_estimate(airspeed_ret);
 #endif
 
 #if HAL_NAVEKF2_AVAILABLE
     case EKFType::TWO:
-        airspeed_estimate_status = Aspd_Status::EKF2_SYNTHETIC;
+        airspeed_estimate_type = AirspeedEstimateType::EKF2_SYNTHETIC;
         return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
 #endif
 
@@ -863,7 +863,7 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
 
 #if HAL_EXTERNAL_AHRS_ENABLED
     case EKFType::EXTERNAL:
-        airspeed_estimate_status = Aspd_Status::EXTERNAL;
+        airspeed_estimate_type = AirspeedEstimateType::EXTERNAL;
         return false;
 #endif
     }
@@ -882,18 +882,13 @@ bool AP_AHRS::_airspeed_estimate(float &airspeed_ret)
             true_airspeed = MAX(0.0f, true_airspeed);
         }
         airspeed_ret = true_airspeed / get_EAS2TAS();
-        airspeed_estimate_status = Aspd_Status::EKF3_SYNTHETIC;
+        airspeed_estimate_type = AirspeedEstimateType::EKF3_SYNTHETIC;
         return true;
     }
 
     // fallback to DCM
-    airspeed_estimate_status = Aspd_Status::DCM_SYNTHETIC;
+    airspeed_estimate_type = AirspeedEstimateType::DCM_SYNTHETIC;
     return dcm.airspeed_estimate(get_active_airspeed_index(), airspeed_ret);
-}
-
-uint8_t AP_AHRS::get_airspeed_estimate_status(void) const
-{
-    return airspeed_estimate_status;
 }
 
 bool AP_AHRS::_airspeed_estimate_true(float &airspeed_ret) const
@@ -3211,6 +3206,15 @@ bool AP_AHRS::wind_estimate(Vector3f &wind) const
 bool AP_AHRS::airspeed_estimate(float &airspeed_ret) const
 {
     airspeed_ret = state.airspeed;
+    return state.airspeed_ok;
+}
+
+// return an airspeed estimate if available. return true
+// if we have an estimate
+bool AP_AHRS::airspeed_estimate(float &airspeed_ret, AP_AHRS::AirspeedEstimateType &type) const
+{
+    airspeed_ret = state.airspeed;
+    type = state.airspeed_estimate_type;
     return state.airspeed_ok;
 }
 

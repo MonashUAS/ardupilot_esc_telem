@@ -89,15 +89,13 @@ struct PACKED log_Control_Tuning {
 void Plane::Log_Write_Control_Tuning()
 {
     float est_airspeed = 0;
-    ahrs.airspeed_estimate(est_airspeed);
+    AP_AHRS::AirspeedEstimateType airspeed_estimate_type = AP_AHRS::AirspeedEstimateType::NO_NEW_ESTIMATE;
+    ahrs.airspeed_estimate(est_airspeed, airspeed_estimate_type);
 
     float synthetic_airspeed;
     if (!ahrs.synthetic_airspeed(synthetic_airspeed)) {
         synthetic_airspeed = logger.quiet_nan();
     }
-    
-    uint8_t airspeed_status;
-    airspeed_status = ahrs.get_airspeed_estimate_status();
 
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CTUN_MSG),
@@ -110,7 +108,7 @@ void Plane::Log_Write_Control_Tuning()
         rudder_out      : SRV_Channels::get_output_scaled(SRV_Channel::k_rudder),
         throttle_dem    : TECS_controller.get_throttle_demand(),
         airspeed_estimate : est_airspeed,
-        airspeed_estimate_status : airspeed_status,
+        airspeed_estimate_status : (uint8_t)airspeed_estimate_type,
         synthetic_airspeed : synthetic_airspeed,
         EAS2TAS            : ahrs.get_EAS2TAS(),
         groundspeed_undershoot  : groundspeed_undershoot,
