@@ -3,6 +3,7 @@
 #include <AP_HAL/AP_HAL_Boards.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS_config.h>
 #include <AP_MSP/msp.h>
+#include <AP_GPS/AP_GPS_config.h>
 
 #ifndef AP_COMPASS_ENABLED
 #define AP_COMPASS_ENABLED 1
@@ -14,6 +15,10 @@
 
 #ifndef COMPASS_CAL_ENABLED
 #define COMPASS_CAL_ENABLED AP_COMPASS_ENABLED
+#endif
+
+#ifndef AP_COMPASS_CALIBRATION_FIXED_YAW_ENABLED
+#define AP_COMPASS_CALIBRATION_FIXED_YAW_ENABLED AP_GPS_ENABLED
 #endif
 
 #define COMPASS_MAX_SCALE_FACTOR 1.5
