@@ -10,12 +10,11 @@ class GCS_Copter;
 
 class PayloadPlace {
 public:
+    void init(float descent_max);
     void run();
-    void start_descent();
-    bool verify();
+    bool done(){return state == State::Done;}
 
     enum class State : uint8_t {
-        FlyToLocation,
         Descent_Start,
         Descent,
         Release,
@@ -31,11 +30,6 @@ public:
     float descent_max_cm;
 
 private:
-    bool run_should_run();
-    void run_hover();
-    void run_descent();
-    void run_release();
-
     uint32_t descent_established_time_ms; // milliseconds
     uint32_t place_start_time_ms; // milliseconds
     float descent_thrust_level;
@@ -586,6 +580,8 @@ private:
     void nav_attitude_time_run();
 
     Location loc_from_cmd(const AP_Mission::Mission_Command& cmd, const Location& default_loc) const;
+
+    void payload_place_run();
 
     SubMode _mode = SubMode::TAKEOFF;   // controls which auto controller is run
 
