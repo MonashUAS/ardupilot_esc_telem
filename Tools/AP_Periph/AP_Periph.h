@@ -3,6 +3,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <canard.h>
 #include <AP_Param/AP_Param.h>
+#include <AP_ADSB/AP_ADSB.h>
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Compass/AP_Compass.h>
 #include <AP_Baro/AP_Baro.h>
@@ -239,6 +240,21 @@ public:
         uint32_t last_heartbeat_ms;
     } adsb;
 #endif
+#ifdef HAL_PERIPH_ENABLE_ADSB_LIBRARY
+    struct ADSBLibrary {
+        void handle_gnss_fix2_adsb(const CanardRxTransfer &transfer, const struct uavcan_equipment_gnss_Fix2 &msg);
+        void update();
+
+        bool source_node_id_has_been_set;
+        uint8_t source_node_id;
+
+    private:
+        AP_ADSB adsb;
+        AP_ADSB::Loc my_loc;
+
+        void populate_adsb_loc_from_gnss_Fix2(AP_ADSB::Loc &loc, const uavcan_equipment_gnss_Fix2 &msg);
+    } adsb_library;
+#endif
 
 #ifdef HAL_PERIPH_ENABLE_AIRSPEED
     AP_Airspeed airspeed;
@@ -431,6 +447,7 @@ public:
 
     // handlers for incoming messages
     void handle_get_node_info(CanardInstance* canard_instance, CanardRxTransfer* transfer);
+    void handle_gnss_fix2(CanardInstance* canard_instance, CanardRxTransfer* transfer);
     void handle_param_getset(CanardInstance* canard_instance, CanardRxTransfer* transfer);
     void handle_param_executeopcode(CanardInstance* canard_instance, CanardRxTransfer* transfer);
     void handle_begin_firmware_update(CanardInstance* canard_instance, CanardRxTransfer* transfer);
