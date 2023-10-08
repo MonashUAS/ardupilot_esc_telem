@@ -10346,6 +10346,73 @@ class AutoTestCopter(AutoTest):
         self.zero_throttle()
         self._MAV_CMD_DO_LAND_START(self.run_cmd_int)
 
+    def DroneCAN_FIX2_To_ADSBOut(self):
+        '''test taking data from FIX2 and putting it into output'''
+
+        self.set_parameters({
+            "GPS_TYPE": 9,
+            "CAN_P1_DRIVER": 1,
+            'SIM_SPEEDUP': 1,
+        })
+        self.reboot_sitl()
+        # self.customise_SITL_commandline(["--uart5", "mcast:"])
+
+        self.progress("Building and starting ADSB peripheral")
+        board = "sitl_periph_gps"
+        target = "bin/AP_Periph"
+        util.build_SITL(
+            target,
+            board=board,
+            clean=False,
+            debug=True,
+            extra_defines={
+                "HAL_PERIPH_ENABLE_GPS_FROM_GNSS_FIX2": 1,
+                "HAL_PERIPH_ENABLE_ADSB_LIBRARY": 1,
+                "HAL_ADSB_SAGETECH_ENABLED": 1,
+                "AP_ADSB_TYPE_DEFAULT": 2,  # Sagetech
+                "DEFAULT_SERIAL5_PROTOCOL": 35,  # ADSB
+                "AP_RTC_ENABLED": 0,
+            },
+        )
+        new_adsb_binary_path = "/tmp/AP_Periph_ADSB"
+        shutil.copy(f"build/{board}/{target}", new_adsb_binary_path)
+
+        sitl_periph_adsb = util.start_SITL(
+            new_adsb_binary_path,
+            supplementary=True,
+            instance=1,
+        )
+        self.expect_list_add(sitl_periph_adsb)
+
+        self.progress("Building and starting normal peripheral")
+        board = "sitl_periph_gps"
+        target = "bin/AP_Periph"
+        util.build_SITL(
+            target,
+            board=board,
+            clean=False,
+            debug=True,
+            extra_defines={
+            },
+        )
+        new_normal_binary_path = "/tmp/AP_Periph_Normal"
+        shutil.copy(f"build/{board}/{target}", new_normal_binary_path)
+
+        sitl_periph_normal = util.start_SITL(
+            new_normal_binary_path,
+            supplementary=True,
+        )
+        self.expect_list_add(sitl_periph_normal)
+
+        self.delay_sim_time(1000000)
+
+        self.progress("Cleaning up")
+        self.expect_list_remove(sitl_periph_normal)
+        util.pexpect_close(sitl_periph_normal)
+
+        self.expect_list_remove(sitl_periph_adsb)
+        util.pexpect_close(sitl_periph_adsb)
+
     def tests2b(self):  # this block currently around 9.5mins here
         '''return list of all tests'''
         ret = ([
@@ -10398,6 +10465,7 @@ class AutoTestCopter(AutoTest):
             self.Sprayer,
             self.EK3_RNG_USE_HGT,
             self.TerrainDBPreArm,
+            self.DroneCAN_FIX2_To_ADSBOut,
             self.ThrottleGainBoost,
             self.ScriptMountPOI,
             self.FlyMissionTwice,
