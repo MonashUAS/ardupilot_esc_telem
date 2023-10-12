@@ -38,6 +38,14 @@ const AP_Param::Info Plane::var_info[] = {
     // @User: Standard
     ASCALAR(autotune_level, "AUTOTUNE_LEVEL",  6),
 
+    // @Param: AUTOTUNE_OPTIONS
+    // @DisplayName: Autotune options bitmask
+    // @Description: Autotune specific options
+    // @Bitmask: 0: Disable FLTD update
+    // @Bitmask: 1: Disable FLTT update
+    // @User: Advanced
+    ASCALAR(autotune_options, "AUTOTUNE_OPTIONS",  0),
+
     // @Param: TELEM_DELAY
     // @DisplayName: Telemetry startup delay 
     // @Description: The amount of time (in seconds) to delay radio telemetry to prevent an Xbee bricking on power up
@@ -792,9 +800,11 @@ const AP_Param::Info Plane::var_info[] = {
     GOBJECT(quadplane,           "Q_", QuadPlane),
 #endif
 
+#if AP_TUNING_ENABLED
     // @Group: TUNE_
     // @Path: tuning.cpp,../libraries/AP_Tuning/AP_Tuning.cpp
     GOBJECT(tuning,           "TUNE_", AP_Tuning_Plane),
+#endif
 
 #if HAL_QUADPLANE_ENABLED
     // @Group: Q_A_
@@ -1247,8 +1257,6 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     // @Bitmask: 0:Roll,1:Pitch,2:Yaw
     // @User: Standard
     AP_GROUPINFO("AUTOTUNE_AXES", 34, ParametersG2, axis_bitmask, 7),
-
-
     
     AP_GROUPEND
 };

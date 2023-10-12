@@ -53,7 +53,7 @@ MAV_MODE GCS_MAVLINK_Rover::base_mode() const
 
 uint32_t GCS_Rover::custom_mode() const
 {
-    return rover.control_mode->mode_number();
+    return (uint32_t)rover.control_mode->mode_number();
 }
 
 MAV_STATE GCS_MAVLINK_Rover::vehicle_system_status() const
@@ -564,8 +564,10 @@ static const ap_message STREAM_EXTRA3_msgs[] = {
     MSG_BATTERY_STATUS,
     MSG_GIMBAL_DEVICE_ATTITUDE_STATUS,
     MSG_OPTICAL_FLOW,
+#if COMPASS_CAL_ENABLED
     MSG_MAG_CAL_REPORT,
     MSG_MAG_CAL_PROGRESS,
+#endif
     MSG_EKF_STATUS_REPORT,
     MSG_VIBRATION,
 #if AP_RPM_ENABLED
@@ -610,15 +612,15 @@ bool GCS_MAVLINK_Rover::handle_guided_request(AP_Mission::Mission_Command &cmd)
     return rover.mode_guided.set_desired_location(cmd.content.location);
 }
 
-MAV_RESULT GCS_MAVLINK_Rover::_handle_command_preflight_calibration(const mavlink_command_long_t &packet, const mavlink_message_t &msg)
+MAV_RESULT GCS_MAVLINK_Rover::_handle_command_preflight_calibration(const mavlink_command_int_t &packet, const mavlink_message_t &msg)
 {
-    if (is_equal(packet.param6, 1.0f)) {
+    if (packet.y == 1) {
         if (rover.g2.windvane.start_direction_calibration()) {
             return MAV_RESULT_ACCEPTED;
         } else {
             return MAV_RESULT_FAILED;
         }
-    } else if (is_equal(packet.param6, 2.0f)) {
+    } else if (packet.y == 2) {
         if (rover.g2.windvane.start_speed_calibration()) {
             return MAV_RESULT_ACCEPTED;
         } else {
@@ -663,14 +665,16 @@ MAV_RESULT GCS_MAVLINK_Rover::handle_command_int_packet(const mavlink_command_in
         }
         return MAV_RESULT_FAILED;
 
-    default:
-        return GCS_MAVLINK::handle_command_int_packet(packet, msg);
-    }
-}
-
-MAV_RESULT GCS_MAVLINK_Rover::handle_command_long_packet(const mavlink_command_long_t &packet, const mavlink_message_t &msg)
-{
-    switch (packet.command) {
+    case MAV_CMD_DO_MOTOR_TEST:
+        // param1 : motor sequence number (a number from 1 to max number of motors on the vehicle)
+        // param2 : throttle type (0=throttle percentage, 1=PWM, 2=pilot throttle channel pass-through. See MOTOR_TEST_THROTTLE_TYPE enum)
+        // param3 : throttle (range depends upon param2)
+        // param4 : timeout (in seconds)
+        return rover.mavlink_motor_test_start(*this,
+                                              (AP_MotorsUGV::motor_test_order)packet.param1,
+                                              static_cast<uint8_t>(packet.param2),
+                                              static_cast<int16_t>(packet.param3),
+                                              packet.param4);
 
     case MAV_CMD_MISSION_START:
         if (rover.set_mode(rover.mode_auto, ModeReason::GCS_COMMAND)) {
@@ -678,19 +682,23 @@ MAV_RESULT GCS_MAVLINK_Rover::handle_command_long_packet(const mavlink_command_l
         }
         return MAV_RESULT_FAILED;
 
-    case MAV_CMD_DO_CHANGE_SPEED:
-        // param1 : unused
-        // param2 : new speed in m/s
-        if (!rover.control_mode->set_desired_speed(packet.param2)) {
-            return MAV_RESULT_FAILED;
-        }
-        return MAV_RESULT_ACCEPTED;
-
+#if AP_MAVLINK_MAV_CMD_NAV_SET_YAW_SPEED_ENABLED
     case MAV_CMD_NAV_SET_YAW_SPEED:
-    {
-        // param1 : yaw angle to adjust direction by in centidegress
-        // param2 : Speed - normalized to 0 .. 1
-        // param3 : 0 = absolute, 1 = relative
+        send_received_message_deprecation_warning("MAV_CMD_NAV_SET_YAW_SPEED");
+        return handle_command_nav_set_yaw_speed(packet, msg);
+#endif
+
+    default:
+        return GCS_MAVLINK::handle_command_int_packet(packet, msg);
+    }
+}
+
+#if AP_MAVLINK_MAV_CMD_NAV_SET_YAW_SPEED_ENABLED
+MAV_RESULT GCS_MAVLINK_Rover::handle_command_nav_set_yaw_speed(const mavlink_command_int_t &packet, const mavlink_message_t &msg)
+{
+        // param1 : yaw angle (may be absolute or relative)
+        // param2 : Speed - in metres/second
+        // param3 : 0 = param1 is absolute, 1 = param1 is relative
 
         // exit if vehicle is not in Guided mode
         if (!rover.control_mode->in_guided_mode()) {
@@ -706,23 +714,8 @@ MAV_RESULT GCS_MAVLINK_Rover::handle_command_long_packet(const mavlink_command_l
             rover.mode_guided.set_desired_heading_and_speed(packet.param1 * 100.0f, packet.param2);
         }
         return MAV_RESULT_ACCEPTED;
-    }
-
-    case MAV_CMD_DO_MOTOR_TEST:
-        // param1 : motor sequence number (a number from 1 to max number of motors on the vehicle)
-        // param2 : throttle type (0=throttle percentage, 1=PWM, 2=pilot throttle channel pass-through. See MOTOR_TEST_THROTTLE_TYPE enum)
-        // param3 : throttle (range depends upon param2)
-        // param4 : timeout (in seconds)
-        return rover.mavlink_motor_test_start(*this,
-                                              (AP_MotorsUGV::motor_test_order)packet.param1,
-                                              static_cast<uint8_t>(packet.param2),
-                                              static_cast<int16_t>(packet.param3),
-                                              packet.param4);
-
-    default:
-        return GCS_MAVLINK::handle_command_long_packet(packet, msg);
-    }
 }
+#endif
 
 MAV_RESULT GCS_MAVLINK_Rover::handle_command_int_do_reposition(const mavlink_command_int_t &packet)
 {

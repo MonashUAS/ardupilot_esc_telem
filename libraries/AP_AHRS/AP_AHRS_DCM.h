@@ -21,6 +21,10 @@
  *
  */
 
+#include "AP_AHRS_config.h"
+
+#if AP_AHRS_DCM_ENABLED
+
 #include "AP_AHRS_Backend.h"
 
 class AP_AHRS_DCM : public AP_AHRS_Backend {
@@ -59,9 +63,6 @@ public:
     bool yaw_initialised(void) const {
         return have_initial_yaw;
     }
-
-    // dead-reckoning support
-    virtual bool get_location(Location &loc) const override;
 
     // status reporting
     float           get_error_rp() const {
@@ -131,6 +132,9 @@ public:
     void get_control_limits(float &ekfGndSpdLimit, float &controlScaleXY) const override;
 
 private:
+
+    // dead-reckoning support
+    bool get_location(Location &loc) const;
 
     // settable parameters
     AP_Float &_kp_yaw;
@@ -283,3 +287,5 @@ private:
     float _sin_yaw;
     float _cos_yaw;
 };
+
+#endif  // AP_AHRS_DCM_ENABLED

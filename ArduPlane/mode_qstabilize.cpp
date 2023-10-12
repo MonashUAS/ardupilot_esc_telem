@@ -47,6 +47,8 @@ void ModeQStabilize::run()
         return;
     }
 
+    plane.quadplane.assign_tilt_to_fwd_thr();
+
     // special check for ESC calibration in QSTABILIZE
     if (quadplane.esc_calibration != 0) {
         quadplane.run_esc_calibration();

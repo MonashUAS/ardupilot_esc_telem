@@ -306,7 +306,7 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: RdrOut: scaled output rudder
 // @Field: ThD: demanded speed-height-controller throttle
 // @Field: As: airspeed estimate (or measurement if airspeed sensor healthy and ARSPD_USE>0)
-// @Field: SAs: synthetic airspeed measurement derived from non-airspeed sensors, NaN if not available
+// @Field: SAs: DCM's airspeed estimate, NaN if not available
 // @Field: E2T: equivalent to true airspeed ratio
 // @Field: GU: groundspeed undershoot when flying with minimum groundspeed
 
@@ -398,7 +398,8 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: FF: controller feed-forward portion of response
 // @Field: Dmod: scaler applied to D gain to reduce limit cycling
 // @Field: SRate: slew rate
-// @Field: Limit: 1 if I term is limited due to output saturation
+// @Field: Flags: bitmask of PID state flags
+// @FieldBitmaskEnum: Flags: log_PID_Flags
     { LOG_PIQR_MSG, sizeof(log_PID),
       "PIQR", PID_FMT,  PID_LABELS, PID_UNITS, PID_MULTS , true },
     { LOG_PIQP_MSG, sizeof(log_PID),
@@ -420,7 +421,8 @@ const struct LogStructure Plane::log_structure[] = {
 // @Field: FF: controller feed-forward portion of response
 // @Field: Dmod: scaler applied to D gain to reduce limit cycling
 // @Field: SRate: slew rate
-// @Field: Limit: 1 if I term is limited due to output saturation
+// @Field: Flags: bitmask of PID state flags
+// @FieldBitmaskEnum: Flags: log_PID_Flags
     { LOG_PIDG_MSG, sizeof(log_PID),
       "PIDG", PID_FMT,  PID_LABELS, PID_UNITS, PID_MULTS , true },
 
